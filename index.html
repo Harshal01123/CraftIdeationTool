@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CraftIdeationTool</title>
+    <link rel="stylesheet" href="style.css" /><!--linking with style.css-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    /><!--google fonts integration-->
+  </head>
+
+  <body>
+    <header>
+      <div class="header-container"> <!--contains the entire header-->
+        <div class="logo-container"> <!--contains the logo-->
+          <img id="logo" src="images\logo.webp" alt="Logo" /> <!--uploaded logo image-->
+        </div>
+        <ul class="menu"> <!--contains the menu items-->
+          <div>Craft With Us</div> <!--for craftsmen-->
+          <div>Buy From Us</div> <!--for customers-->
+          <div>Learn With Us</div> <!--for learners-->
+        </ul>
+        <div class="auth-buttons"> <!--login/signup-->
+          <button class="auth-buttons-child white-border shadow">Login</button>
+          <button class="auth-buttons-child white-border shadow">
+            Sign Up
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main> <!--everything between header and footer-->
+      <section class="bg-video"> <!--background video section-->
+        <video autoplay muted loop playsinline>
+          <source src="videos/bg-video.mp4" type="video/mp4" /><!--video source-->
+        </video>
+      </section>
+      <section class="section shadow bg-img-formatter"><!--carousel section-->
+        <button class="section-button white-border shadow bg-img-formatter"><!--left button-->
+          &lt
+        </button>
+        <h2>Section 1</h2><!--text content of section-->
+        <button class="section-button white-border shadow bg-img-formatter"><!--right button-->
+          &gt
+        </button>
+      </section>
+
+      <section class="card-section"><!--showcase craftsmen-->
+        <div class="card shadow"><!--individual card-->
+          <div class="card-image"><!--image container-->
+            <img src="images\craftsman1.jpg" alt="Craftsman 1" /><!--image of craftsman-->
+          </div>
+          <div class="card-content white-text"><!--content container-->
+            <h3>John Doe</h3><!--name of craftsman-->
+            <p>Expert in woodcraft with over 10 years of experience.</p><!--description of craftsman-->
+          </div>
+        </div>
+        <div class="card shadow"><!--individual card-->
+          <div class="card-image"><!--image container-->
+            <img src="images\craftsman2.jpg" alt="Craftsman 1" /><!--image of craftsman-->
+          </div>
+          <div class="card-content white-text"><!--content container-->
+            <h3>John Doe</h3><!--name of craftsman-->
+            <p>Expert in woodcraft with over 10 years of experience.</p><!--description of craftsman-->
+          </div>
+        </div>
+        <div class="card shadow"><!--individual card-->
+          <div class="card-image"><!--image container-->
+            <img src="images\craftsman3.jpg" alt="Craftsman 1" /><!--image of craftsman-->
+          </div>
+          <div class="card-content white-text"><!--content container-->
+            <h3>John Doe</h3><!--name of craftsman-->
+            <p>Expert in woodcraft with over 10 years of experience.</p><!--description of craftsman-->
+          </div>
+        </div>
+      </section>
+
+      <section class="section shadow bg-img-formatter"><!--carousel section-->
+        <button class="section-button white-border shadow bg-img-formatter"><!--left button-->
+          &lt
+        </button>
+        <h2>Section 3</h2><!--text content of section-->
+        <button class="section-button white-border shadow bg-img-formatter"><!--right button-->
+          &gt
+        </button>
+      </section>
+    </main>
+
+    <footer class="border"><!--footer section-->
+      <p>© 2026 My Website</p>
+      <p>Contact: info@example.com</p>
+    </footer>
+  </body>
+</html>
