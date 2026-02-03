@@ -1,0 +1,78 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: var(--header-height);
+  padding-inline: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: var(--border-thin);
+  background-color: var(--dark);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0; /* allows proper scrolling */
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  padding: var(--space-md);
+  border-right: var(--border-thin);
+  background-color: var(--lildark);
+}
+
+.main {
+  flex: 1;
+  padding: var(--space-xl);
+  overflow-y: auto;
+  display:flex;
+  flex-direction: column;
+  background-color: var(--light);
+  padding-left:1vw;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.avatar {
+  width:5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background-image: url(../../public/images/dummyPFP.jpg);
+  background-size: cover;
+  margin-left: 0.5vw;
+}
+
+.username {
+  font-weight: 600;
+  color: white ;
+}
+
+.userType {
+  font-size: 0.875rem;
+  color: white;
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-right:1vw;
+}
+
+
+
+.nav{
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+

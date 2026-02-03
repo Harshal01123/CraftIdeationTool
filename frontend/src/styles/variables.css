@@ -1,0 +1,11 @@
+:root {
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --header-height: 5.5rem;
+  --sidebar-width: 15rem;
+
+  --light: #d4de95 ;
+  --lildark: #bac095 ;
+  --dark: #636b2f ;
+  --darkest: #3d4127 ;
+}

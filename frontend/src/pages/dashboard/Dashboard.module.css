@@ -1,0 +1,33 @@
+.card {
+  padding: var(--space-lg);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 10px 10px 10px var(--darkest);
+  border-radius:2vw;
+  font-size: 1.5vw;
+  color: var(--darkest);
+  background-color: white;
+}
+
+.statsGrid {
+  flex: 1; /* take remaining vertical space */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2vh;
+}
+
+.hero {
+  flex: 1 ;
+  max-width: var(--content-max-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: 2vh;
+}
