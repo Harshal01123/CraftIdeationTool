@@ -1,0 +1,25 @@
+.card {
+  padding: var(--space-md);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between ;
+  box-shadow: 10px 10px 10px var(--darkest);
+  border-radius: 2vw;
+  background-color: white;
+  width: 20vw ;
+
+
+}
+
+.thumbnail {
+  height: 120px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-muted);
+
+    background-image: url(../../../public/images/dummyTut.jpg);
+    background-size: cover;
+}
