@@ -1,27 +1,40 @@
+# 🎨 Craft Ideation Tool – Frontend
 
-# Craft Ideation Tool – Frontend
+The **Craft Ideation Tool** is a modern **learning and discovery platform for traditional crafts**, designed with scalability, clean architecture, and maintainable UI patterns in mind.
 
-This repository contains the **frontend** of the *Craft Ideation Tool*, a learning and discovery platform focused on traditional crafts.
-The application is built using **React + TypeScript** and follows **industry-standard layout, routing, and component design patterns**.
-
----
-
-## 🚀 What has been implemented so far
-
-### 1. Dashboard-based layout system
-
-The application uses a **persistent dashboard layout** where:
-
-* The **header** and **sidebar** remain constant
-* Only the **main content area** changes when navigating between sections
-
-This is achieved using **nested routing with React Router**.
+This repository contains the **frontend** implementation, built using **React + TypeScript**, following **industry-standard layout, routing, and component design principles**.
 
 ---
 
-### 2. Nested routing with shared layout
+## 🚀 Overview
 
-The dashboard is implemented as a **layout route**:
+The application is structured around a **dashboard-based Single Page Application (SPA)** architecture where:
+
+* Core UI elements (header and sidebar) remain persistent
+* Only the main content area updates during navigation
+* Routes are clean, predictable, and scalable
+
+The current focus is on **frontend architecture, routing, and UI consistency**, with backend and authentication planned for later stages.
+
+---
+
+## 🧱 Architecture Highlights
+
+### 1. Dashboard Layout System
+
+The app uses a **persistent dashboard layout**:
+
+* Header and sidebar are always visible
+* Page content is rendered dynamically using nested routes
+* Layout state is preserved across navigation
+
+This is implemented using **React Router layout routes** and `<Outlet />`.
+
+---
+
+### 2. Nested Routing Structure
+
+Routes follow a clean and extensible hierarchy:
 
 ```
 /dashboard
@@ -31,38 +44,34 @@ The dashboard is implemented as a **layout route**:
 /dashboard/notifications
 ```
 
-* `DashboardLayout` contains:
+* `DashboardLayout` acts as the shared layout wrapper
+* Each section is rendered as a **child route**
+* Navigation updates the URL without triggering page reloads
 
-  * Header (user info, actions)
-  * Sidebar navigation
-  * `<Outlet />` for rendering page-specific content
-* Each section (Products, Courses, Craftsmen, Notifications) is a **child route**
-* Navigation updates the URL **without reloading the page**
-
-This ensures:
+**Benefits:**
 
 * Better performance
-* Clean URL structure
+* Clear mental model
 * Predictable UI behavior
 
 ---
 
-### 3. Clear separation of concerns
+### 3. Clear Separation of Concerns
 
-The codebase is organized into three main concepts:
+The codebase is intentionally divided into **Layouts**, **Pages**, and **Components**.
 
-#### Layouts
+#### 📐 Layouts
 
-Responsible for **page structure** (header, sidebar, main area)
+Responsible only for structure (no business logic):
 
 ```
 src/layouts/
   DashboardLayout.tsx
 ```
 
-#### Pages
+#### 📄 Pages
 
-Route-level components that represent **screens**
+Route-level components representing full screens:
 
 ```
 src/pages/
@@ -73,11 +82,11 @@ src/pages/
   Notifications.tsx
 ```
 
-Pages do **not** contain layout code.
+Pages do **not** include layout markup.
 
-#### Components
+#### 🧩 Components
 
-Reusable UI building blocks
+Reusable UI building blocks:
 
 ```
 src/components/
@@ -87,39 +96,39 @@ src/components/
     CourseCategory.tsx
 ```
 
-This structure makes the app:
+This structure keeps the app:
 
-* Easier to scale
-* Easier to refactor
-* Easier to reason about
+* Scalable
+* Easy to refactor
+* Easy to reason about
 
 ---
 
-### 4. Reusable UI components
+### 4. Reusable UI Components
 
-#### Button component
+#### Button Component
 
-A **minimal, reusable Button component** was created to avoid repeated `<button>` logic and styling across the app.
+A centralized, reusable `Button` component was introduced to:
 
-* Centralized styling
-* Minimal props
-* No over-engineering
-* Easy to extend later if needed
+* Avoid repeated `<button>` markup
+* Centralize styling
+* Keep props minimal and flexible
+* Enable easy future extension
 
-#### Course components
+#### Course Components
 
-The Courses page was refactored into reusable components:
+The Courses page is fully **data-driven**, composed of:
 
-* `CourseCard` – displays a single course/video
+* `CourseCard` – represents a single course/video
 * `CourseCategory` – groups related courses under a category
 
-This removed duplication and made the Courses page data-driven.
+This removes duplication and improves maintainability.
 
 ---
 
-### 5. Courses page with categorized content
+### 5. Courses Page with Categorized Content
 
-The Courses section now displays **multiple categories**, each containing a grid of **dummy course videos**:
+The Courses section currently displays **multiple craft categories**, each rendered using reusable components:
 
 * Pottery videos
 * Bamboo making videos
@@ -128,48 +137,49 @@ The Courses section now displays **multiple categories**, each containing a grid
 
 Each category:
 
-* Has its own heading
-* Displays courses as cards
-* Is rendered using reusable components
+* Has a clear heading
+* Displays courses in a grid layout
+* Uses dummy data (API integration planned later)
 
 ---
 
-### 6. CSS modularization and layout stability
+### 6. Styling & Layout Stability
 
-* CSS is split logically between **layout styles** and **page-specific styles**
-* Flexbox and Grid are used appropriately
-* Layout refactoring exposed and fixed hidden height dependencies
-* Styling decisions were made to support future responsiveness
+* CSS Modules are used for scoped, maintainable styles
+* Layout and page styles are logically separated
+* Flexbox and CSS Grid are used where appropriate
+* Height and layout dependencies were identified and fixed during refactoring
+* The structure supports future responsiveness improvements
 
 ---
 
-### 7. SPA navigation behavior
+### 7. SPA Navigation Behavior
 
-All navigation inside the dashboard:
+All internal navigation:
 
 * Uses React Router (`Link`, `navigate`)
 * Avoids full page reloads
-* Preserves layout state
+* Preserves dashboard layout state
 
-Absolute and relative paths are used intentionally:
+Routing strategy:
 
-* **Relative paths** for nested dashboard navigation
-* **Absolute paths** for global actions (login, notifications, logout)
+* **Relative paths** for dashboard navigation
+* **Absolute paths** for global actions (login, logout, notifications)
 
 ---
 
-## 🧠 Key concepts applied
+## 🧠 Concepts Applied
 
 * Single Page Application (SPA) architecture
-* Nested routing with layouts
+* Nested routing with shared layouts
 * Component reusability
+* Clean separation of structure, logic, and styling
 * Minimal but scalable abstractions
-* Clean separation between structure, logic, and styling
 * TypeScript for safety and maintainability
 
 ---
 
-## 🛠️ Tech stack
+## 🛠️ Tech Stack
 
 * React
 * TypeScript
@@ -179,32 +189,34 @@ Absolute and relative paths are used intentionally:
 
 ---
 
-## 📌 Current status
+## 📌 Current Status
 
 The frontend currently focuses on:
 
-* Layout structure
+* Application layout structure
 * Navigation flow
 * UI consistency
-* Component architecture
+* Scalable component architecture
 
-Backend integration, authentication logic, and real data fetching are planned for later stages.
+Backend integration, authentication, and real data fetching are **intentionally deferred** to later stages.
 
 ---
 
-## 🔮 Next possible steps
+## 🔮 Planned Improvements
 
-* Make dashboard routes protected (auth-based)
-* Fetch real course data from an API
-* Improve responsiveness for smaller screens
-* Add active navigation states
-* Introduce role-based dashboards (learner / craftsman)
+* Protected dashboard routes (authentication)
+* API-driven course and product data
+* Responsive design for smaller screens
+* Active navigation states
+* Role-based dashboards (learner / craftsman)
 
 ---
 
 ## ✨ Summary
 
-This project is being built with a strong emphasis on **correct architecture**, **clean routing**, and **maintainable UI patterns**, ensuring that it can scale smoothly as features are added.
+This frontend is being built with a strong emphasis on **correct architecture, clean routing, and maintainable UI patterns**.
+The foundation is intentionally solid, allowing new features to be added without architectural rewrites.
 
 ---
+
 

@@ -1,0 +1,67 @@
+.home{
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
+}
+
+.headerTop{
+    display: flex ;
+    justify-content: space-between;
+}
+
+.navbar{
+    display : flex ;
+    justify-content: space-evenly;
+    background-color: var(--darkest);
+    color: var(--light);
+    height: 5vh ;
+    align-items: center;
+}
+
+.sliderSection{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50vh ;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    background-image: url("../../images/home_section_1.jpg");
+    background-size: cover;
+    background-position: center;
+    margin-top: 2vh;
+}
+
+.artisanSection {
+  padding: 0 4vw;
+}
+
+.artisanSection h2 {
+  margin-bottom: 3vh;
+  font-size: 3vh;
+}
+
+.artisanCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 3vh 2vw;
+}
+
+.footer{
+    background-color: var(--darkest);
+    color: white;
+    text-align: center;
+    padding: 2vh 0;
+    display: flex ;
+    flex-direction: column;
+}
+
+.authButtons {
+  display: flex;
+  height: 6vh ;
+  justify-content: space-between;
+  width: 12vw ;
+  padding-right: 1vw;
+  padding-top: 1vh;
+  margin-top: 3vh ;
+}

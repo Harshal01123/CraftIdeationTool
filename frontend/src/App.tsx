@@ -8,14 +8,18 @@ import Craftsmen from "./pages/dashboard/Craftsmen";
 import Products from "./pages/dashboard/Products";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Notifications from "./pages/dashboard/Notifications";
+import Signup from "./pages/Signup";
+import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/home" element={<Home />} />
-        <Route path="/edit-profile" element={<EditProfile />} /> 
+        <Route path="/" element={<Home />} />
+        {/* <Route path="/edit-profile" element={<EditProfile />} />  */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        {/* <Route path="/artisan-portfolio" element={<ArtisanPortfolio/>} /> */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="courses" element={<Courses />} />

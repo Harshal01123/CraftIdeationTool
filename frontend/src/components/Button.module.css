@@ -3,7 +3,33 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  font-size: 0.9rem;
+
   background: var(--light);
   color: var(--darkest);
-  font-size: 0.9rem;
+
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* ===== PRIMARY ===== */
+/* Light background, dark text (your current default) */
+.primary {
+  background: var(--light);
+  color: var(--darkest);
+}
+
+/* ===== SECONDARY ===== */
+/* Inverted colors */
+.secondary {
+  background: var(--darkest);
+  color: var(--light);
+}
+
+/* ===== HOVER STATES ===== */
+.primary:hover {
+  filter: brightness(0.95);
+}
+
+.secondary:hover {
+  filter: brightness(1.1);
 }
