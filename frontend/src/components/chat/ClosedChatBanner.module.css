@@ -1,0 +1,17 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem var(--space-md);
+  background-color: #f5f1dc;
+  border-top: 1px solid var(--lildark);
+  gap: var(--space-md);
+  flex-shrink: 0;
+}
+
+.text {
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--darkest);
+  font-style: italic;
+}
