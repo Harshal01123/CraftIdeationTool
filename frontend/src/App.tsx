@@ -8,6 +8,7 @@ import Craftsmen from "./pages/dashboard/Craftsmen";
 import Products from "./pages/dashboard/Products";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Notifications from "./pages/dashboard/Notifications";
+import Messages from "./pages/dashboard/Messages";
 import Signup from "./pages/Signup";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="craftsmen" element={<Craftsmen />} />
           <Route path="products" element={<Products />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="messages" element={<Messages />} />
         </Route>
       </Routes>
     </BrowserRouter>
