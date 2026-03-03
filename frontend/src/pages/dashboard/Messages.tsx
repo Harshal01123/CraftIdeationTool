@@ -1,4 +1,5 @@
 import styles from "./Messages.module.css";
+import { supabase } from "../../lib/supabase";
 
 function Messages() {
   return (
