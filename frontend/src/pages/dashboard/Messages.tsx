@@ -4,6 +4,9 @@ import ChatSidebar from "../../components/chat/ChatSidebar";
 import ChatWindow from "../../components/chat/ChatWindow";
 import styles from "./Messages.module.css";
 
+console.log("URL:", import.meta.env.VITE_SUPABASE_URL);
+console.log("KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY);
+
 function Messages() {
   const { profile, authLoading } = useAuth();
   const [activeConversationId, setActiveConversationId] = useState<
