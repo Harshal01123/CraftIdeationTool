@@ -199,25 +199,67 @@ The platform now includes a robust, real-time messaging system built with Supaba
 - **System Messages**: Automatically generates non-user messages (e.g. "Conversation closed by John") for clear audit trails.
 - **Smart Auto-Scroll**: The chat window automatically pins to the latest messages when new ones arrive or are sent by the user over persistent WebSocket channels.
 
+## 🔐 Authentication (Supabase Auth)
+
+Full authentication flow using Supabase Auth with auto-profile creation.
+
+### Signup
+
+- Collects **Full Name**, **Email**, **Password**, and **User Type** (Craftsman, Learner, Customer).
+- Calls `supabase.auth.signUp()` — user is created in Supabase Auth and automatically logged in (no email confirmation required).
+- A `profiles` row is auto-created via a PostgreSQL trigger reading `raw_user_meta_data`.
+- Craftsman role maps to `artisan` in the database.
+- On success → redirects to `/dashboard/messages`.
+
+### Login
+
+- Calls `supabase.auth.signInWithPassword()`.
+- Supports **Enter key** to submit on both fields.
+- Already logged-in users are auto-redirected to `/dashboard/messages` (no login page shown).
+- Displays inline error messages on failure.
+
+### Logout
+
+- Calls `supabase.auth.signOut()` from the Dashboard header.
+- Clears session and immediately redirects to `/login`.
+
+### Protected Routes
+
+- All `/dashboard/*` routes are wrapped in a `ProtectedRoute` component.
+- Unauthenticated users who try to access dashboard URLs are automatically redirected to `/login`.
+- No flash of protected content while session is being checked.
+
+### Live User Info in Header
+
+- Dashboard header shows the **real logged-in user's name and role** fetched from the `profiles` table (replaces hardcoded "John Doe / Learner").
+
+---
+
 ### Chat File Structure
 
 The chat functionality introduces new hooks and components seamlessly integrated into the existing architecture:
 
 ```text
 src/
-├── components/chat/
-│   ├── ChatSidebar.tsx        # Conversation list view
-│   ├── ChatWindow.tsx         # Main chat orchestrator
-│   ├── MessageBubble.tsx      # Individual message rendering
-│   ├── ChatInput.tsx          # Message composer
-│   └── ClosedChatBanner.tsx   # Read-only state view
+├── components/
+│   ├── ProtectedRoutes.tsx     # Restricts access to authenticated usersuseAuth
+│   │
+│   └── chat/
+│       ├── ChatSidebar.tsx     # Displays list of conversations or contacts
+│       ├── ChatWindow.tsx      # Main chat container that orchestrates messages and input
+│       ├── MessageBubble.tsx   # UI component for rendering a single chat message
+│       ├── ChatInput.tsx       # Message input box and send button
+│       └── ClosedChatBanner.tsx# Banner shown when a chat is closed or read-only
+│
 ├── hooks/
-│   ├── useAuth.ts             # Supabase session management
-│   └── useChat.ts             # Real-time WebSocket logic
+│   ├── useAuth.ts              # Handles Supabase authentication and session state
+│   └── useChat.ts              # Custom hook for real-time chat using WebSocket/Supabase realtime
+│
 ├── lib/
-│   └── supabase.ts            # Client initialization
+│   └── supabase.ts             # Initializes and exports Supabase client instance
+│
 └── types/
-    └── chat.ts                # Database schema typings
+    └── chat.ts                 # TypeScript interfaces/types for chat database schema
 ```
 
 ### Environment Setup

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -11,9 +11,18 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // If user is already logged in, skip the login page entirely
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        navigate("/dashboard");
+      }
+    });
+  }, []);
+
   async function handleLogin() {
     if (!email || !password) {
-      setError("Please enter email and password.");
+      setError("Please enter email and password");
       return;
     }
 
@@ -30,8 +39,13 @@ function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate("/dashboard/messages");
+      navigate("/dashboard");
     }
+  }
+
+  // Allow submitting with Enter key on either input
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") handleLogin();
   }
 
   return (
@@ -46,6 +60,7 @@ function Login() {
             className={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
 
           <input
@@ -54,6 +69,7 @@ function Login() {
             className={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
 
           {error && (
