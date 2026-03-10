@@ -1,0 +1,63 @@
+.wrap {
+  display: flex;
+  margin-bottom: 0.6rem;
+}
+
+/* Current user's messages on the right */
+.mine {
+  justify-content: flex-end;
+}
+
+/* Other person's messages on the left */
+.theirs {
+  justify-content: flex-start;
+}
+
+.bubble {
+  max-width: 65%;
+  padding: 0.55rem 0.9rem;
+  border-radius: 16px;
+}
+
+.bubbleMine {
+  background-color: var(--dark);
+  border-bottom-right-radius: 4px;
+}
+
+.bubbleTheirs {
+  background-color: var(--lildark);
+  border-bottom-left-radius: 4px;
+}
+
+.content {
+  margin: 0;
+  color: white;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.time {
+  display: block;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: right;
+  margin-top: 0.2rem;
+}
+
+/* System messages centered in the middle */
+.systemWrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.75rem 0;
+}
+
+.systemMsg {
+  background-color: rgba(0, 0, 0, 0.07);
+  color: var(--darkest);
+  font-size: 0.76rem;
+  font-style: italic;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  margin: 0;
+}

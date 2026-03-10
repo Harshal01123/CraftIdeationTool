@@ -1,9 +1,31 @@
-import { useNavigate , Link, Outlet} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, Outlet } from "react-router-dom";
 import styles from "./DashboardLayout.module.css";
 import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
+import { type Profile } from "../types/chat";
 
 function DashboardLayout() {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    // Fetch the logged-in user's profile to display name and role
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.session.user.id)
+        .single();
+      setProfile(profileData);
+    });
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/login");
+  }
 
   return (
     <div className={styles.page}>
@@ -13,20 +35,20 @@ function DashboardLayout() {
         <div className={styles.userInfo}>
           <div className={styles.avatar} />
           <div>
-            <p className={styles.username}>John Doe</p>
-            <p className={styles.userType}>Learner</p>
+            <p className={styles.username}>{profile?.name ?? "Loading..."}</p>
+            <p className={styles.userType}>{profile?.role ?? ""}</p>
           </div>
         </div>
 
         {/* Right: Actions */}
         <div className={styles.headerActions}>
-          <Button onClick={() => navigate("/dashboard/notifications")}>Notifications</Button>
+          <Button onClick={() => navigate("/dashboard/notifications")}>
+            Notifications
+          </Button>
           <Button onClick={() => navigate("/edit-profile")}>
             Edit Profile
           </Button>
-          <Button onClick={() => navigate("/login")}>
-            Logout
-          </Button>
+          <Button onClick={handleLogout}>Logout</Button>
         </div>
       </header>
 
@@ -38,6 +60,7 @@ function DashboardLayout() {
             <Link to="products">Products</Link>
             <Link to="courses">Courses</Link>
             <Link to="craftsmen">Craftsmen</Link>
+            <Link to="messages">Messages</Link>
             <Link to="">Back to Dashboard</Link>
           </nav>
         </aside>
