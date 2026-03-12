@@ -1,51 +1,169 @@
-.signupPage{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-image: url(../../images/dummyBG.jpg);
-    background-size: cover;
+.signupPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-image: url(../../images/dummyBG.jpg);
+  background-size: cover;
+  overflow-y: auto;
 }
 
-.signupCard{
-    background-color: var(--light);
-    display: flex;
-    flex-direction: column;
-    width: 30vw ;
-    border-radius: 5%;
-    align-items: center;
-    box-shadow: 10px 10px 10px var(--darkest);
-    justify-content: space-evenly;
-    height: 70vh ; 
+.signupCard {
+  background-color: var(--light);
+  width: 420px;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-.title{
-    color: var(--darkest);
+.title {
+  color: var(--darkest);
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
 }
 
-.userTypeButtons{
-    display: flex;
-    justify-content: space-evenly;
-    width : 25vw ; 
+/* Stack inputs with consistent spacing */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.label{
-    font-weight: bold;
+/* Role selection */
+.roleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.artisanSection{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.roleLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--darkest);
+  margin: 0;
 }
 
-.input {
-  height: 5vh;
-  width: 20vw;
-  border-radius: 1vh;
+.roleOptions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Chip-style role button */
+.roleOption {
+  flex: 1;
+  padding: 0.6rem 0;
+  border: 2px solid #ccc;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+  color: #555;
+}
+
+.roleOption:hover {
+  border-color: var(--darkest);
+  color: var(--darkest);
+}
+
+/* Selected state — clear box around it */
+.roleOptionSelected {
+  border-color: var(--darkest);
+  background-color: var(--darkest);
+  color: var(--light);
+  font-weight: 600;
+}
+
+/* Artisan extra fields */
+.artisanSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.select {
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
   padding: 0 1rem;
   border: 1px solid #ccc;
-  font-size: 1rem;
+  font-size: 0.95rem;
   outline: none;
+  background: #fff;
+  cursor: pointer;
+}
+
+.select:focus {
+  border-color: var(--darkest);
+}
+
+.textarea {
+  width: 100%;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  border-color: var(--darkest);
+}
+
+/* Primary signup button — visually distinct from role chips */
+.signupBtn {
+  width: 100%;
+  padding: 0.85rem;
+  background-color: var(--darkest);
+  color: var(--light);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.signupBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.signupBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d93025;
+  font-size: 0.85rem;
+  margin: 0;
+  text-align: center;
+}
+
+.loginText {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #555;
+  margin: 0;
+}
+
+.loginLink {
+  color: var(--darkest);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
 }

@@ -9,6 +9,9 @@ export interface Profile {
   name: string;
   role: "customer" | "artisan" | "learner";
   created_at: string;
+  industry: string | null;
+  location: string | null;
+  description: string | null;
 }
 
 export interface Conversation {

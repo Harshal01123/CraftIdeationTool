@@ -1,49 +1,90 @@
 .container {
-  padding: 0;
+  padding: 2rem;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
 .profileImage {
-  width: 5rem;
-  height: 5rem;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: bold;
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
 }
 
-.chatButton {
-  margin-left: auto;
-  padding: 0.75rem 1.5rem;
+.name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--darkest);
+}
+
+.industry {
   font-size: 1rem;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
+  color: #555;
+  margin: 0;
 }
 
-.details {
+.location {
+  font-size: 0.875rem;
+  color: #888;
+  margin: 0;
+}
+
+.chatBtn {
+  padding: 0.6rem 1.5rem;
+  background-color: var(--darkest);
+  color: var(--light);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.chatBtn:hover {
+  opacity: 0.8;
+}
+
+.about {
   margin-bottom: 2rem;
 }
 
-.productsHeading {
-  font-size: 1.5rem;
-  font-weight: bold;
+.sectionHeading {
+  font-size: 1.25rem;
+  font-weight: 700;
   margin-bottom: 1rem;
+  color: var(--darkest);
 }
 
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columns */
-  grid-template-rows: repeat(2, auto); /* 2 rows */
-  gap: 1rem; /* Spacing between grid items */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.backBtn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

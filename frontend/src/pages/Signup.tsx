@@ -2,17 +2,15 @@ import styles from "./Signup.module.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
-import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
 
 type UserType = "artisan" | "learner" | "customer";
 
-// Maps UI label to the role value stored in the profiles table
-const roleMap: Record<UserType, string> = {
-  artisan: "artisan",
-  learner: "learner",
-  customer: "customer",
-};
+const roles: { value: UserType; label: string }[] = [
+  { value: "artisan", label: "Artisan" },
+  { value: "learner", label: "Learner" },
+  { value: "customer", label: "Customer" },
+];
 
 function Signup() {
   const navigate = useNavigate();
@@ -22,143 +20,155 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState<UserType | null>(null);
+  // Artisan extra fields
+  const [industry, setIndustry] = useState("");
+  const [shopLocation, setShopLocation] = useState("");
+  const [artisanDesc, setArtisanDesc] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function toggleRole(role: UserType) {
+    setUserType((prev) => (prev === role ? null : role));
+  }
 
   async function handleSignup() {
     setError("");
 
-    // Validation
     if (!name || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields");
+      setError("Please fill in all fields.");
       return;
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match.");
       return;
     }
     if (!userType) {
-      setError("Please select a user type");
+      setError("Please select a user type.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          name,
-          role: roleMap[userType],
-        },
-      },
+      options: { data: { name, role: userType } },
     });
 
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate("/dashboard");
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
     }
+
+    // Update artisan-specific profile fields after trigger creates the row
+    if (userType === "artisan" && data.user) {
+      await supabase
+        .from("profiles")
+        .update({ industry, location: shopLocation, description: artisanDesc })
+        .eq("id", data.user.id);
+    }
+
+    setLoading(false);
+    navigate("/dashboard");
   }
 
   return (
     <div className={styles.signupPage}>
       <div className={styles.signupCard}>
-        <h1 className={styles.title}>SIGNUP</h1>
+        <h1 className={styles.title}>Create Account</h1>
 
-        {/* Basic Inputs */}
-        <Input
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
+        <div className={styles.fields}>
+          <Input
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
 
-        {/* User Type Selection */}
-        <div className={styles.userTypeSection}>
-          <p className={styles.label}>Select User Type</p>
-          <div className={styles.userTypeButtons}>
-            <Button
-              variant="secondary"
-              active={userType === "artisan"}
-              onClick={() => setUserType("artisan")}
-            >
-              Artisan
-            </Button>
-            <Button
-              variant="secondary"
-              active={userType === "learner"}
-              onClick={() => setUserType("learner")}
-            >
-              Learner
-            </Button>
-            <Button
-              variant="secondary"
-              active={userType === "customer"}
-              onClick={() => setUserType("customer")}
-            >
-              Customer
-            </Button>
+        {/* Role selection */}
+        <div className={styles.roleSection}>
+          <p className={styles.roleLabel}>I am a...</p>
+          <div className={styles.roleOptions}>
+            {roles.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                className={`${styles.roleOption} ${userType === value ? styles.roleOptionSelected : ""}`}
+                onClick={() => toggleRole(value)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Artisan Extra Fields */}
+        {/* Artisan extra fields */}
         {userType === "artisan" && (
           <div className={styles.artisanSection}>
-            <h3>Artisan Details</h3>
-            <select className={styles.input}>
+            <select
+              className={styles.select}
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+            >
               <option value="">Select Industry</option>
               <option>Pottery</option>
               <option>Bamboo</option>
               <option>Glass</option>
               <option>Tiles</option>
               <option>Handloom</option>
+              <option>Painting</option>
             </select>
-            <Input placeholder="Shop Location" />
+            <Input
+              placeholder="Shop Location"
+              value={shopLocation}
+              onChange={(e) => setShopLocation(e.target.value)}
+            />
             <textarea
-              placeholder="Describe your work"
-              className={styles.input}
+              placeholder="Describe your work..."
+              className={styles.textarea}
+              value={artisanDesc}
+              onChange={(e) => setArtisanDesc(e.target.value)}
+              rows={3}
             />
           </div>
         )}
 
-        {/* Error Message */}
-        {error && (
-          <p style={{ color: "red", fontSize: "0.85rem", margin: 0 }}>
-            {error}
-          </p>
-        )}
+        {error && <p className={styles.error}>{error}</p>}
 
-        {/* Submit */}
-        <Button variant="secondary" onClick={handleSignup}>
-          {loading ? "Signing up..." : "Signup"}
-        </Button>
+        <button
+          type="button"
+          className={styles.signupBtn}
+          onClick={handleSignup}
+          disabled={loading}
+        >
+          {loading ? "Creating account..." : "Sign Up"}
+        </button>
 
         <p className={styles.loginText}>
-          Registered user?{" "}
-          <Button variant="secondary" onClick={() => navigate("/login")}>
-            Login
-          </Button>
+          Already have an account?{" "}
+          <span className={styles.loginLink} onClick={() => navigate("/login")}>
+            Log in
+          </span>
         </p>
       </div>
     </div>

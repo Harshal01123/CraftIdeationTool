@@ -1,16 +1,27 @@
+import { useNavigate } from "react-router-dom";
 import styles from "./ArtisanCard.module.css";
+import type { Profile } from "../../types/chat";
 
 type ArtisanCardProps = {
-  description?: string;
-  artist?: string;
+  artisan: Profile;
 };
- 
-function ArtisanCard({ description = "Expert artisan", artist = "Vaishnavi Kataria" }: ArtisanCardProps) {
+
+function ArtisanCard({ artisan }: ArtisanCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      onClick={() => navigate(`/dashboard/artisans/${artisan.id}`)}
+    >
       <div className={styles.thumbnail} />
-      <h3>Artist: {artist}</h3>
-      <p>Description: {description}</p>
+      <div className={styles.info}>
+        <h3 className={styles.name}>{artisan.name}</h3>
+        <p className={styles.industry}>{artisan.industry ?? "Artisan"}</p>
+        {artisan.location && (
+          <p className={styles.location}>📍 {artisan.location}</p>
+        )}
+      </div>
     </div>
   );
 }

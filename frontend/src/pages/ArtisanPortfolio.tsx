@@ -1,91 +1,136 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
 import ProductCard from "../components/products/ProductCard";
-import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
+import type { Profile } from "../types/chat";
 
-const products = [
+// Static products for now — will be dynamic once products table has artisan_id
+const staticProducts = [
   {
     name: "Pottery Vase",
-    price: "Price: ₹500",
+    price: "₹500",
     description: "A beautifully handcrafted clay vase.",
-    artisanName: "Ketan Rakesh",
   },
   {
     name: "Ceramic Plate",
-    price: "Price: ₹300",
+    price: "₹300",
     description: "Hand-painted decorative plate.",
-    artisanName: "Ketan Rakesh",
   },
   {
     name: "Clay Mug",
-    price: "Price: ₹200",
+    price: "₹200",
     description: "Rustic mug with textured finish.",
-    artisanName: "Ketan Rakesh",
   },
   {
     name: "Decorative Bowl",
-    price: "Price: ₹450",
+    price: "₹450",
     description: "Hand-carved design, ideal for fruit.",
-    artisanName: "Ketan Rakesh",
   },
   {
     name: "Wall Hanging",
-    price: "Price: ₹600",
+    price: "₹600",
     description: "Artistic piece to brighten any room.",
-    artisanName: "Ketan Rakesh",
   },
   {
     name: "Small Planter",
-    price: "Price: ₹250",
+    price: "₹250",
     description: "Perfect for succulents and herbs.",
-    artisanName: "Ketan Rakesh",
-  },
-  {
-    name: "Tea Set",
-    price: "Price: ₹1200",
-    description: "Set of four cups and a teapot.",
-    artisanName: "Ketan Rakesh",
-  },
-  {
-    name: "Coaster Set",
-    price: "Price: ₹150",
-    description: "Set of six coasters with glaze finish.",
-    artisanName: "Ketan Rakesh",
   },
 ];
 
 function ArtisanPortfolio() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [artisan, setArtisan] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    async function fetchArtisan() {
+      if (!id) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", id)
+        .eq("role", "artisan")
+        .single();
+
+      if (error || !data) {
+        setNotFound(true);
+      } else {
+        setArtisan(data as Profile);
+      }
+      setLoading(false);
+    }
+
+    fetchArtisan();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (notFound || !artisan) {
+    return (
+      <div className={styles.container}>
+        <p>Artisan not found.</p>
+        <button className={styles.backBtn} onClick={() => navigate(-1)}>
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
+      {/* Header */}
       <div className={styles.header}>
         <img
           src="/images/dummyPFP.jpg"
-          alt="Artisan Profile"
+          alt={artisan.name}
           className={styles.profileImage}
         />
-        <h1 className={styles.title}>Ketan Rakesh</h1>
-        <Button variant="secondary" className={styles.chatButton}>
-          CHAT
-        </Button>
+        <div className={styles.headerInfo}>
+          <h1 className={styles.name}>{artisan.name}</h1>
+          {artisan.industry && (
+            <p className={styles.industry}>{artisan.industry}</p>
+          )}
+          {artisan.location && (
+            <p className={styles.location}>📍 {artisan.location}</p>
+          )}
+        </div>
+        <button
+          className={styles.chatBtn}
+          onClick={() => navigate("/dashboard/messages")}
+        >
+          Chat
+        </button>
       </div>
 
-      <section className={styles.details}>
-        <p>
-          <strong>Industry:</strong> Pottery
-        </p>
-        <p>
-          <strong>Location:</strong> Kutelabhata, Bhilai, Durg, Chattisgarh
-        </p>
-      </section>
+      {/* Description */}
+      {artisan.description && (
+        <section className={styles.about}>
+          <h2 className={styles.sectionHeading}>About</h2>
+          <p>{artisan.description}</p>
+        </section>
+      )}
 
-      <h2 className={styles.productsHeading}>Products</h2>
+      {/* Products */}
+      <h2 className={styles.sectionHeading}>Products</h2>
       <div className={styles.productsGrid}>
-        {products.map((product, index) => (
+        {staticProducts.map((product, index) => (
           <ProductCard
             key={index}
             name={product.name}
             price={product.price}
             description={product.description}
-            artisanName={product.artisanName}
+            artisanName={artisan.name}
           />
         ))}
       </div>

@@ -1,34 +1,54 @@
 .card {
-  padding: var(--space-md);
-  border: var(--border-thin);
-  border-radius: var(--radius-md);
-  background-color: var(--surface);
-
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  justify-content: space-between ;
-  box-shadow: 10px 10px 10px var(--darkest);
-  border-radius: 2vw;
-  background-color: white;
-  width: 20vw ;
-  cursor: pointer;
-
-}
-
-.thumbnail {
-  height: 120px;
-  border-radius: var(--radius-sm);
-  background-color: var(--surface-muted);
-
-    background-image: url(../../../images/dummyTut.jpg);
-    background-size: cover;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 14px 14px 20px var(--darkest);
+  box-shadow: 6px 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .card:active {
   transform: scale(0.98);
+}
+
+.thumbnail {
+  height: 130px;
+  background-image: url(../../../images/dummyTut.jpg);
+  background-size: cover;
+  background-position: center;
+}
+
+.info {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--darkest);
+}
+
+.industry {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+.location {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0;
 }
