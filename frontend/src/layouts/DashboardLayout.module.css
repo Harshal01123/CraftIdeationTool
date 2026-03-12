@@ -31,10 +31,10 @@
   flex: 1;
   padding: var(--space-xl);
   overflow-y: auto;
-  display:flex;
+  display: flex;
   flex-direction: column;
   background-color: var(--light);
-  padding-left:0.5vw;
+  padding-left: 0.5vw;
 }
 
 .userInfo {
@@ -44,17 +44,20 @@
 }
 
 .avatar {
-  width:5rem;
+  width: 5rem;
   height: 5rem;
   border-radius: 50%;
+  object-fit: cover; /* for <img> */
   background-image: url(../../images/dummyPFP.jpg);
-  background-size: cover;
+  background-size: cover; /* for fallback <div> */
   margin-left: 0.5vw;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .username {
   font-weight: 600;
-  color: white ;
+  color: white;
   font-size: large;
 }
 
@@ -66,18 +69,75 @@
 .headerActions {
   display: flex;
   gap: var(--space-sm);
-  margin-right:1vw;
+  margin-right: 1vw;
 }
 
-
-
-.nav{
+.nav {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
 }
 
-a{
+a {
   text-decoration: none;
 }
 
+.notifLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  background-color: #e53935;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Bell icon in header */
+.bellBtn {
+  position: relative;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  line-height: 1;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.bellBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bellBadge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background: #e53935;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  border: 2px solid var(--dark);
+}

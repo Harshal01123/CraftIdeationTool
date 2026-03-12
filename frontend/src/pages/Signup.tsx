@@ -1,5 +1,5 @@
 import styles from "./Signup.module.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { supabase } from "../lib/supabase";
@@ -12,6 +12,27 @@ const roles: { value: UserType; label: string }[] = [
   { value: "customer", label: "Customer" },
 ];
 
+// Compresses image to max 400x400px, ~80% quality JPEG before upload
+function compressImage(file: File): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 400;
+      const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas
+        .getContext("2d")!
+        .drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.8);
+    };
+    img.src = url;
+  });
+}
+
 function Signup() {
   const navigate = useNavigate();
 
@@ -20,6 +41,12 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState<UserType | null>(null);
+
+  // Avatar
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Artisan extra fields
   const [industry, setIndustry] = useState("");
   const [shopLocation, setShopLocation] = useState("");
@@ -32,9 +59,20 @@ function Signup() {
     setUserType((prev) => (prev === role ? null : role));
   }
 
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
+
   async function handleSignup() {
     setError("");
 
+    if (!avatarFile) {
+      setError("Please upload a profile photo.");
+      return;
+    }
     if (!name || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
       return;
@@ -50,24 +88,58 @@ function Signup() {
 
     setLoading(true);
 
+    // 1. Create auth user
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name, role: userType } },
     });
 
-    if (signUpError) {
-      setError(signUpError.message);
+    if (signUpError || !data.user) {
+      setError(signUpError?.message ?? "Signup failed.");
       setLoading(false);
       return;
     }
 
-    // Update artisan-specific profile fields after trigger creates the row
-    if (userType === "artisan" && data.user) {
-      await supabase
-        .from("profiles")
-        .update({ industry, location: shopLocation, description: artisanDesc })
-        .eq("id", data.user.id);
+    const userId = data.user.id;
+    let avatarUrl: string | null = null;
+
+    // 2. Upload avatar if selected
+    if (avatarFile) {
+      const compressed = await compressImage(avatarFile);
+      const filePath = `${userId}/avatar.jpg`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, compressed, {
+          upsert: true,
+          contentType: "image/jpeg",
+        });
+
+      if (uploadError) {
+        setError("Image upload failed: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      avatarUrl = urlData.publicUrl;
+    }
+
+    // 3. Update profile row (trigger already created it)
+    const profileUpdate: Record<string, string | null> = {};
+    if (avatarUrl) profileUpdate.avatar_url = avatarUrl;
+    if (userType === "artisan") {
+      profileUpdate.industry = industry;
+      profileUpdate.location = shopLocation;
+      profileUpdate.description = artisanDesc;
+    }
+
+    if (Object.keys(profileUpdate).length > 0) {
+      await supabase.from("profiles").update(profileUpdate).eq("id", userId);
     }
 
     setLoading(false);
@@ -78,6 +150,34 @@ function Signup() {
     <div className={styles.signupPage}>
       <div className={styles.signupCard}>
         <h1 className={styles.title}>Create Account</h1>
+
+        {/* Avatar upload */}
+        <div className={styles.avatarSection}>
+          <div
+            className={styles.avatarPreview}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Preview"
+                className={styles.avatarImg}
+              />
+            ) : (
+              <span className={styles.avatarPlaceholder}>+</span>
+            )}
+          </div>
+          <p className={styles.avatarHint}>
+            Upload photo <span style={{ color: "#d93025" }}>*</span>
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleAvatarChange}
+          />
+        </div>
 
         <div className={styles.fields}>
           <Input

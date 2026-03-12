@@ -8,17 +8,65 @@ import { type Profile } from "../types/chat";
 function DashboardLayout() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    // Fetch the logged-in user's profile to display name and role
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) return;
+      const uid = data.session.user.id;
+
+      // Fetch profile
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", data.session.user.id)
+        .eq("id", uid)
         .single();
       setProfile(profileData);
+
+      // Fetch unread count
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", uid)
+        .eq("is_read", false);
+      setUnreadCount(count ?? 0);
+
+      // Real-time: new notification arrives
+      const channel = supabase
+        .channel("notifications-badge")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${uid}`,
+          },
+          () => setUnreadCount((prev) => prev + 1),
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${uid}`,
+          },
+          async () => {
+            // Re-fetch count on any update (mark read/all read)
+            const { count: fresh } = await supabase
+              .from("notifications")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", uid)
+              .eq("is_read", false);
+            setUnreadCount(fresh ?? 0);
+          },
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     });
   }, []);
 
@@ -29,22 +77,37 @@ function DashboardLayout() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <header className={styles.header}>
-        {/* Left: User info */}
         <div className={styles.userInfo}>
-          <div className={styles.avatar} />
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={profile.name}
+              className={styles.avatar}
+            />
+          ) : (
+            <div className={styles.avatar} />
+          )}
           <div>
             <p className={styles.username}>{profile?.name ?? "Loading..."}</p>
             <p className={styles.userType}>{profile?.role ?? ""}</p>
           </div>
         </div>
 
-        {/* Right: Actions */}
         <div className={styles.headerActions}>
-          <Button onClick={() => navigate("/dashboard/notifications")}>
-            Notifications
-          </Button>
+          {/* Bell icon with live unread badge */}
+          <button
+            className={styles.bellBtn}
+            onClick={() => navigate("/dashboard/notifications")}
+            title="Notifications"
+          >
+            🔔
+            {unreadCount > 0 && (
+              <span className={styles.bellBadge}>
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
           <Button onClick={() => navigate("/edit-profile")}>
             Edit Profile
           </Button>
@@ -52,20 +115,25 @@ function DashboardLayout() {
         </div>
       </header>
 
-      {/* Body */}
       <div className={styles.body}>
-        {/* Sidebar */}
         <aside className={styles.sidebar}>
           <nav className={styles.nav}>
             <Link to="products">Products</Link>
             <Link to="courses">Courses</Link>
             <Link to="artisans">Artisans</Link>
             <Link to="messages">Messages</Link>
+            <Link to="notifications" className={styles.notifLink}>
+              Notifications
+              {unreadCount > 0 && (
+                <span className={styles.badge}>
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </Link>
             <Link to="">Back to Dashboard</Link>
           </nav>
         </aside>
 
-        {/* Main content */}
         <main className={styles.main}>
           <Outlet />
         </main>

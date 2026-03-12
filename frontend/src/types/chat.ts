@@ -7,11 +7,12 @@ export type MessageType = "TEXT" | "SYSTEM";
 export interface Profile {
   id: string;
   name: string;
-  role: "customer" | "artisan" | "learner";
+  role: "Customer" | "Artisan" | "Learner";
   created_at: string;
   industry: string | null;
   location: string | null;
   description: string | null;
+  avatar_url: string | null;
 }
 
 export interface Conversation {
@@ -38,4 +39,15 @@ export interface Message {
   created_at: string;
   // Populated by Supabase join query
   sender?: Profile;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: "new_message" | "new_conversation" | "conversation_closed";
+  title: string;
+  body: string | null;
+  conversation_id: string | null;
+  is_read: boolean;
+  created_at: string;
 }
