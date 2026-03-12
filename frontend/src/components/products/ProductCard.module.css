@@ -6,22 +6,45 @@
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between ;
+  justify-content: space-between;
   box-shadow: 10px 10px 10px var(--darkest);
   border-radius: 2vw;
   background-color: white;
-  width: 20vw ;
+  width: 20vw;
   cursor: pointer;
-
 }
 
-.thumbnail {
+.productImage {
   height: 120px;
   border-radius: var(--radius-sm);
-  background-color: var(--surface-muted);
+  background-image: url("/images/dummyProduct.jpg");
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+}
 
-    background-image: url(../../../images/dummyTut.jpg);
-    background-size: cover;
+.productName {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.productPrice {
+  font-size: 1rem;
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+
+.productDescription {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0;
+}
+
+.artisanName {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0.5rem 0 0 0;
 }
 
 .card:hover {

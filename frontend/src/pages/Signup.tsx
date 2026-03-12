@@ -5,11 +5,11 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
 
-type UserType = "craftsman" | "learner" | "customer";
+type UserType = "artisan" | "learner" | "customer";
 
 // Maps UI label to the role value stored in the profiles table
 const roleMap: Record<UserType, string> = {
-  craftsman: "artisan",
+  artisan: "artisan",
   learner: "learner",
   customer: "customer",
 };
@@ -100,10 +100,10 @@ function Signup() {
           <div className={styles.userTypeButtons}>
             <Button
               variant="secondary"
-              active={userType === "craftsman"}
-              onClick={() => setUserType("craftsman")}
+              active={userType === "artisan"}
+              onClick={() => setUserType("artisan")}
             >
-              Craftsman
+              Artisan
             </Button>
             <Button
               variant="secondary"
@@ -122,10 +122,10 @@ function Signup() {
           </div>
         </div>
 
-        {/* Craftsman Extra Fields */}
-        {userType === "craftsman" && (
-          <div className={styles.craftsmanSection}>
-            <h3>Craftsman Details</h3>
+        {/* Artisan Extra Fields */}
+        {userType === "artisan" && (
+          <div className={styles.artisanSection}>
+            <h3>Artisan Details</h3>
             <select className={styles.input}>
               <option value="">Select Industry</option>
               <option>Pottery</option>

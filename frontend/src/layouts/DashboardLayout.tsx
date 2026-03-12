@@ -59,7 +59,7 @@ function DashboardLayout() {
           <nav className={styles.nav}>
             <Link to="products">Products</Link>
             <Link to="courses">Courses</Link>
-            <Link to="craftsmen">Craftsmen</Link>
+            <Link to="artisans">Artisans</Link>
             <Link to="messages">Messages</Link>
             <Link to="">Back to Dashboard</Link>
           </nav>

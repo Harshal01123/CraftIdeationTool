@@ -40,7 +40,7 @@ Routes follow a clean and extensible hierarchy:
 /dashboard
 /dashboard/products
 /dashboard/courses
-/dashboard/craftsmen
+/dashboard/artisans
 /dashboard/notifications
 ```
 
@@ -78,7 +78,7 @@ src/pages/
   Dashboard.tsx
   Courses.tsx
   Products.tsx
-  Craftsmen.tsx
+  Artisans.tsx
   Notifications.tsx
 ```
 
@@ -205,10 +205,10 @@ Full authentication flow using Supabase Auth with auto-profile creation.
 
 ### Signup
 
-- Collects **Full Name**, **Email**, **Password**, and **User Type** (Craftsman, Learner, Customer).
+- Collects **Full Name**, **Email**, **Password**, and **User Type** (Artisan, Learner, Customer).
 - Calls `supabase.auth.signUp()` — user is created in Supabase Auth and automatically logged in (no email confirmation required).
 - A `profiles` row is auto-created via a PostgreSQL trigger reading `raw_user_meta_data`.
-- Craftsman role maps to `artisan` in the database.
+- Artisan role maps to `artisan` in the database.
 - On success → redirects to `/dashboard/messages`.
 
 ### Login
@@ -384,7 +384,7 @@ Backend integration, authentication and real data fetching are **intentionally d
 - API-driven course and product data
 - Responsive design for smaller screens
 - Active navigation states
-- Role-based dashboards (learner / craftsman)
+- Role-based dashboards (learner / artisan)
 
 ---
 
