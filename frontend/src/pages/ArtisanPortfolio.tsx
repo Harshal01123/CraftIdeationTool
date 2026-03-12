@@ -5,7 +5,6 @@ import ProductCard from "../components/products/ProductCard";
 import { supabase } from "../lib/supabase";
 import type { Profile } from "../types/chat";
 
-// Static products for now — will be dynamic once products table has artisan_id
 const staticProducts = [
   {
     name: "Pottery Vase",
@@ -45,36 +44,89 @@ function ArtisanPortfolio() {
   const [artisan, setArtisan] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Dialog state
+  const [showDialog, setShowDialog] = useState(false);
+  const [convTitle, setConvTitle] = useState("");
+  const [dialogError, setDialogError] = useState("");
 
   useEffect(() => {
-    async function fetchArtisan() {
+    async function fetchData() {
       if (!id) return;
+      const [{ data: artisanData, error }, { data: sessionData }] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", id)
+            .eq("role", "artisan")
+            .single(),
+          supabase.auth.getSession(),
+        ]);
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", id)
-        .eq("role", "artisan")
-        .single();
+      if (error || !artisanData) setNotFound(true);
+      else setArtisan(artisanData as Profile);
 
-      if (error || !data) {
-        setNotFound(true);
-      } else {
-        setArtisan(data as Profile);
-      }
+      if (sessionData.session) setCurrentUserId(sessionData.session.user.id);
       setLoading(false);
     }
-
-    fetchArtisan();
+    fetchData();
   }, [id]);
 
-  if (loading) {
+  // Called when user clicks "Chat" button
+  async function handleChatClick() {
+    if (!artisan || !currentUserId) return;
+    if (currentUserId === artisan.id) {
+      alert("You cannot start a chat with yourself.");
+      return;
+    }
+
+    // Always show dialog to start a fresh conversation
+    setConvTitle(`Chat with ${artisan.name}`);
+    setDialogError("");
+    setShowDialog(true);
+  }
+
+  // Called when user confirms title in dialog
+  async function handleCreateConversation() {
+    if (!convTitle.trim()) {
+      setDialogError("Please enter a title.");
+      return;
+    }
+    if (!artisan || !currentUserId) return;
+
+    setChatLoading(true);
+
+    const { data: newConv, error } = await supabase
+      .from("conversations")
+      .insert({
+        artisan_id: artisan.id,
+        customer_id: currentUserId,
+        title: convTitle.trim(),
+        status: "OPEN",
+      })
+      .select("id")
+      .single();
+
+    setChatLoading(false);
+
+    if (error || !newConv) {
+      setDialogError("Failed to start conversation. Please try again.");
+      return;
+    }
+
+    setShowDialog(false);
+    navigate(`/dashboard/messages?conversation=${newConv.id}`);
+  }
+
+  if (loading)
     return (
       <div className={styles.container}>
         <p>Loading...</p>
       </div>
     );
-  }
 
   if (notFound || !artisan) {
     return (
@@ -87,8 +139,51 @@ function ArtisanPortfolio() {
     );
   }
 
+  const isOwnProfile = currentUserId === artisan.id;
+
   return (
     <div className={styles.container}>
+      {/* Title dialog overlay */}
+      {showDialog && (
+        <div className={styles.dialogOverlay}>
+          <div className={styles.dialog}>
+            <h3 className={styles.dialogTitle}>Start a Conversation</h3>
+            <p className={styles.dialogSubtitle}>
+              Give this conversation a title
+            </p>
+            <input
+              className={styles.dialogInput}
+              type="text"
+              value={convTitle}
+              onChange={(e) => {
+                setConvTitle(e.target.value);
+                setDialogError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleCreateConversation()}
+              placeholder="e.g. Custom pottery order"
+              autoFocus
+            />
+            {dialogError && <p className={styles.dialogError}>{dialogError}</p>}
+            <div className={styles.dialogActions}>
+              <button
+                className={styles.dialogCancel}
+                onClick={() => setShowDialog(false)}
+                disabled={chatLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.dialogConfirm}
+                onClick={handleCreateConversation}
+                disabled={chatLoading}
+              >
+                {chatLoading ? "Starting..." : "Start Chat"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className={styles.header}>
         <img
@@ -105,15 +200,17 @@ function ArtisanPortfolio() {
             <p className={styles.location}>📍 {artisan.location}</p>
           )}
         </div>
-        <button
-          className={styles.chatBtn}
-          onClick={() => navigate("/dashboard/messages")}
-        >
-          Chat
-        </button>
+        {!isOwnProfile && (
+          <button
+            className={styles.chatBtn}
+            onClick={handleChatClick}
+            disabled={chatLoading}
+          >
+            Chat
+          </button>
+        )}
       </div>
 
-      {/* Description */}
       {artisan.description && (
         <section className={styles.about}>
           <h2 className={styles.sectionHeading}>About</h2>
@@ -121,7 +218,6 @@ function ArtisanPortfolio() {
         </section>
       )}
 
-      {/* Products */}
       <h2 className={styles.sectionHeading}>Products</h2>
       <div className={styles.productsGrid}>
         {staticProducts.map((product, index) => (

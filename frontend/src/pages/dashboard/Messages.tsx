@@ -1,42 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import ChatSidebar from "../../components/chat/ChatSidebar";
 import ChatWindow from "../../components/chat/ChatWindow";
 import styles from "./Messages.module.css";
 
-console.log("URL:", import.meta.env.VITE_SUPABASE_URL);
-console.log("KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY);
-
 function Messages() {
   const { profile, authLoading } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null);
 
-  if (authLoading) {
-    return <div className={styles.loading}>Loading...</div>;
+  // Auto-open conversation if ?conversation=<id> is in the URL
+  useEffect(() => {
+    const convId = searchParams.get("conversation");
+    if (convId) {
+      setActiveConversationId(convId);
+      // Clean the param from the URL without a page reload
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
+
+  function handleSelect(id: string) {
+    setActiveConversationId(id);
   }
 
-  if (!profile) {
+  if (authLoading) return <div className={styles.loading}>Loading...</div>;
+
+  if (!profile)
     return (
       <div className={styles.loading}>Please log in to view messages.</div>
     );
-  }
 
   return (
     <div className={styles.container}>
-      {/* Left: conversation list */}
       <ChatSidebar
         currentProfile={profile}
         activeConversationId={activeConversationId}
-        onSelect={setActiveConversationId}
+        onSelect={handleSelect}
       />
-
-      {/* Right: active chat window */}
       <div className={styles.windowArea}>
         {activeConversationId ? (
-          // key forces a clean remount when switching conversations
-          // this resets scroll position and opens a fresh realtime channel
           <ChatWindow
             key={activeConversationId}
             conversationId={activeConversationId}

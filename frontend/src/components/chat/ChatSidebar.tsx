@@ -17,28 +17,43 @@ function ChatSidebar({
   const [conversations, setConversations] = useState<Conversation[]>([]);
 
   useEffect(() => {
-    // Fetch conversations where the current user is a participant
-    const field =
-      currentProfile.role === "artisan" ? "artisan_id" : "customer_id";
-
+    // Fetch ALL conversations where the current user is either artisan or customer
     supabase
       .from("conversations")
       .select("*, artisan:artisan_id(*), customer:customer_id(*)")
-      .eq(field, currentProfile.id)
-      .order("updated_at", { ascending: false }) // most recently active first
+      .or(
+        `artisan_id.eq.${currentProfile.id},customer_id.eq.${currentProfile.id}`,
+      )
+      .order("updated_at", { ascending: false })
       .then(({ data }) => setConversations(data ?? []));
 
-    // Listen for real-time updates to conversations
-    // e.g. when status changes to CLOSED or updated_at bumps on new message
     const channel = supabase
       .channel("conversations-list")
       .on(
         "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "conversations",
+        { event: "INSERT", schema: "public", table: "conversations" },
+        async (payload) => {
+          const raw = payload.new as Conversation;
+          const isParticipant =
+            raw.artisan_id === currentProfile.id ||
+            raw.customer_id === currentProfile.id;
+          if (!isParticipant) return;
+
+          // Re-fetch with joins so title + profile names are present
+          const { data } = await supabase
+            .from("conversations")
+            .select("*, artisan:artisan_id(*), customer:customer_id(*)")
+            .eq("id", raw.id)
+            .single();
+
+          if (data) {
+            setConversations((prev) => [data as Conversation, ...prev]);
+          }
         },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "conversations" },
         (payload) => {
           setConversations((prev) =>
             prev.map((conv) =>
@@ -61,10 +76,15 @@ function ChatSidebar({
       <h3 className={styles.heading}>Messages</h3>
       <ul className={styles.list}>
         {conversations.map((conv) => {
-          // Show the OTHER person's name, not the current user's
           const other =
-            currentProfile.role === "artisan" ? conv.customer : conv.artisan;
+            currentProfile.id === conv.artisan_id
+              ? conv.customer
+              : conv.artisan;
           const isActive = conv.id === activeConversationId;
+
+          // Fallback: if title is null/empty, show "Chat with <other name>"
+          const displayTitle =
+            conv.title?.trim() || `Chat with ${other?.name ?? "User"}`;
 
           return (
             <li
@@ -76,7 +96,7 @@ function ChatSidebar({
                 {conv.status === "CLOSED" && (
                   <span className={styles.lock}>🔒</span>
                 )}
-                <span>{conv.title}</span>
+                <span>{displayTitle}</span>
               </div>
               <p className={styles.itemSub}>{other?.name ?? "Unknown"}</p>
             </li>
