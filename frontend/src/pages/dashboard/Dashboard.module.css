@@ -1,33 +1,38 @@
-.card {
-  padding: var(--space-lg);
-  border: var(--border-thin);
-  border-radius: var(--radius-md);
-  background-color: var(--surface);
-
+.artisanHeader {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  box-shadow: 10px 10px 10px var(--darkest);
-  border-radius:2vw;
-  font-size: 1.5vw;
+  justify-content: space-between;
+}
+
+.artisanHeader h2 {
+  margin: 0;
   color: var(--darkest);
-  background-color: white;
 }
 
-.statsGrid {
-  flex: 1; /* take remaining vertical space */
+.addBtn {
+  padding: 0.55rem 1.2rem;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.addBtn:hover {
+  background: var(--darkest);
+}
+
+.productsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 2vh;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
 }
 
-.hero {
-  flex: 1 ;
-  max-width: var(--content-max-width);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-  padding: 2vh;
+.empty {
+  color: var(--lildark);
+  font-size: 1rem;
+  margin: 2rem 0;
 }

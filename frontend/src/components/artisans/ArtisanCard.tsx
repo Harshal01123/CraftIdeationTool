@@ -14,7 +14,16 @@ function ArtisanCard({ artisan }: ArtisanCardProps) {
       className={styles.card}
       onClick={() => navigate(`/dashboard/artisans/${artisan.id}`)}
     >
-      <div className={styles.thumbnail} />
+      {artisan.avatar_url ? (
+        <img
+          src={artisan.avatar_url}
+          alt={artisan.name}
+          className={styles.thumbnail}
+        />
+      ) : (
+        <div className={styles.thumbnailFallback} />
+      )}
+
       <div className={styles.info}>
         <h3 className={styles.name}>{artisan.name}</h3>
         <p className={styles.industry}>{artisan.industry ?? "Artisan"}</p>

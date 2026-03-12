@@ -7,7 +7,7 @@ export type MessageType = "TEXT" | "SYSTEM";
 export interface Profile {
   id: string;
   name: string;
-  role: "Customer" | "Artisan" | "Learner";
+  role: "customer" | "artisan" | "learner";
   created_at: string;
   industry: string | null;
   location: string | null;
@@ -50,4 +50,18 @@ export interface Notification {
   conversation_id: string | null;
   is_read: boolean;
   created_at: string;
+}
+
+export interface Product {
+  id: string;
+  artisan_id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string | null;
+  image_url: string | null;
+  is_available: boolean;
+  created_at: string;
+  // Populated by join query
+  artisan?: Profile;
 }

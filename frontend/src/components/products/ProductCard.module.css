@@ -55,3 +55,59 @@
 .card:active {
   transform: scale(0.98);
 }
+
+.productImage {
+  height: 120px;
+  border-radius: 8px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.productImagePlaceholder {
+  height: 120px;
+  border-radius: 8px;
+  background-image: url("/images/dummyProduct.jpg");
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.editBtn {
+  flex: 1;
+  padding: 0.4rem 0;
+  border: 1.5px solid var(--dark);
+  background: transparent;
+  color: var(--dark);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.editBtn:hover {
+  background: var(--light);
+}
+
+.deleteBtn {
+  flex: 1;
+  padding: 0.4rem 0;
+  border: none;
+  background: #e53935;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+  background: #b71c1c;
+}

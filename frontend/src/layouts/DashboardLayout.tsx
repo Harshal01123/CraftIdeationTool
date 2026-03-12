@@ -118,11 +118,11 @@ function DashboardLayout() {
       <div className={styles.body}>
         <aside className={styles.sidebar}>
           <nav className={styles.nav}>
-            <Link to="products">Products</Link>
-            <Link to="courses">Courses</Link>
-            <Link to="artisans">Artisans</Link>
-            <Link to="messages">Messages</Link>
-            <Link to="notifications" className={styles.notifLink}>
+            <Link to="/dashboard/products">Products</Link>
+            <Link to="/dashboard/courses">Courses</Link>
+            <Link to="/dashboard/artisans">Artisans</Link>
+            <Link to="/dashboard/messages">Messages</Link>
+            <Link to="/dashboard/notifications" className={styles.notifLink}>
               Notifications
               {unreadCount > 0 && (
                 <span className={styles.badge}>
@@ -130,7 +130,7 @@ function DashboardLayout() {
                 </span>
               )}
             </Link>
-            <Link to="">Back to Dashboard</Link>
+            <Link to="/dashboard">Back to Dashboard</Link>
           </nav>
         </aside>
 

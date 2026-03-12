@@ -3,42 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
 import ProductCard from "../components/products/ProductCard";
 import { supabase } from "../lib/supabase";
-import type { Profile } from "../types/chat";
-
-const staticProducts = [
-  {
-    name: "Pottery Vase",
-    price: "₹500",
-    description: "A beautifully handcrafted clay vase.",
-  },
-  {
-    name: "Ceramic Plate",
-    price: "₹300",
-    description: "Hand-painted decorative plate.",
-  },
-  {
-    name: "Clay Mug",
-    price: "₹200",
-    description: "Rustic mug with textured finish.",
-  },
-  {
-    name: "Decorative Bowl",
-    price: "₹450",
-    description: "Hand-carved design, ideal for fruit.",
-  },
-  {
-    name: "Wall Hanging",
-    price: "₹600",
-    description: "Artistic piece to brighten any room.",
-  },
-  {
-    name: "Small Planter",
-    price: "₹250",
-    description: "Perfect for succulents and herbs.",
-  },
-];
+import type { Profile, Product } from "../types/chat";
 
 function ArtisanPortfolio() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [artisan, setArtisan] = useState<Profile | null>(null);
@@ -55,21 +25,32 @@ function ArtisanPortfolio() {
   useEffect(() => {
     async function fetchData() {
       if (!id) return;
-      const [{ data: artisanData, error }, { data: sessionData }] =
-        await Promise.all([
-          supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", id)
-            .eq("role", "artisan")
-            .single(),
-          supabase.auth.getSession(),
-        ]);
+      const [
+        { data: artisanData, error },
+        { data: sessionData },
+        { data: productsData },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", id)
+          .eq("role", "artisan")
+          .single(),
+        supabase.auth.getSession(),
+        supabase
+          .from("products")
+          .select("*")
+          .eq("artisan_id", id)
+          .eq("is_available", true)
+          .order("created_at", { ascending: false }),
+      ]);
 
       if (error || !artisanData) setNotFound(true);
       else setArtisan(artisanData as Profile);
 
       if (sessionData.session) setCurrentUserId(sessionData.session.user.id);
+      setProducts((productsData as Product[]) ?? []);
+      setProductsLoading(false);
       setLoading(false);
     }
     fetchData();
@@ -187,7 +168,7 @@ function ArtisanPortfolio() {
       {/* Header */}
       <div className={styles.header}>
         <img
-          src="/images/dummyPFP.jpg"
+          src={artisan.avatar_url ?? "/images/dummyPFP.jpg"}
           alt={artisan.name}
           className={styles.profileImage}
         />
@@ -219,17 +200,24 @@ function ArtisanPortfolio() {
       )}
 
       <h2 className={styles.sectionHeading}>Products</h2>
-      <div className={styles.productsGrid}>
-        {staticProducts.map((product, index) => (
-          <ProductCard
-            key={index}
-            name={product.name}
-            price={product.price}
-            description={product.description}
-            artisanName={artisan.name}
-          />
-        ))}
-      </div>
+      {productsLoading ? (
+        <p>Loading products...</p>
+      ) : products.length === 0 ? (
+        <p style={{ color: "gray" }}>No products listed yet.</p>
+      ) : (
+        <div className={styles.productsGrid}>
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              name={product.name}
+              price={`₹${product.price}`}
+              description={product.description ?? ""}
+              imageUrl={product.image_url}
+              artisanName={artisan.name}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
