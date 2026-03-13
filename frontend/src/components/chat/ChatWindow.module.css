@@ -74,3 +74,69 @@
   color: var(--dark);
   font-size: 0.9rem;
 }
+
+.orderPanel {
+  background-color: #e0f7fa;
+  padding: 1rem;
+  border-bottom: 2px solid #b2ebf2;
+}
+
+.orderInfo {
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.orderStatus {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.85rem;
+}
+
+.stepDone {
+  color: #00796b; /* Green for done */
+  font-weight: 600;
+}
+
+.stepPending {
+  color: #c62828; /* Red for pending */
+}
+
+.orderAction {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.actionBtn {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.actionBtn:hover {
+  background-color: #004d40;
+}
+
+.waitingText {
+  color: #555;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.completedBanner {
+  font-weight: bold;
+  color: #16a34a; /* Green */
+  background: #dcfce7;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: block;
+  text-align: center;
+  width: 100%;
+}

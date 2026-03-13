@@ -18,7 +18,6 @@ export function useChat(
     setMessages([]);
     setConversation(null);
 
-    // 1. Fetch conversation details (with artisan + customer profile joined)
     supabase
       .from("conversations")
       .select("*, artisan:artisan_id(*), customer:customer_id(*)")
@@ -26,7 +25,6 @@ export function useChat(
       .single()
       .then(({ data }) => setConversation(data));
 
-    // 2. Fetch full message history, oldest first
     supabase
       .from("messages")
       .select("*, sender:sender_id(*)")
@@ -37,13 +35,10 @@ export function useChat(
         setLoading(false);
       });
 
-    // 3. Remove any previous realtime channel before opening a new one
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
 
-    // 4. Open a Supabase Realtime channel for live new messages
-    // This listens ONLY for INSERT events on this specific conversation
     const channel = supabase
       .channel(`messages-${conversationId}`)
       .on(
@@ -56,7 +51,6 @@ export function useChat(
         },
         (payload) => {
           const newMsg = payload.new as Message;
-          // Guard against duplicates
           setMessages((prev) => {
             if (prev.find((m) => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
@@ -67,32 +61,32 @@ export function useChat(
 
     channelRef.current = channel;
 
-    // 5. Cleanup: unsubscribe when conversation changes or component unmounts
     return () => {
       supabase.removeChannel(channel);
     };
   }, [conversationId]);
 
-  // Send a new TEXT message to Supabase
-  async function sendMessage(content: string) {
+  // Updated sendMessage to support optional type
+  async function sendMessage(
+    content: string,
+    type: "TEXT" | "SYSTEM" = "TEXT",
+  ) {
     if (!conversationId || !currentProfile || !content.trim()) return;
 
     await supabase.from("messages").insert({
       conversation_id: conversationId,
-      sender_id: currentProfile.id,
-      sender_role: currentProfile.role,
-      type: "TEXT",
+      sender_id: type === "SYSTEM" ? null : currentProfile.id,
+      sender_role: type === "SYSTEM" ? "system" : currentProfile.role,
+      type: type,
       content: content.trim(),
     });
 
-    // Bump updated_at so sidebar sorts this conversation to the top
     await supabase
       .from("conversations")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversationId);
   }
 
-  // Close the conversation and auto-insert a SYSTEM message
   async function closeConversation() {
     if (!conversationId || !currentProfile) return;
 
@@ -105,8 +99,6 @@ export function useChat(
       })
       .eq("id", conversationId);
 
-    // This insert will also be caught by the realtime channel above
-    // so both users see it instantly without a page refresh
     await supabase.from("messages").insert({
       conversation_id: conversationId,
       sender_id: null,
@@ -115,7 +107,6 @@ export function useChat(
       content: `Conversation closed by ${currentProfile.name}.`,
     });
 
-    // Update local state immediately so UI switches to CLOSED view
     setConversation((prev) => (prev ? { ...prev, status: "CLOSED" } : prev));
   }
 

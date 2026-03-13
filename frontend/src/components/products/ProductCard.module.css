@@ -111,3 +111,21 @@
 .deleteBtn:hover {
   background: #b71c1c;
 }
+
+.buyBtn {
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  background: var(--dark);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+
+.buyBtn:hover {
+  background: var(--darkest);
+}

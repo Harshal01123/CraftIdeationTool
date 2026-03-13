@@ -5,14 +5,38 @@ import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
 import { type Profile } from "../types/chat";
 
+const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
+
 function DashboardLayout() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) return;
+    function handleUnreadCountChange(event: Event) {
+      const customEvent = event as CustomEvent<{ unreadCount: number }>;
+      setUnreadCount(customEvent.detail?.unreadCount ?? 0);
+    }
+
+    window.addEventListener(
+      UNREAD_COUNT_EVENT,
+      handleUnreadCountChange as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        UNREAD_COUNT_EVENT,
+        handleUnreadCountChange as EventListener,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    async function init() {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session || !isMounted) return;
       const uid = data.session.user.id;
 
       // Fetch profile
@@ -21,7 +45,7 @@ function DashboardLayout() {
         .select("*")
         .eq("id", uid)
         .single();
-      setProfile(profileData);
+      if (isMounted) setProfile(profileData);
 
       // Fetch unread count
       const { count } = await supabase
@@ -29,11 +53,11 @@ function DashboardLayout() {
         .select("*", { count: "exact", head: true })
         .eq("user_id", uid)
         .eq("is_read", false);
-      setUnreadCount(count ?? 0);
+      if (isMounted) setUnreadCount(count ?? 0);
 
       // Real-time: new notification arrives
-      const channel = supabase
-        .channel("notifications-badge")
+      channel = supabase
+        .channel(`notifications-badge-${uid}`)
         .on(
           "postgres_changes",
           {
@@ -42,7 +66,9 @@ function DashboardLayout() {
             table: "notifications",
             filter: `user_id=eq.${uid}`,
           },
-          () => setUnreadCount((prev) => prev + 1),
+          () => {
+            if (isMounted) setUnreadCount((prev) => prev + 1);
+          },
         )
         .on(
           "postgres_changes",
@@ -53,21 +79,23 @@ function DashboardLayout() {
             filter: `user_id=eq.${uid}`,
           },
           async () => {
-            // Re-fetch count on any update (mark read/all read)
             const { count: fresh } = await supabase
               .from("notifications")
               .select("*", { count: "exact", head: true })
               .eq("user_id", uid)
               .eq("is_read", false);
-            setUnreadCount(fresh ?? 0);
+            if (isMounted) setUnreadCount(fresh ?? 0);
           },
         )
         .subscribe();
+    }
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    });
+    init();
+
+    return () => {
+      isMounted = false;
+      if (channel) supabase.removeChannel(channel);
+    };
   }, []);
 
   async function handleLogout() {

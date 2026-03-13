@@ -65,3 +65,20 @@ export interface Product {
   // Populated by join query
   artisan?: Profile;
 }
+
+export interface Purchase {
+  id: string;
+  customer_id: string;
+  product_id: string | null;
+  artisan_id: string | null;
+  conversation_id: string | null;
+  quantity: number;
+  total_price: number;
+  status: string;
+  confirmed_by_customer: boolean;
+  confirmed_by_artisan: boolean;
+  created_at: string;
+  // Populated by join query
+  product?: Product;
+  customer?: Profile;
+}

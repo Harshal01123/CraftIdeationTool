@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
 import ProductCard from "../components/products/ProductCard";
+import Spinner from "../components/Spinner";
 import { supabase } from "../lib/supabase";
 import type { Profile, Product } from "../types/chat";
 
@@ -105,7 +106,7 @@ function ArtisanPortfolio() {
   if (loading)
     return (
       <div className={styles.container}>
-        <p>Loading...</p>
+        <Spinner label="Loading..." />
       </div>
     );
 
@@ -158,7 +159,14 @@ function ArtisanPortfolio() {
                 onClick={handleCreateConversation}
                 disabled={chatLoading}
               >
-                {chatLoading ? "Starting..." : "Start Chat"}
+                {chatLoading ? (
+                  <>
+                    <Spinner size="sm" inline />
+                    Starting...
+                  </>
+                ) : (
+                  "Start Chat"
+                )}
               </button>
             </div>
           </div>
@@ -201,7 +209,7 @@ function ArtisanPortfolio() {
 
       <h2 className={styles.sectionHeading}>Products</h2>
       {productsLoading ? (
-        <p>Loading products...</p>
+        <Spinner label="Loading products..." />
       ) : products.length === 0 ? (
         <p style={{ color: "gray" }}>No products listed yet.</p>
       ) : (

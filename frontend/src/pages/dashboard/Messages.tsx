@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import ChatSidebar from "../../components/chat/ChatSidebar";
 import ChatWindow from "../../components/chat/ChatWindow";
+import Spinner from "../../components/Spinner";
 import styles from "./Messages.module.css";
 
 function Messages() {
@@ -26,7 +27,12 @@ function Messages() {
     setActiveConversationId(id);
   }
 
-  if (authLoading) return <div className={styles.loading}>Loading...</div>;
+  if (authLoading)
+    return (
+      <div className={styles.loading}>
+        <Spinner label="Loading..." />
+      </div>
+    );
 
   if (!profile)
     return (

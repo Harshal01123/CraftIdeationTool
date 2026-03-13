@@ -8,6 +8,7 @@ type ProductCardProps = {
   imageUrl?: string | null;
   onEdit?: () => void;
   onDelete?: () => void;
+  onBuy?: () => void;
 };
 
 function ProductCard({
@@ -18,6 +19,7 @@ function ProductCard({
   imageUrl,
   onEdit,
   onDelete,
+  onBuy,
 }: ProductCardProps) {
   return (
     <div className={styles.card}>
@@ -32,7 +34,9 @@ function ProductCard({
       {artisanName && (
         <h5 className={styles.artisanName}>Artisan: {artisanName}</h5>
       )}
-      {(onEdit || onDelete) && (
+
+      {/* Actions */}
+      {(onEdit || onDelete || onBuy) && (
         <div className={styles.actions}>
           {onEdit && (
             <button className={styles.editBtn} onClick={onEdit}>
@@ -42,6 +46,11 @@ function ProductCard({
           {onDelete && (
             <button className={styles.deleteBtn} onClick={onDelete}>
               Delete
+            </button>
+          )}
+          {onBuy && (
+            <button className={styles.buyBtn} onClick={onBuy}>
+              Buy Now
             </button>
           )}
         </div>

@@ -4,20 +4,28 @@ import { supabase } from "../../lib/supabase";
 import { type Notification } from "../../types/chat";
 import styles from "./Notifications.module.css";
 
-// const icons: Record<Notification["type"], string> = {
-//   new_message: "💬",
-//   new_conversation: "🤝",
-//   conversation_closed: "🔒",
-// };
+const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 
 function Notifications() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
+  function emitUnreadCount(unreadCount: number) {
+    window.dispatchEvent(
+      new CustomEvent<{ unreadCount: number }>(UNREAD_COUNT_EVENT, {
+        detail: { unreadCount },
+      }),
+    );
+  }
+
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) return;
+    let isMounted = true;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    async function init() {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session || !isMounted) return;
       const uid = data.session.user.id;
       setUserId(uid);
 
@@ -27,11 +35,12 @@ function Notifications() {
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
 
+      if (!isMounted) return;
       setNotifications(rows ?? []);
+      emitUnreadCount((rows ?? []).filter((n) => !n.is_read).length);
 
-      // Real-time: new notification
-      const channel = supabase
-        .channel("notifications-page")
+      channel = supabase
+        .channel(`notifications-page-${uid}`)
         .on(
           "postgres_changes",
           {
@@ -41,22 +50,33 @@ function Notifications() {
             filter: `user_id=eq.${uid}`,
           },
           (payload) => {
-            setNotifications((prev) => [payload.new as Notification, ...prev]);
+            setNotifications((prev) => {
+              const incoming = payload.new as Notification;
+              if (prev.some((n) => n.id === incoming.id)) return prev;
+              const next = [incoming, ...prev];
+              emitUnreadCount(next.filter((n) => !n.is_read).length);
+              return next;
+            });
           },
         )
         .subscribe();
+    }
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    });
+    init();
+
+    return () => {
+      isMounted = false;
+      if (channel) supabase.removeChannel(channel);
+    };
   }, []);
 
   async function markAsRead(id: string) {
     await supabase.from("notifications").update({ is_read: true }).eq("id", id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
-    );
+    setNotifications((prev) => {
+      const next = prev.map((n) => (n.id === id ? { ...n, is_read: true } : n));
+      emitUnreadCount(next.filter((n) => !n.is_read).length);
+      return next;
+    });
   }
 
   async function markAllAsRead() {
@@ -66,7 +86,11 @@ function Notifications() {
       .update({ is_read: true })
       .eq("user_id", userId)
       .eq("is_read", false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setNotifications((prev) => {
+      const next = prev.map((n) => ({ ...n, is_read: true }));
+      emitUnreadCount(0);
+      return next;
+    });
   }
 
   async function handleClick(n: Notification) {

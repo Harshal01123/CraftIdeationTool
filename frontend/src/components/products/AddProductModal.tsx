@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
+import Spinner from "../Spinner";
+import { INDUSTRY_OPTIONS } from "../../constants/industryOptions";
 import styles from "./AddProductModal.module.css";
 
 type Props = {
@@ -152,13 +154,22 @@ function AddProductModal({
 
             <label className={styles.label}>
               Category
-              <input
+              <select
                 className={styles.input}
-                type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. Pottery"
-              />
+              >
+                <option value="">Select Category</option>
+                {category &&
+                  !INDUSTRY_OPTIONS.includes(
+                    category as (typeof INDUSTRY_OPTIONS)[number],
+                  ) && <option value={category}>{category}</option>}
+                {INDUSTRY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
 
@@ -201,11 +212,16 @@ function AddProductModal({
               className={styles.submitBtn}
               disabled={loading}
             >
-              {loading
-                ? "Saving..."
-                : existingProduct
-                  ? "Save Changes"
-                  : "Add Product"}
+              {loading ? (
+                <>
+                  <Spinner size="sm" inline />
+                  Saving...
+                </>
+              ) : existingProduct ? (
+                "Save Changes"
+              ) : (
+                "Add Product"
+              )}
             </button>
           </div>
         </form>

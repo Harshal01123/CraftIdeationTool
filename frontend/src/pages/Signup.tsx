@@ -2,6 +2,8 @@ import styles from "./Signup.module.css";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
+import Spinner from "../components/Spinner";
+import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
 import { supabase } from "../lib/supabase";
 
 type UserType = "artisan" | "learner" | "customer";
@@ -231,12 +233,11 @@ function Signup() {
               onChange={(e) => setIndustry(e.target.value)}
             >
               <option value="">Select Industry</option>
-              <option>Pottery</option>
-              <option>Bamboo</option>
-              <option>Glass</option>
-              <option>Tiles</option>
-              <option>Handloom</option>
-              <option>Painting</option>
+              {INDUSTRY_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
             <Input
               placeholder="Shop Location"
@@ -261,7 +262,14 @@ function Signup() {
           onClick={handleSignup}
           disabled={loading}
         >
-          {loading ? "Creating account..." : "Sign Up"}
+          {loading ? (
+            <>
+              <Spinner size="sm" inline />
+              Creating account...
+            </>
+          ) : (
+            "Sign Up"
+          )}
         </button>
 
         <p className={styles.loginText}>

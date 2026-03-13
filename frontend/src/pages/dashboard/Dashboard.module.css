@@ -36,3 +36,82 @@
   font-size: 1rem;
   margin: 2rem 0;
 }
+
+.salesSection {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  color: var(--darkest);
+  margin-bottom: 1.5rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.salesTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.salesTable th,
+.salesTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.salesTable th {
+  background: var(--lightest, #f9fafb);
+  font-weight: 600;
+  color: var(--lildark);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.salesTable tr:last-child td {
+  border-bottom: none;
+}
+
+.statusPending {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.statusCompleted {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.chatLink {
+  color: var(--primary, #2563eb);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.chatLink:hover {
+  text-decoration: underline;
+}
+
+.disabledLink {
+  color: #ccc;
+}

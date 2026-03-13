@@ -5,9 +5,10 @@ import type { Product } from "../../types/chat";
 type ProductCategoryProps = {
   title: string;
   products: Product[];
+  onBuy?: (product: Product) => void;
 };
 
-function ProductCategory({ title, products }: ProductCategoryProps) {
+function ProductCategory({ title, products, onBuy }: ProductCategoryProps) {
   return (
     <section className={styles.category}>
       <h3 className={styles.title}>{title}</h3>
@@ -20,6 +21,7 @@ function ProductCategory({ title, products }: ProductCategoryProps) {
             description={product.description ?? ""}
             artisanName={product.artisan?.name}
             imageUrl={product.image_url}
+            onBuy={onBuy ? () => onBuy(product) : undefined}
           />
         ))}
       </div>
