@@ -1,112 +1,142 @@
-import SliderButton from "../components/SliderButton";
+import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
-import ArtisanCard from "../components/ArtisanCard";
 import Button from "../components/Button";
-import {useNavigate} from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
+
   return (
     <div className={styles.home}>
-      {/* ================= HEADER ================= */}
+      {/* ================= NAV ================= */}
       <header className={styles.header}>
-        {/* Top Row */}
-        <div className={styles.headerTop}>
-          {/* Left: Logo */}
-          <div className={styles.logo}>
-            <h2>CraftLogo</h2>
-          </div>
-
-          {/* Center: Page Name */}
-          <div className={styles.pageTitle}>
-            <h1>Home</h1>
-          </div>
-
-          {/* Right: Auth Buttons */}
-          <div className={styles.authButtons}>
-            <Button variant ="secondary" onClick={() => navigate("/login")}>Login</Button>
-            <Button variant ="secondary" onClick={() => navigate("/signup")}>Signup</Button>
-          </div>
+        <div className={styles.logo} onClick={() => navigate("/")}>
+          कलाkriti
         </div>
-
-        {/* Navbar */}
-        <nav className={styles.navbar}>
-            <div>Craft With Us</div>
-            <div>Buy From Us</div>
-            <div>Learn With Us</div>
+        <nav className={styles.navLinks}>
+          <a href="#curator">For the Curator</a>
+          <a href="#learner">For the Learner</a>
+          <a href="#artisan">For the Artisan</a>
         </nav>
+        <div className={styles.auth}>
+          <button className={styles.navBtn} onClick={() => navigate("/login")}>Login</button>
+          <Button variant="primary" onClick={() => navigate("/signup")}>Sign Up</Button>
+        </div>
       </header>
 
-      {/* ================= BODY ================= */}
-      <main className={styles.body}>
-        {/* Section 1: Full Width Image Slider */}
-        <section className={styles.sliderSection}>
-          <SliderButton direction = "left">◀</SliderButton>
-
-          <div className={styles.sliderImage}>
+      {/* ================= HERO ================= */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>
+            Where Craft<br />Meets Culture
+          </h1>
+          <p className={styles.heroSubtitle}>
+            A digital curator dedicated to the timeless beauty of Indian hand-artistry.
+            Bridging the gap between the master artisan and the modern connoisseur.
+          </p>
+          <div className={styles.heroActions}>
+            <Button variant="primary" onClick={() => navigate("/dashboard/products")}>Explore Collection</Button>
           </div>
+        </div>
+      </section>
 
-          <SliderButton direction = "right">▶</SliderButton>
-        </section>
-
-        {/* Section 2: Top Artisans Cards */}
-<section className={styles.artisanSection}>
-  <h2>Top Artisans</h2>
-
-  <div className={styles.artisanCards}>
-    {[
-      {
-        name: "Aarav Sharma",
-        specialty: "Pottery",
-      },
-      {
-        name: "Meera Das",
-        specialty: "Bamboo Craft",
-      },
-      {
-        name: "Ravi Kumar",
-        specialty: "Glass Art",
-      },
-      {
-        name: "Ananya Roy",
-        specialty: "Painting",
-      },
-      {
-        name: "Kunal Verma",
-        specialty: "Wood Craft",
-      },
-      {
-        name: "Pooja Singh",
-        specialty: "Textiles",
-      },
-    ].map((artisan) => (
-      <ArtisanCard
-        key={artisan.name}
-        name={artisan.name}
-        specialty={artisan.specialty}
-      />
-    ))}
-  </div>
-</section>
-
-
-        {/* Section 3: Another Full Width Image Slider */}
-        <section className={styles.sliderSection}>
-          <SliderButton direction = "left">◀</SliderButton>
-
-          <div className={styles.sliderImage}>
+      {/* ================= ECOSYSTEM ================= */}
+      <section className={styles.ecosystemSection} id="curator">
+        <h2 className={styles.sectionTitle}>The Ecosystem of Creation</h2>
+        <div className={styles.ecosystemGrid}>
+          <div className={styles.ecoCard}>
+            <h3>For the Curator</h3>
+            <p>Discover authenticated heritage pieces from remote clusters, delivered with the story of their origin.</p>
           </div>
+          <div className={styles.ecoCard}>
+            <h3>For the Learner</h3>
+            <p>Master the ancient techniques directly from National Award-winning gurus through immersive courses.</p>
+          </div>
+          <div className={styles.ecoCard}>
+            <h3>For the Artisan</h3>
+            <p>Join a global platform designed to preserve your legacy and provide sustainable fair-trade opportunities.</p>
+          </div>
+        </div>
+      </section>
 
-          <SliderButton direction = "right">▶</SliderButton>
-        </section>
-      </main>
+      {/* ================= MASTER CRAFTSMEN ================= */}
+      <section className={styles.craftsmenSection} id="artisan">
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Master Craftsmen</h2>
+          <button className={styles.linkRaw} onClick={() => navigate("/dashboard/artisans")}>
+            View Artisan Directory
+          </button>
+        </div>
+        
+        <div className={styles.craftsmenGrid}>
+          {[
+            {
+              name: "Madan Lal",
+              specialty: "Blue Pottery Master",
+              location: "Jaipur, Rajasthan",
+              initials: "ML"
+            },
+            {
+              name: "Savitri Devi",
+              specialty: "Madhubani Artist",
+              location: "Madhubani, Bihar",
+              initials: "SD"
+            },
+            {
+              name: "Rameshwar Das",
+              specialty: "Brass Smith",
+              location: "Moradabad, UP",
+              initials: "RD"
+            },
+            {
+              name: "Meera Bai",
+              specialty: "Ajrakh Weaver",
+              location: "Kutch, Gujarat",
+              initials: "MB"
+            }
+          ].map(artisan => (
+            <div key={artisan.name} className={styles.artisanCard}>
+              <div className={styles.avatarPlaceholder}>{artisan.initials}</div>
+              <div className={styles.artisanInfo}>
+                <h3 className={styles.artisanName}>{artisan.name}</h3>
+                <p className={styles.artisanSpecialty}>{artisan.specialty}</p>
+                <p className={styles.artisanLocation}>{artisan.location}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= MASTERCLASS SERIES ================= */}
+      <section className={styles.masterclassSection} id="learner">
+        <h2 className={styles.sectionTitle}>Masterclass Series</h2>
+        <div className={styles.masterclassGrid}>
+          {[
+            "The Art of Blue Pottery",
+            "Handloom Fundamentals",
+            "Mastering Zardozi"
+          ].map((title, i) => (
+            <div key={i} className={styles.courseCard}>
+              <div className={styles.courseImagePlaceholder}></div>
+              <div className={styles.courseInfo}>
+                <h3>{title}</h3>
+                <button className={styles.linkRaw} onClick={() => navigate("/dashboard/courses")}>
+                  Explore Course
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>
-          <div>Contact Us</div>
-          <div>About Us</div>
-          <div>Privacy Policy</div>
-          <div>Terms & Conditions</div>
+        <div className={styles.logo}>कलाkriti</div>
+        <div className={styles.footerLinks}>
+          <span>Contact Us</span>
+          <span>About Us</span>
+          <span>Privacy Policy</span>
+          <span>Terms & Conditions</span>
+        </div>
       </footer>
     </div>
   );

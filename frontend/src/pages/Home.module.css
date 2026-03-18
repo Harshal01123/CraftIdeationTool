@@ -1,67 +1,308 @@
-.home{
-    background-color: var(--light);
-    display: flex;
-    flex-direction: column;
+/* ── Base ── */
+.home {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.headerTop{
-    display: flex ;
-    justify-content: space-between;
+/* ── Typography & Globals ── */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  color: var(--on-surface);
 }
 
-.navbar{
-    display : flex ;
-    justify-content: space-evenly;
-    background-color: var(--darkest);
-    color: var(--light);
-    height: 5vh ;
-    align-items: center;
+.sectionTitle {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.sliderSection{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 50vh ;
-    margin-left: 1vw;
-    margin-right: 1vw;
-    background-image: url("../../images/home_section_1.jpg");
-    background-size: cover;
-    background-position: center;
-    margin-top: 2vh;
+.linkRaw {
+  background: none;
+  border: none;
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--secondary);
+  cursor: pointer;
+  border-bottom: 1px solid var(--secondary);
+  padding: 0 0 2px 0;
+  transition: opacity 0.2s;
+}
+.linkRaw:hover {
+  opacity: 0.8;
 }
 
-.artisanSection {
-  padding: 0 4vw;
+/* ── Navbar ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 4rem;
+  /* background: rgba(245, 239, 224, 0.85); var(--surface) with opacity */
+  background: #ffdea7;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(218, 193, 184, 0.3); /* muted outline-variant */
 }
 
-.artisanSection h2 {
-  margin-bottom: 3vh;
-  font-size: 3vh;
+.logo {
+  font-family: var(--font-hindi);
+  font-size: 1.8rem;
+  color: var(--primary);
+  cursor: pointer;
 }
 
-.artisanCards {
+.navLinks {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.navLinks a {
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.navLinks a:hover {
+  color: var(--primary);
+}
+
+.auth {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navBtn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--on-surface);
+  cursor: pointer;
+}
+.navBtn:hover {
+  color: var(--primary);
+}
+
+/* ── Hero Section ── */
+.hero {
+  padding: 6rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    var(--surface) 0%,
+    var(--surface-container-low) 100%
+  );
+  min-height: 60vh;
+}
+
+.heroContent {
+  max-width: 800px;
+}
+
+.heroTitle {
+  font-size: 5rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  color: var(--on-surface);
+  opacity: 0.85;
+}
+
+/* ── Ecosystem Section ── */
+.ecosystemSection {
+  padding: 6rem 4rem;
+  background-color: var(--surface-container-low);
+}
+
+.ecosystemGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, auto);
-  gap: 3vh 2vw;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.footer{
-    background-color: var(--darkest);
-    color: white;
-    text-align: center;
-    padding: 2vh 0;
-    display: flex ;
-    flex-direction: column;
+.ecoCard {
+  background: var(--surface-container-lowest);
+  padding: 3rem 2rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-ambient);
+  text-align: center;
+  transition: transform 0.3s ease;
 }
 
-.authButtons {
+.ecoCard:hover {
+  transform: translateY(-5px);
+}
+
+.ecoCard h3 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+.ecoCard p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* ── Master Craftsmen Section ── */
+.craftsmenSection {
+  padding: 6rem 4rem;
+  background-color: var(--surface);
+}
+
+.sectionHeader {
   display: flex;
-  height: 6vh ;
+  align-items: flex-end;
   justify-content: space-between;
-  width: 12vw ;
-  padding-right: 1vw;
-  padding-top: 1vh;
-  margin-top: 3vh ;
+  max-width: 1200px;
+  margin: 0 auto 3rem auto;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  text-align: left;
+}
+
+.craftsmenGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.artisanCard {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+  transition: transform 0.3s ease;
+}
+
+.artisanCard:hover {
+  transform: translateY(-5px);
+}
+
+.avatarPlaceholder {
+  height: 200px;
+  background: var(--surface-container-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-family: var(--font-display);
+  color: var(--on-surface);
+  opacity: 0.3;
+}
+
+.artisanInfo {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.artisanName {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.artisanSpecialty {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.artisanLocation {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* ── Masterclass Series Section ── */
+.masterclassSection {
+  padding: 6rem 4rem;
+  background-color: var(--surface-container-low);
+}
+
+.masterclassGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.courseCard {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+}
+
+.courseImagePlaceholder {
+  height: 180px;
+  background: var(--surface);
+}
+
+.courseInfo {
+  padding: 2rem;
+}
+
+.courseInfo h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 4rem;
+  background-color: var(--on-surface);
+  color: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer .logo {
+  color: var(--surface);
+}
+
+.footerLinks {
+  display: flex;
+  gap: 2rem;
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
