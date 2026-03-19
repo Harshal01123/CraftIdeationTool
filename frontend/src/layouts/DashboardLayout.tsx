@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link, Outlet } from "react-router-dom";
+import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import styles from "./DashboardLayout.module.css";
-import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
 import { type Profile } from "../types/chat";
 
@@ -9,6 +8,7 @@ const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 
 function DashboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -103,69 +103,123 @@ function DashboardLayout() {
     navigate("/");
   }
 
+  // Helper for NavLink styling
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`;
+
+  // Get current page title simply based on path
+  const getPageTitle = () => {
+    const path = location.pathname.split("/").pop();
+    if (!path || path === "dashboard") return "Dashboard";
+    return path.charAt(0).toUpperCase() + path.slice(1);
+  };
+
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.userInfo}>
-          {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.name}
-              className={styles.avatar}
-            />
-          ) : (
-            <div className={styles.avatar} />
-          )}
-          <div>
-            <p className={styles.username}>{profile?.name ?? "Loading..."}</p>
-            <p className={styles.userType}>{profile?.role ?? ""}</p>
-          </div>
+      
+      {/* SIDEBAR */}
+      <aside className={styles.sidebar}>
+        <div className={styles.brand}>
+          <h1 className={styles.brandTitle}><span style={{fontFamily: 'var(--font-hindi)'}}>कला</span>kriti</h1>
+          <p className={styles.brandSubtitle}>The Digital Curator</p>
         </div>
-
-        <div className={styles.headerActions}>
-          {/* Bell icon with live unread badge */}
-          <button
-            className={styles.bellBtn}
-            onClick={() => navigate("/dashboard/notifications")}
-            title="Notifications"
-          >
-            🔔
+        
+        <nav className={styles.nav}>
+          <NavLink to="/dashboard" end className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`} style={{fontVariationSettings: "'FILL' 1"}}>dashboard</span>
+            <span className={styles.navLinkText}>Dashboard</span>
+          </NavLink>
+          <NavLink to="/dashboard/products" className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>storefront</span>
+            <span className={styles.navLinkText}>Products</span>
+          </NavLink>
+          <NavLink to="/dashboard/courses" className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>school</span>
+            <span className={styles.navLinkText}>Courses</span>
+          </NavLink>
+          <NavLink to="/dashboard/artisans" className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>brush</span>
+            <span className={styles.navLinkText}>Artisans</span>
+          </NavLink>
+          <NavLink to="/dashboard/messages" className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>mail</span>
+            <span className={styles.navLinkText}>Messages</span>
+          </NavLink>
+          <NavLink to="/dashboard/notifications" className={navClass}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>notifications</span>
+            <span className={styles.navLinkText}>Notifications</span>
             {unreadCount > 0 && (
-              <span className={styles.bellBadge}>
+              <span className={styles.navBadge}>
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
+          </NavLink>
+        </nav>
+
+        <div className={styles.sidebarBottom}>
+          <button className={styles.newCollectionBtn} onClick={() => navigate("/dashboard/products")}>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>add_circle</span>
+            New Collection
           </button>
-          <Button onClick={() => navigate("/edit-profile")}>
-            Edit Profile
-          </Button>
-          <Button onClick={handleLogout}>Logout</Button>
-        </div>
-      </header>
-
-      <div className={styles.body}>
-        <aside className={styles.sidebar}>
-          <nav className={styles.nav}>
-            <Link to="/dashboard/products">Products</Link>
-            <Link to="/dashboard/courses">Courses</Link>
-            <Link to="/dashboard/artisans">Artisans</Link>
-            <Link to="/dashboard/messages">Messages</Link>
-            <Link to="/dashboard/notifications" className={styles.notifLink}>
-              Notifications
-              {unreadCount > 0 && (
-                <span className={styles.badge}>
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
+          
+          <div className={styles.profileSummary}>
+            <div className={styles.profileAvatarBox}>
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Profile" className={styles.profileImg} />
+              ) : (
+                <span className="material-symbols-outlined" style={{color: 'white', margin: '6px'}}>person</span>
               )}
-            </Link>
-            <Link to="/dashboard">Back to Dashboard</Link>
-          </nav>
-        </aside>
+            </div>
+            <div className={styles.profileInfo}>
+              <p className={styles.profileName}>{profile?.name ?? "Loading..."}</p>
+              <p className={styles.profileRole}>{profile?.role ?? "Guest"}</p>
+            </div>
+          </div>
+        </div>
+      </aside>
 
-        <main className={styles.main}>
+      {/* MAIN CONTENT AREA */}
+      <main className={styles.mainWrapper}>
+        
+        {/* TOP NAV BAR */}
+        <header className={styles.topNav}>
+          <h2 className={styles.pageTitle}>{getPageTitle()}</h2>
+          <div className={styles.topNavRight}>
+            <div className={styles.searchWrapper}>
+              <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
+              <input type="text" placeholder="Search archive..." className={styles.searchInput} />
+            </div>
+            <div className={styles.navActions}>
+              <button className={styles.iconBtn} onClick={() => navigate("/dashboard/notifications")}>
+                <span className="material-symbols-outlined">notifications</span>
+                {unreadCount > 0 && <span className={styles.notifDot}></span>}
+              </button>
+              <button className={styles.iconBtn} onClick={handleLogout} title="Logout">
+                <span className="material-symbols-outlined">logout</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Dashboard Content Container */}
+        <div className={styles.contentContainer}>
           <Outlet />
-        </main>
-      </div>
+        </div>
+
+        {/* FOOTER */}
+        <footer className={styles.footer}>
+          <div className={styles.footerLinks}>
+            <a href="#" className={styles.activeFooterLink}>The Curator's Story</a>
+            <a href="#">Artisan Directory</a>
+            <a href="#">Heritage Blog</a>
+            <a href="#">Sustainability</a>
+            <a href="#">Contact</a>
+          </div>
+          <div className={styles.footerBrand}>कलाkriti Heritage Editorial</div>
+          <p className={styles.footerCopyright}>© 2024 कलाkriti Heritage Editorial. All rights reserved.</p>
+        </footer>
+
+      </main>
     </div>
   );
 }

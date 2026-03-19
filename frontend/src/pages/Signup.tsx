@@ -1,20 +1,18 @@
 import styles from "./Signup.module.css";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/Input";
 import Spinner from "../components/Spinner";
 import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
 import { supabase } from "../lib/supabase";
 
 type UserType = "artisan" | "learner" | "customer";
 
-const roles: { value: UserType; label: string }[] = [
-  { value: "artisan", label: "Artisan" },
-  { value: "learner", label: "Learner" },
-  { value: "customer", label: "Customer" },
+const roles: { value: UserType; label: string; icon: string }[] = [
+  { value: "artisan", label: "Artisan", icon: "brush" },
+  { value: "learner", label: "Learner", icon: "school" },
+  { value: "customer", label: "Customer", icon: "shopping_bag" },
 ];
 
-// Compresses image to max 400x400px, ~80% quality JPEG before upload
 function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -57,10 +55,6 @@ function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function toggleRole(role: UserType) {
-    setUserType((prev) => (prev === role ? null : role));
-  }
-
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -68,7 +62,8 @@ function Signup() {
     setAvatarPreview(URL.createObjectURL(file));
   }
 
-  async function handleSignup() {
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
     setError("");
 
     if (!avatarFile) {
@@ -90,7 +85,6 @@ function Signup() {
 
     setLoading(true);
 
-    // 1. Create auth user
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -106,7 +100,6 @@ function Signup() {
     const userId = data.user.id;
     let avatarUrl: string | null = null;
 
-    // 2. Upload avatar if selected
     if (avatarFile) {
       const compressed = await compressImage(avatarFile);
       const filePath = `${userId}/avatar.jpg`;
@@ -131,7 +124,6 @@ function Signup() {
       avatarUrl = urlData.publicUrl;
     }
 
-    // 3. Update profile row (trigger already created it)
     const profileUpdate: Record<string, string | null> = {};
     if (avatarUrl) profileUpdate.avatar_url = avatarUrl;
     if (userType === "artisan") {
@@ -149,137 +141,192 @@ function Signup() {
   }
 
   return (
-    <div className={styles.signupPage}>
-      <div className={styles.signupCard}>
-        <h1 className={styles.title}>Create Account</h1>
+    <main className={styles.signupPage}>
+      <div className={styles.heritagePattern}></div>
+      <div className={styles.grainOverlay}></div>
 
-        {/* Avatar upload */}
-        <div className={styles.avatarSection}>
-          <div
-            className={styles.avatarPreview}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="Preview"
-                className={styles.avatarImg}
-              />
-            ) : (
-              <span className={styles.avatarPlaceholder}>+</span>
-            )}
-          </div>
-          <p className={styles.avatarHint}>
-            Upload photo <span style={{ color: "#d93025" }}>*</span>
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleAvatarChange}
-          />
-        </div>
-
-        <div className={styles.fields}>
-          <Input
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-
-        {/* Role selection */}
-        <div className={styles.roleSection}>
-          <p className={styles.roleLabel}>I am a...</p>
-          <div className={styles.roleOptions}>
-            {roles.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                className={`${styles.roleOption} ${userType === value ? styles.roleOptionSelected : ""}`}
-                onClick={() => toggleRole(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Artisan extra fields */}
-        {userType === "artisan" && (
-          <div className={styles.artisanSection}>
-            <select
-              className={styles.select}
-              value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
-            >
-              <option value="">Select Industry</option>
-              {INDUSTRY_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <Input
-              placeholder="Shop Location"
-              value={shopLocation}
-              onChange={(e) => setShopLocation(e.target.value)}
-            />
-            <textarea
-              placeholder="Describe your work..."
-              className={styles.textarea}
-              value={artisanDesc}
-              onChange={(e) => setArtisanDesc(e.target.value)}
-              rows={3}
-            />
-          </div>
-        )}
-
-        {error && <p className={styles.error}>{error}</p>}
-
-        <button
-          type="button"
-          className={styles.signupBtn}
-          onClick={handleSignup}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Spinner size="sm" inline />
-              Creating account...
-            </>
-          ) : (
-            "Sign Up"
-          )}
-        </button>
-
-        <p className={styles.loginText}>
-          Already have an account?{" "}
-          <span className={styles.loginLink} onClick={() => navigate("/login")}>
-            Log in
-          </span>
-        </p>
+      <div className={styles.bgMotifTopLeft}>
+        <img
+          className={styles.bgMotifImage}
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrUwE14PcdHETHRaGXQ2F3mYc-YJId2Y4_qcoRaVDcv1O4KPPz05eAALDqlMsnb1eRqjf_2KVi9KfKjjgUXgLFur5GAwd99kok0UElV3tMPFkSEOwJZHIiA8YQ5RkIPDWk3BRHL8A5Jxu__2F17ee-aWkTKzRig7bIWbQ50RURbOIxTAt1mrQiXW2sqz-Zuo737KviwH81YYavmRLd8f7UhFbw7QOs8R82PWn9Eb6Qv85b1L5QcznCZzc82SiYo3Pd7ODAvj9jFzY"
+          alt=""
+        />
       </div>
-    </div>
+      <div className={styles.bgMotifBottomRight}>
+        <img
+          className={styles.bgMotifImage}
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEXGUpa3W3CGCfI25j1rdLMMp_tANwUfP7ZnJoL3Musi8BABOEZLyRDlRLr71sbvb-y95cKy-uaSua7BmvYLojO1gjwT3nh2JMivH7X8gCJPmvv_YbgjYFyzeecaERViv_C4LfAOk7qilusBIr4VTGEcZjtPJyPAq2Q0fBOmDbNSo9Fl93Nqp5BNSzVWjcFrIZNMiAN7-5NU9Dkl6KpIZuLusljhtnnJzs5Nr51-xibSszZLPRlbWYiFWDgxjxztR2yPPNPUf8ShM"
+          alt=""
+        />
+      </div>
+
+      <div className={styles.signupCard}>
+        <div className={styles.blockPrintMotif}></div>
+
+        <div className={styles.cardHeader}>
+          <span className={styles.greeting}>नमस्ते</span>
+          <h1 className={styles.title}>Create Account</h1>
+          <p className={styles.subtitle}>Join the Digital Heritage</p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleSignup}>
+          <div className={styles.avatarSection}>
+            <div className={styles.avatarContainer} onClick={() => fileInputRef.current?.click()}>
+              <div className={styles.avatarCircle}>
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Preview" className={styles.avatarImg} />
+                ) : (
+                  <span className={`material-symbols-outlined ${styles.avatarIcon}`}>add_a_photo</span>
+                )}
+              </div>
+              <div className={styles.avatarEditBtn}>
+                <span className={`material-symbols-outlined ${styles.avatarEditIcon}`}>edit</span>
+              </div>
+            </div>
+            <label className={styles.avatarLabel}>Upload Profile Portrait</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleAvatarChange}
+            />
+          </div>
+
+          <div className={styles.inputsGrid}>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Full Name <span className={styles.inputLabelHindi}>पूरा नाम</span>
+              </label>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Arjun Singh"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Email <span className={styles.inputLabelHindi}>ईमेल</span>
+              </label>
+              <input
+                className={styles.input}
+                type="email"
+                placeholder="arjun@kalakriti.in"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Password <span className={styles.inputLabelHindi}>पासवर्ड</span>
+              </label>
+              <input
+                className={styles.input}
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Confirm Password <span className={styles.inputLabelHindi}>पुष्टि करें</span>
+              </label>
+              <input
+                className={styles.input}
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className={styles.roleSection}>
+            <label className={styles.roleLabel}>I am a...</label>
+            <div className={styles.roleGrid}>
+              {roles.map((role) => (
+                <label key={role.value} className={styles.roleOption}>
+                  <input
+                    className={styles.roleInput}
+                    type="radio"
+                    name="role"
+                    value={role.value}
+                    checked={userType === role.value}
+                    onChange={(e) => setUserType(e.target.value as UserType)}
+                  />
+                  <div className={styles.roleCard}>
+                    <span className={`material-symbols-outlined ${styles.roleIcon}`}>{role.icon}</span>
+                    <span className={styles.roleName}>{role.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {userType === "artisan" && (
+            <div className={styles.artisanSection}>
+              <select
+                className={styles.select}
+                value={industry}
+                onChange={(e) => setIndustry(e.target.value)}
+              >
+                <option value="">Select Industry</option>
+                {INDUSTRY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <input
+                className={styles.input}
+                placeholder="Shop Location"
+                value={shopLocation}
+                onChange={(e) => setShopLocation(e.target.value)}
+              />
+              <textarea
+                placeholder="Describe your work..."
+                className={styles.textarea}
+                value={artisanDesc}
+                onChange={(e) => setArtisanDesc(e.target.value)}
+                rows={3}
+              />
+            </div>
+          )}
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Spinner size="sm" inline />
+                Creating account...
+              </>
+            ) : (
+              "Sign Up"
+            )}
+          </button>
+        </form>
+
+        <div className={styles.loginText}>
+          <p>
+            Already have an account?
+            <span className={styles.loginLink} onClick={() => navigate("/login")}>
+              Log in
+            </span>
+          </p>
+        </div>
+      </div>
+    </main>
   );
 }
 

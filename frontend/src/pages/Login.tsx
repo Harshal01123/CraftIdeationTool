@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
 import { supabase } from "../lib/supabase";
 
 function Login() {
@@ -20,7 +19,8 @@ function Login() {
     });
   }, []);
 
-  async function handleLogin() {
+  async function handleLogin(e?: React.FormEvent) {
+    if (e) e.preventDefault();
     if (!email || !password) {
       setError("Please enter email and password");
       return;
@@ -29,67 +29,150 @@ function Login() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     setLoading(false);
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      setError(authError.message);
     } else {
       navigate("/dashboard");
     }
   }
 
-  // Allow submitting with Enter key on either input
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") handleLogin();
-  }
-
   return (
     <div className={styles.loginPage}>
-      <div className={styles.loginCard}>
-        <h1 className={styles.title}>LOGIN</h1>
+      <div
+        className={styles.heritagePattern}
+        data-alt="Intricate terracotta Indian block print textile pattern"
+      ></div>
+      <div className={styles.paperGrain}></div>
 
-        <div className={styles.form}>
-          <input
-            type="email"
-            placeholder="Enter email"
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
+      <header className={styles.header}>
+        <h1 className={styles.headerTitle}>
+          <span className={styles.hindiText}>कला</span>kriti
+        </h1>
+      </header>
 
-          <input
-            type="password"
-            placeholder="Enter password"
-            className={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
+      <main className={styles.main}>
+        <div className={styles.loginCard}>
+          <div className={styles.decorativeBorderTop}></div>
+          <div className={styles.decorativeBorderBottom}></div>
 
-          {error && (
-            <p style={{ color: "red", fontSize: "0.85rem", margin: 0 }}>
-              {error}
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>LOGIN</h2>
+            <div className={styles.swagatam}>
+              <span className={styles.swagatamLine}></span>
+              <span className={styles.swagatamText}>स्वागतम्</span>
+              <span className={styles.swagatamLine}></span>
+            </div>
+          </div>
+
+          <form className={styles.form} onSubmit={handleLogin}>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="email">
+                Email Address
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  className={styles.input}
+                  id="email"
+                  type="email"
+                  placeholder="curator@kalakriti.in"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <div className={styles.inputHindiLabel}>ईमेल</div>
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="password">
+                Password
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  className={styles.input}
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <div className={styles.inputHindiLabel}>कूटशब्द</div>
+              </div>
+              {error && (
+                <p
+                  style={{
+                    color: "var(--error, #ba1a1a)",
+                    fontSize: "0.85rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className={styles.optionsRow}>
+              <label className={styles.rememberMe}>
+                <input className={styles.checkbox} type="checkbox" />
+                <span>REMEMBER ME</span>
+              </label>
+              <a className={styles.forgotPwd} href="#forgot">
+                FORGOT PASSWORD?
+              </a>
+            </div>
+
+            <button
+              className={styles.submitBtn}
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "LOGGING IN..." : "LOGIN"}
+            </button>
+          </form>
+
+          <div className={styles.signupText}>
+            <p>
+              New here?{" "}
+              <span
+                className={styles.signupLink}
+                onClick={() => navigate("/signup")}
+              >
+                SIGNUP!
+              </span>
             </p>
-          )}
-
-          <Button variant="secondary" onClick={handleLogin}>
-            {loading ? "Logging in..." : "LOGIN"}
-          </Button>
-
-          <p className={styles.signupText}>
-            New here?{" "}
-            <Button variant="secondary" onClick={() => navigate("/signup")}>
-              SIGNUP!
-            </Button>
-          </p>
+            <div className={styles.decorContainer}>
+              <span className={`material-symbols-outlined ${styles.decorIcon}`}>
+                filter_vintage
+              </span>
+              <span className={`material-symbols-outlined ${styles.decorIcon}`}>
+                filter_vintage
+              </span>
+              <span className={`material-symbols-outlined ${styles.decorIcon}`}>
+                filter_vintage
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer className={styles.footer}>
+        <div className={styles.footerLinks}>
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <p className={styles.copyright}>
+          © 2024 कलाkriti. Handcrafted in India.
+        </p>
+      </footer>
+
+      <div className={styles.bottomTexture}></div>
     </div>
   );
 }

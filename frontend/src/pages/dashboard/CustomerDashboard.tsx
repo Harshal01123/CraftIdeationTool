@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import type { Purchase } from "../../types/chat";
 import Spinner from "../../components/Spinner";
-import styles from "./CustomerDashboard.module.css";
+import styles from "./Dashboard.module.css";
 
 function CustomerDashboard({ customerId }: { customerId: string }) {
+  const { profile } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,26 +29,12 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "purchases",
           filter: `customer_id=eq.${customerId}`,
         },
-        () => {
-          fetchPurchases();
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "purchases",
-          filter: `customer_id=eq.${customerId}`,
-        },
-        () => {
-          fetchPurchases();
-        },
+        () => fetchPurchases(),
       )
       .subscribe();
 
@@ -62,53 +50,94 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
   );
 
   return (
-    <section className={styles.container}>
-      <h2>My Purchases</h2>
-
-      <div className={styles.statsRow}>
-        <div className={styles.statCard}>
-          <h3>Total Orders</h3>
-          <p>{totalOrders}</p>
+    <section className={styles.hero}>
+      {/* Welcome Banner */}
+      <div className={styles.welcomeBanner} style={{backgroundColor: "var(--primary-container)"}}>
+        <div className={styles.welcomeContent}>
+          <span className={styles.workspaceTag}>Collector Workspace</span>
+          <h3 className={styles.welcomeName}>Namaste, {profile?.name?.split(" ")[0] || "Collector"}</h3>
+          <p className={styles.welcomeText}>Thank you for supporting India's rich cultural heritage. Your purchases empower generations of artisans.</p>
         </div>
-        <div className={styles.statCard}>
-          <h3>Total Spent</h3>
-          <p>₹{totalSpent}</p>
+        <div className={styles.welcomeIcon}>
+          <span className="material-symbols-outlined" style={{fontSize: "inherit"}}>shopping_cart</span>
+        </div>
+        <div className={styles.welcomePattern}></div>
+      </div>
+
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiHeader}>
+            <div className={styles.kpiIconBox}>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>shopping_bag</span>
+            </div>
+          </div>
+          <p className={styles.kpiValue}>{totalOrders}</p>
+          <p className={styles.kpiLabel}>Total Orders</p>
+        </div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiHeader}>
+            <div className={styles.kpiIconBox}>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>payments</span>
+            </div>
+          </div>
+          <p className={styles.kpiValue}>₹{totalSpent}</p>
+          <p className={styles.kpiLabel}>Total Spent</p>
         </div>
       </div>
 
-      <h3 className={styles.subheading}>Order History</h3>
-
-      {loading ? (
-        <Spinner label="Loading history..." />
-      ) : purchases.length === 0 ? (
-        <p className={styles.empty}>You haven't purchased anything yet.</p>
-      ) : (
-        <div className={styles.purchaseList}>
-          {purchases.map((p) => (
-            <div key={p.id} className={styles.purchaseCard}>
-              {p.product?.image_url ? (
-                <img
-                  src={p.product.image_url}
-                  alt={p.product.name}
-                  className={styles.productThumb}
-                />
-              ) : (
-                <div className={styles.productThumbFallback} />
-              )}
-
-              <div className={styles.info}>
-                <h4>{p.product?.name ?? "Unknown Product"}</h4>
-                <p className={styles.date}>
-                  {new Date(p.created_at).toLocaleDateString()}
-                </p>
-                <span className={styles.status}>{p.status}</span>
-              </div>
-
-              <div className={styles.priceTag}>₹{p.total_price}</div>
+      <div className={styles.middleSection}>
+        <div style={{gridColumn: "1 / -1"}}>
+          {/* Order History Section matched with Stitch Layout */}
+          <div className={styles.sectionHeader}>
+            <h4 className={styles.sectionTitle}>Order History</h4>
+          </div>
+          {loading ? (
+            <Spinner label="Loading history..." />
+          ) : purchases.length === 0 ? (
+            <p className={styles.empty}>You haven't purchased anything yet.</p>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.salesTable}>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Artifact</th>
+                    <th>Status</th>
+                    <th className={styles.amountHeader}>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {purchases.map((p) => (
+                    <tr key={p.id}>
+                      <td style={{color: "gray", fontSize: "12px"}}>{new Date(p.created_at).toLocaleDateString()}</td>
+                      <td>
+                        <div className={styles.tableProductInfo}>
+                          <div className={styles.tableProductImgBox}>
+                            {p.product?.image_url ? (
+                              <img src={p.product.image_url} alt="" className={styles.tableProductImg} />
+                            ) : (
+                              <div style={{background: '#e0e0e0', width: '100%', height:'100%', borderRadius: '4px'}}></div>
+                            )}
+                          </div>
+                          <div>
+                            <span className={styles.productName}>{p.product?.name ?? "Unknown Product"}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={p.status === "completed" ? styles.statusCompleted : styles.statusPending}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className={styles.amount}>₹{p.total_price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          )}
         </div>
-      )}
+      </div>
     </section>
   );
 }

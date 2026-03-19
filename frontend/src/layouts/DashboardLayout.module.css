@@ -1,143 +1,324 @@
 .page {
+  display: flex;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  height: var(--header-height);
-  padding-inline: var(--space-lg);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: var(--border-thin);
-  background-color: var(--dark);
-}
-
-.body {
-  flex: 1;
-  display: flex;
-  min-height: 0; /* allows proper scrolling */
+  background-color: var(--surface);
 }
 
 .sidebar {
-  width: var(--sidebar-width);
-  padding: var(--space-md);
-  border-right: var(--border-thin);
-  background-color: var(--lildark);
-}
-
-.main {
-  flex: 1;
-  padding: var(--space-xl);
-  overflow-y: auto;
+  position: fixed;
+  left: 0;
+  height: 100vh;
+  width: 240px;
+  background-color: var(--surface-container-low);
   display: flex;
   flex-direction: column;
-  background-color: var(--light);
-  padding-left: 0.5vw;
+  padding: 1.5rem 0;
+  box-shadow: 12px 0 32px -4px rgba(43,32,23,0.08);
+  z-index: 50;
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
+.brand {
+  padding: 0 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.avatar {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 50%;
-  object-fit: cover; /* for <img> */
-  background-image: url(../../images/dummyPFP.jpg);
-  background-size: cover; /* for fallback <div> */
-  margin-left: 0.5vw;
-  flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+.brandTitle {
+  font-size: 1.875rem;
+  font-family: var(--font-display);
+  color: var(--primary);
+  font-weight: 700;
 }
 
-.username {
-  font-weight: 600;
-  color: white;
-  font-size: large;
-}
-
-.userType {
-  font-size: 0.875rem;
-  color: white;
-}
-
-.headerActions {
-  display: flex;
-  gap: var(--space-sm);
-  margin-right: 1vw;
+.brandSubtitle {
+  font-size: 10px;
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(43, 32, 23, 0.6);
+  margin-top: 0.25rem;
 }
 
 .nav {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 0.25rem;
 }
 
-a {
-  text-decoration: none;
-}
-
-.notifLink {
-  position: relative;
+.navLink {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  color: var(--on-surface);
 }
 
-.badge {
-  background-color: #e53935;
-  color: #fff;
-  font-size: 0.7rem;
+.navLink:hover {
+  background-color: rgba(218, 193, 184, 0.2);
+}
+
+.navLinkActive {
+  background-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transform: scale(1.02);
+}
+.navLinkActive:active {
+  transform: scale(1);
+}
+
+.navIcon {
+  font-size: 1.5rem;
+}
+
+.navLinkText {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.navBadge {
+  margin-left: auto;
+  background-color: var(--error);
+  color: white;
+  font-size: 10px;
+  font-family: var(--font-label);
   font-weight: 700;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  display: inline-flex;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+}
+
+.sidebarBottom {
+  margin-top: auto;
+  padding: 0 0.5rem;
+}
+
+.newCollectionBtn {
+  width: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  line-height: 1;
+  gap: 0.5rem;
+  background-color: var(--secondary);
+  color: #ffffff;
+  padding: 0.75rem 0;
+  border-radius: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-bottom: 1.5rem;
 }
 
-/* Bell icon in header */
-.bellBtn {
+.newCollectionBtn:hover {
+  opacity: 0.9;
+}
+
+.profileSummary {
+  border-top: 1px solid rgba(218, 193, 184, 0.3);
+  padding-top: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profileAvatarBox {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--primary-container);
+  overflow: hidden;
+}
+
+.profileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileInfo {
+  overflow: hidden;
+}
+
+.profileName {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileRole {
+  font-size: 10px;
+  color: var(--primary);
+  font-family: var(--font-hindi);
+}
+
+.mainWrapper {
+  margin-left: 240px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topNav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-family: var(--font-display);
+  color: var(--on-surface);
+  font-weight: 700;
+}
+
+.topNavRight {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.searchWrapper {
   position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--outline);
+  font-size: 1.25rem;
+  transition: color 0.2s;
+}
+
+.searchWrapper:focus-within .searchIcon {
+  color: var(--secondary);
+}
+
+.searchInput {
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  background-color: var(--surface-container-low);
+  border: none;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-family: var(--font-label);
+  width: 16rem;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 1px var(--secondary);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconBtn {
+  padding: 0.5rem;
+  color: var(--primary);
   background: transparent;
   border: none;
-  font-size: 1.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
   cursor: pointer;
-  padding: 0.3rem 0.5rem;
-  border-radius: 8px;
-  line-height: 1;
-  transition: background 0.2s;
+  position: relative;
   display: flex;
   align-items: center;
-}
-
-.bellBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.bellBadge {
-  position: absolute;
-  top: -2px;
-  right: -4px;
-  background: #e53935;
-  color: #fff;
-  font-size: 0.62rem;
-  font-weight: 700;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  padding: 0 3px;
-  line-height: 1;
-  border: 2px solid var(--dark);
+}
+
+.iconBtn:hover {
+  background-color: var(--surface-container-low);
+}
+
+.notifDot {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--error);
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+}
+
+.contentContainer {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  width: 100%;
+  padding: 3rem 2rem;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: #2B2017;
+  border-top: 1px solid rgba(201, 150, 42, 0.2);
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  color: rgba(237, 229, 208, 0.6);
+  font-family: var(--font-display);
+}
+
+.footerLinks a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s;
+}
+
+.footerLinks a:hover {
+  color: var(--secondary);
+}
+
+.footerLinks .activeFooterLink {
+  text-decoration: underline;
+  text-decoration-color: var(--secondary);
+  text-underline-offset: 4px;
+}
+
+.footerBrand {
+  font-size: 1.25rem;
+  font-family: var(--font-display);
+  color: #F5EFE0;
+}
+
+.footerCopyright {
+  color: rgba(237, 229, 208, 0.4);
+  font-size: 0.75rem;
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
