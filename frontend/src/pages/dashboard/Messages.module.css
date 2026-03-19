@@ -1,10 +1,11 @@
 .container {
+  flex: 1;
   display: flex;
-  height: 100%;
   overflow: hidden;
-  border-radius: 8px;
-  border: 1px solid var(--lildark);
-  background-color: white;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 10;
 }
 
 .windowArea {
@@ -12,6 +13,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: var(--surface-container-lowest);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 32px -4px rgba(43,32,23,0.08);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 10%, transparent);
 }
 
 .empty {
@@ -19,8 +24,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--dark);
+  color: var(--on-surface-variant);
   font-size: 0.95rem;
+  font-family: var(--font-body);
 }
 
 .loading {
@@ -28,6 +34,4 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--dark);
-  font-size: 0.9rem;
 }

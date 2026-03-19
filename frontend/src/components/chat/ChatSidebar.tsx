@@ -73,7 +73,10 @@ function ChatSidebar({
 
   return (
     <aside className={styles.sidebar}>
-      <h3 className={styles.heading}>Messages</h3>
+      <div className={styles.headingWrapper}>
+        <h3 className={styles.heading}>Inbox</h3>
+        <span className={`material-symbols-outlined ${styles.headingIcon}`}>edit_square</span>
+      </div>
       <ul className={styles.list}>
         {conversations.map((conv) => {
           const other =
@@ -81,10 +84,7 @@ function ChatSidebar({
               ? conv.customer
               : conv.artisan;
           const isActive = conv.id === activeConversationId;
-
-          // Fallback: if title is null/empty, show "Chat with <other name>"
-          const displayTitle =
-            conv.title?.trim() || `Chat with ${other?.name ?? "User"}`;
+          const displayTitle = conv.title?.trim() || other?.name || "Unknown User";
 
           return (
             <li
@@ -92,13 +92,29 @@ function ChatSidebar({
               className={`${styles.item} ${isActive ? styles.active : ""}`}
               onClick={() => onSelect(conv.id)}
             >
-              <div className={styles.itemTitle}>
-                {conv.status === "CLOSED" && (
-                  <span className={styles.lock}>🔒</span>
+              <div className={styles.itemAvatar}>
+                {other?.avatar_url ? (
+                  <img src={other.avatar_url} alt={displayTitle} />
+                ) : (
+                  <span className={styles.itemAvatarFallback}>{displayTitle.charAt(0)}</span>
                 )}
-                <span>{displayTitle}</span>
+                {/* Active marker for everyone by default to simulate real presence based on UI */}
+                <div className={styles.itemStatusDot}></div>
               </div>
-              <p className={styles.itemSub}>{other?.name ?? "Unknown"}</p>
+
+              <div className={styles.itemContent}>
+                <div className={styles.itemHeader}>
+                  <h4 className={styles.itemTitle}>{displayTitle}</h4>
+                  <span className={styles.itemTime}>
+                    {new Date(conv.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+                <p className={styles.itemSub}>
+                  {conv.status === "CLOSED" ? "🔒 Archived" : "View conversation..."}
+                </p>
+              </div>
+
+              {isActive && <div className={styles.activeDot}></div>}
             </li>
           );
         })}

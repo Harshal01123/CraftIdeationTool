@@ -1,4 +1,3 @@
-import styles from './Edit-profile.module.css';
 
 function EditProfile() {
   return (

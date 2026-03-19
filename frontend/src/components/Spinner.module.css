@@ -50,3 +50,51 @@
     transform: rotate(360deg);
   }
 }
+
+/* 
+  KalaKriti Branded Animated Spinner
+*/
+.brandedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+}
+
+.brandedIcon {
+  width: 6rem;
+  height: 6rem;
+  opacity: 0.8;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.brandedTextWrapper {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.brandedHindi {
+  font-family: var(--font-hindi);
+  color: var(--secondary);
+  font-size: 1.125rem;
+  opacity: 0.6;
+}
+
+.brandedLabel {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}

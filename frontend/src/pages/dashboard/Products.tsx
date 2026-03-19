@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
-import ProductCategory from "../../components/products/ProductCategory";
+import ProductCard from "../../components/products/ProductCard";
 import Spinner from "../../components/Spinner";
 import styles from "./Products.module.css";
 import { useAuth } from "../../hooks/useAuth";
@@ -10,8 +10,12 @@ import { useAuth } from "../../hooks/useAuth";
 function Products() {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const [grouped, setGrouped] = useState<Record<string, Product[]>>({});
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filters State
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
@@ -27,22 +31,38 @@ function Products() {
         .eq("is_available", true)
         .order("created_at", { ascending: false });
 
-      if (!data) {
-        setLoading(false);
-        return;
+      if (data) {
+        setProducts(data as Product[]);
       }
-
-      const groups: Record<string, Product[]> = {};
-      for (const product of data as Product[]) {
-        const key = product.category?.trim() || "Uncategorized";
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(product);
-      }
-      setGrouped(groups);
       setLoading(false);
     }
     fetchProducts();
   }, []);
+
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      const cat = p.category?.trim() || "Uncategorized";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      if (
+        selectedCategory &&
+        (p.category?.trim() || "Uncategorized") !== selectedCategory
+      )
+        return false;
+      if (
+        searchQuery &&
+        !p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [products, selectedCategory, searchQuery]);
 
   function handleBuyClick(product: Product) {
     if (!profile) return alert("Please log in to purchase.");
@@ -50,7 +70,7 @@ function Products() {
       return alert("Only customers can purchase items.");
 
     setSelectedProduct(product);
-    setMessageText(""); // Changed: Start with empty message
+    setMessageText("");
     setShowDialog(true);
   }
 
@@ -58,7 +78,6 @@ function Products() {
     if (!selectedProduct || !profile) return;
     setProcessing(true);
 
-    // 1. Create Conversation
     const { data: conv, error: convError } = await supabase
       .from("conversations")
       .insert({
@@ -77,7 +96,6 @@ function Products() {
       return;
     }
 
-    // 2. Create Purchase Record (Pending)
     const { error: purchaseError } = await supabase.from("purchases").insert({
       customer_id: profile.id,
       product_id: selectedProduct.id,
@@ -96,7 +114,6 @@ function Products() {
       return;
     }
 
-    // 3. Send Initial Message (User's custom message)
     if (messageText.trim()) {
       await supabase.from("messages").insert({
         conversation_id: conv.id,
@@ -107,7 +124,6 @@ function Products() {
       });
     }
 
-    // 4. Send System Message (Order Context)
     await supabase.from("messages").insert({
       conversation_id: conv.id,
       sender_id: null,
@@ -123,22 +139,137 @@ function Products() {
 
   return (
     <div className={styles.page}>
-      <h2 className={styles.heading}>Products</h2>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <h2 className={styles.title}>Products</h2>
+          <span className={styles.subtitle}>
+            {filteredProducts.length} Artifacts Found
+          </span>
+        </div>
 
-      {loading ? (
-        <Spinner label="Loading products..." />
-      ) : Object.keys(grouped).length === 0 ? (
-        <p style={{ color: "gray" }}>No products available yet.</p>
-      ) : (
-        Object.entries(grouped).map(([category, products]) => (
-          <ProductCategory
-            key={category}
-            title={category}
-            products={products}
-            onBuy={profile?.role === "customer" ? handleBuyClick : undefined}
-          />
-        ))
-      )}
+        <div className={styles.headerRight}>
+          <div className={styles.searchBox}>
+            <span className="material-symbols-outlined">search</span>
+            <input
+              type="text"
+              placeholder="Search heritage..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <button className={styles.sortBtn}>
+            <span>Sort: Featured</span>
+            <span className="material-symbols-outlined">expand_more</span>
+          </button>
+        </div>
+      </header>
+
+      <section className={styles.heroSection}>
+        <div className={styles.heroBanner}>
+          <div className={styles.heroContent}>
+            <span className={styles.heroHindi}>विरासत</span>
+            <h2 className={styles.heroTitle}>Handpicked Collection</h2>
+            <p className={styles.heroDesc}>
+              Discover rare artifacts sourced directly from master artisans
+              across the Indian subcontinent. Each piece tells a story of
+              generation-spanning craftsmanship.
+            </p>
+            <button className={styles.heroBtn}>Explore Archive</button>
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.mainLayout}>
+        <aside className={styles.sidebar}>
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterLabel}>Categories</h3>
+            <ul className={styles.categoryList}>
+              <li
+                className={`${styles.categoryItem} ${
+                  selectedCategory === null ? styles.categoryItemActive : ""
+                }`}
+                onClick={() => setSelectedCategory(null)}
+              >
+                <span className={styles.catName}>All Collections</span>
+                <span className={styles.catCount}>({products.length})</span>
+              </li>
+              {categories.map(([cat, count]) => (
+                <li
+                  key={cat}
+                  className={`${styles.categoryItem} ${
+                    selectedCategory === cat ? styles.categoryItemActive : ""
+                  }`}
+                  onClick={() => setSelectedCategory(cat)}
+                >
+                  <span className={styles.catName}>{cat}</span>
+                  <span className={styles.catCount}>({count})</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterLabel}>Region</h3>
+            <div className={styles.pillGroup}>
+              <button className={styles.pill}>Chhattisgarh</button>
+              <button className={styles.pill}>Rajasthan</button>
+              <button className={styles.pill}>Jharkhand</button>
+              <button className={styles.pill}>West Bengal</button>
+            </div>
+          </div>
+
+          <div className={styles.filterSection}>
+            <h3 className={styles.filterLabel}>Price Range</h3>
+            <div className={styles.rangeWrapper}>
+              <div className={styles.rangeTrack}>
+                <div className={styles.rangeFill}></div>
+              </div>
+              <div className={styles.rangeLabels}>
+                <span>₹500</span>
+                <span>₹50,000+</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.promoCard}>
+            <h4 className={styles.promoTitle}>Artisan Spotlight</h4>
+            <p className={styles.promoDesc}>
+              Meet Rameshwar, the master of blue pottery from Jaipur.
+            </p>
+            <a href="/dashboard/artisans" className={styles.promoLink}>
+              Read Story
+            </a>
+          </div>
+        </aside>
+
+        <div className={styles.contentArea}>
+          {loading ? (
+            <div className={styles.loader}>
+              <Spinner label="Loading artifacts..." />
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <p className={styles.emptyText}>No artifacts found.</p>
+          ) : (
+            <div className={styles.grid}>
+              {filteredProducts.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  name={p.name}
+                  price={`₹${p.price}`}
+                  description={p.description ?? ""}
+                  artisanName={p.artisan?.name}
+                  imageUrl={p.image_url}
+                  onBuy={
+                    profile?.role === "customer"
+                      ? () => handleBuyClick(p)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {showDialog && selectedProduct && (
         <div className={styles.dialogOverlay}>
