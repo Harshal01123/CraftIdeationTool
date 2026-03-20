@@ -28,6 +28,9 @@ function AddProductModal({
   const [imagePreview, setImagePreview] = useState<string | null>(
     existingProduct?.image_url ?? null,
   );
+  const [weight, setWeight] = useState("");
+  const [dimensions, setDimensions] = useState("");
+  const [giStatus, setGiStatus] = useState("Unregistered");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -112,69 +115,124 @@ function AddProductModal({
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h3 className={styles.title}>
-          {existingProduct ? "Edit Product" : "Add New Product"}
-        </h3>
+        <div className={styles.header}>
+          <span className={styles.hindiSubtitle}>नया उत्पाद</span>
+          <h3 className={styles.title}>
+            {existingProduct ? "Edit Product" : "Add New Product"}
+          </h3>
+          <p className={styles.subtitleText}>Cataloging the soul of the craft.</p>
+        </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <label className={styles.label}>
-            Product Name *
-            <input
-              className={styles.input}
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Pottery Vase"
-            />
-          </label>
-
-          <label className={styles.label}>
-            Description
-            <textarea
-              className={styles.textarea}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your product..."
-              rows={3}
-            />
-          </label>
-
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Price (₹) *
-              <input
-                className={styles.input}
-                type="number"
-                min="1"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g. 500"
-              />
-            </label>
-
-            <label className={styles.label}>
-              Category
-              <select
-                className={styles.input}
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="">Select Category</option>
-                {category &&
-                  !INDUSTRY_OPTIONS.includes(
-                    category as (typeof INDUSTRY_OPTIONS)[number],
-                  ) && <option value={category}>{category}</option>}
-                {INDUSTRY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
+          
+          {/* Section 1: Artifact Identity */}
+          <div className={styles.sectionBlock}>
+            <h4 className={styles.sectionHeading}>Artifact Identity</h4>
+            <div className={styles.sectionContent}>
+              <label className={styles.label}>
+                Title
+                <input
+                  className={styles.input}
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Kanjeevaram Silk Saree"
+                />
+              </label>
+              <label className={styles.label}>
+                Origin Story
+                <textarea
+                  className={styles.textarea}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Provide the historical context and technique used."
+                  rows={3}
+                />
+              </label>
+            </div>
           </div>
 
-          <label className={styles.label}>
-            Product Image {!existingProduct && "*"}
+          {/* Section 2: Pricing & Metrics */}
+          <div className={styles.sectionBlock}>
+            <h4 className={styles.sectionHeading}>Pricing & Metrics</h4>
+            <div className={styles.formRow3}>
+              <label className={styles.label}>
+                Guild Value (₹)
+                <input
+                  className={styles.input}
+                  type="number"
+                  min="1"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0.00"
+                />
+              </label>
+              <label className={styles.label}>
+                Weight (kg)
+                <input
+                  className={styles.input}
+                  type="number"
+                  step="0.1"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="0.0"
+                />
+              </label>
+              <label className={styles.label}>
+                Dimensions (cm)
+                <input
+                  className={styles.input}
+                  type="text"
+                  value={dimensions}
+                  onChange={(e) => setDimensions(e.target.value)}
+                  placeholder="L x W x H"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Section 3: Category & Curation */}
+          <div className={styles.sectionBlock}>
+            <h4 className={styles.sectionHeading}>Category & Curation</h4>
+            <div className={styles.formRow2}>
+              <label className={styles.label}>
+                Craft Category
+                <select
+                  className={styles.input}
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="">Select Category</option>
+                  {category &&
+                    !INDUSTRY_OPTIONS.includes(
+                      category as (typeof INDUSTRY_OPTIONS)[number],
+                    ) && <option value={category}>{category}</option>}
+                  {INDUSTRY_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.label}>
+                GI Status
+                <select
+                  className={styles.input}
+                  value={giStatus}
+                  onChange={(e) => setGiStatus(e.target.value)}
+                >
+                  <option value="Unregistered">Select if registered</option>
+                  <option value="Registered">Registered GI</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          {/* Images */}
+          <div className={styles.sectionBlock}>
+            <h4 className={styles.sectionHeading}>Images</h4>
+            <p className={styles.helperText} style={{marginBottom: "1rem"}}>Upload at least 3 high-resolution images showing texture and detail.</p>
             <div className={styles.imageUploadArea}>
               {imagePreview ? (
                 <img
@@ -184,7 +242,8 @@ function AddProductModal({
                 />
               ) : (
                 <div className={styles.imagePlaceholder}>
-                  Click to upload image
+                  <span className="material-symbols-outlined" style={{ fontSize: "2rem", marginBottom: "0.5rem", color: "var(--primary)" }}>add_photo_alternate</span>
+                  <span>Click to upload high-quality cover photo</span>
                 </div>
               )}
               <input
@@ -194,7 +253,7 @@ function AddProductModal({
                 className={styles.fileInput}
               />
             </div>
-          </label>
+          </div>
 
           {error && <p className={styles.error}>{error}</p>}
 
@@ -205,7 +264,7 @@ function AddProductModal({
               onClick={onClose}
               disabled={loading}
             >
-              Cancel
+              Discard Draft
             </button>
             <button
               type="submit"
@@ -215,12 +274,12 @@ function AddProductModal({
               {loading ? (
                 <>
                   <Spinner size="sm" inline />
-                  Saving...
+                  Publishing...
                 </>
               ) : existingProduct ? (
-                "Save Changes"
+                "Update Catalog"
               ) : (
-                "Add Product"
+                "Publish to Catalog"
               )}
             </button>
           </div>

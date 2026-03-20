@@ -174,62 +174,18 @@
 }
 
 .topNav {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background-color: var(--surface);
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  z-index: 50;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  width: 100%;
-}
-
-.pageTitle {
-  font-size: 1.5rem;
-  font-family: var(--font-display);
-  color: var(--on-surface);
-  font-weight: 700;
+  justify-content: flex-end;
 }
 
 .topNavRight {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-}
-
-.searchWrapper {
-  position: relative;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--outline);
-  font-size: 1.25rem;
-  transition: color 0.2s;
-}
-
-.searchWrapper:focus-within .searchIcon {
-  color: var(--secondary);
-}
-
-.searchInput {
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
-  background-color: var(--surface-container-low);
-  border: none;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-family: var(--font-label);
-  width: 16rem;
-  transition: all 0.2s;
-  outline: none;
-}
-
-.searchInput:focus {
-  box-shadow: 0 0 0 1px var(--secondary);
 }
 
 .navActions {

@@ -139,15 +139,15 @@ function Products() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
+      <div className={styles.filterBar}>
         <div className={styles.headerLeft}>
-          <h2 className={styles.title}>Products</h2>
-          <span className={styles.subtitle}>
-            {filteredProducts.length} Artifacts Found
+          <h2 className={styles.pageTitle}>Products</h2>
+          <span className={styles.hindiSubtitle}>उत्पाद</span>
+          <span className={styles.subtitle} style={{marginLeft: '1rem'}}>
+            ({filteredProducts.length} Artifacts)
           </span>
         </div>
-
-        <div className={styles.headerRight}>
+        <div className={styles.filterRight}>
           <div className={styles.searchBox}>
             <span className="material-symbols-outlined">search</span>
             <input
@@ -162,7 +162,7 @@ function Products() {
             <span className="material-symbols-outlined">expand_more</span>
           </button>
         </div>
-      </header>
+      </div>
 
       <section className={styles.heroSection}>
         <div className={styles.heroBanner}>

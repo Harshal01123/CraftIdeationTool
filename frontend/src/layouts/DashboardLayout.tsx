@@ -2,30 +2,49 @@ import { useEffect, useState } from "react";
 import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import styles from "./DashboardLayout.module.css";
 import { supabase } from "../lib/supabase";
-import { type Profile } from "../types/chat";
+import { type Profile, type Product } from "../types/chat";
+import AddProductModal from "../components/products/AddProductModal";
+import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
+export const PRODUCT_SAVED_EVENT = "dashboard:product-saved";
 
 function DashboardLayout() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     function handleUnreadCountChange(event: Event) {
       const customEvent = event as CustomEvent<{ unreadCount: number }>;
       setUnreadCount(customEvent.detail?.unreadCount ?? 0);
     }
+    
+    function handleOpenEditModal(event: Event) {
+      const customEvent = event as CustomEvent<{ product: Product }>;
+      setEditingProduct(customEvent.detail.product);
+      setIsModalOpen(true);
+    }
 
     window.addEventListener(
       UNREAD_COUNT_EVENT,
       handleUnreadCountChange as EventListener,
     );
+    window.addEventListener(
+      OPEN_EDIT_PRODUCT_MODAL_EVENT,
+      handleOpenEditModal as EventListener,
+    );
+    
     return () => {
       window.removeEventListener(
         UNREAD_COUNT_EVENT,
         handleUnreadCountChange as EventListener,
+      );
+      window.removeEventListener(
+        OPEN_EDIT_PRODUCT_MODAL_EVENT,
+        handleOpenEditModal as EventListener,
       );
     };
   }, []);
@@ -107,13 +126,6 @@ function DashboardLayout() {
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`;
 
-  // Get current page title simply based on path
-  const getPageTitle = () => {
-    const path = location.pathname.split("/").pop();
-    if (!path || path === "dashboard") return "Dashboard";
-    return path.charAt(0).toUpperCase() + path.slice(1);
-  };
-
   return (
     <div className={styles.page}>
       
@@ -157,7 +169,17 @@ function DashboardLayout() {
         </nav>
 
         <div className={styles.sidebarBottom}>
-          <button className={styles.newCollectionBtn} onClick={() => navigate("/dashboard/products")}>
+          <button
+            className={styles.newCollectionBtn}
+            onClick={() => {
+              if (profile?.role === "artisan") {
+                setEditingProduct(null);
+                setIsModalOpen(true);
+              } else {
+                navigate("/dashboard/products");
+              }
+            }}
+          >
             <span className={`material-symbols-outlined ${styles.navIcon}`}>add_circle</span>
             New Collection
           </button>
@@ -181,14 +203,9 @@ function DashboardLayout() {
       {/* MAIN CONTENT AREA */}
       <main className={styles.mainWrapper}>
         
-        {/* TOP NAV BAR */}
-        <header className={styles.topNav}>
-          <h2 className={styles.pageTitle}>{getPageTitle()}</h2>
+        {/* TOP NAV ACTIONS ONLY */}
+        <div className={styles.topNav}>
           <div className={styles.topNavRight}>
-            <div className={styles.searchWrapper}>
-              <span className={`material-symbols-outlined ${styles.searchIcon}`}>search</span>
-              <input type="text" placeholder="Search archive..." className={styles.searchInput} />
-            </div>
             <div className={styles.navActions}>
               <button className={styles.iconBtn} onClick={() => navigate("/dashboard/notifications")}>
                 <span className="material-symbols-outlined">notifications</span>
@@ -199,7 +216,7 @@ function DashboardLayout() {
               </button>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Dashboard Content Container */}
         <div className={styles.contentContainer}>
@@ -220,6 +237,22 @@ function DashboardLayout() {
         </footer>
 
       </main>
+
+      {isModalOpen && profile?.role === "artisan" && (
+        <AddProductModal
+          artisanId={profile.id}
+          existingProduct={editingProduct!}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingProduct(null);
+          }}
+          onSaved={() => {
+            setIsModalOpen(false);
+            setEditingProduct(null);
+            window.dispatchEvent(new Event(PRODUCT_SAVED_EVENT));
+          }}
+        />
+      )}
     </div>
   );
 }

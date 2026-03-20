@@ -51,18 +51,16 @@ function Courses() {
     <div className={styles.page}>
       
       {/* Top Header */}
-      <header className={styles.header}>
+      <div className={styles.filterBarTop}>
         <div className={styles.headerLeft}>
           <h2 className={styles.pageTitle}>Courses</h2>
           <span className={styles.hindiSubtitle}>शिक्षा</span>
         </div>
-        <div className={styles.headerRight}>
-          <div className={styles.searchBox}>
-            <span className="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Search Masterclasses..." />
-          </div>
+        <div className={styles.searchBox}>
+          <span className="material-symbols-outlined">search</span>
+          <input type="text" placeholder="Search Masterclasses..." />
         </div>
-      </header>
+      </div>
 
       <div className={styles.contentWrap}>
         

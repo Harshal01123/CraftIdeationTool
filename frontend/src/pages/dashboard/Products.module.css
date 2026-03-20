@@ -4,8 +4,8 @@
   min-height: 100vh;
 }
 
-/* Header */
-.header {
+/* Filter Bar */
+.filterBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,7 +35,7 @@
   font-weight: 500;
 }
 
-.headerRight {
+.filterRight {
   display: flex;
   align-items: center;
   gap: 1.5rem;
