@@ -37,7 +37,7 @@ function Login() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message);
+      setError(authError.message || authError.code || JSON.stringify(authError));
     } else {
       navigate("/dashboard");
     }

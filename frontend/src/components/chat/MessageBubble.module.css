@@ -1,51 +1,70 @@
 .wrap {
   display: flex;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Current user's messages on the right */
 .mine {
   justify-content: flex-end;
 }
 
-/* Other person's messages on the left */
 .theirs {
   justify-content: flex-start;
 }
 
 .bubble {
   max-width: 65%;
-  padding: 0.55rem 0.9rem;
-  border-radius: 16px;
+  padding: 0.6rem 1rem;
+  border-radius: 14px;
 }
 
+/* Outgoing: terracotta gradient */
 .bubbleMine {
-  background-color: var(--dark);
-  border-bottom-right-radius: 4px;
+  background: linear-gradient(135deg, #823b18, var(--primary));
+  border-bottom-right-radius: 3px;
+  box-shadow: 0 2px 8px rgba(130, 59, 24, 0.25);
 }
 
+/* Incoming: linen/parchment */
 .bubbleTheirs {
-  background-color: var(--lildark);
-  border-bottom-left-radius: 4px;
+  background-color: var(--surface-container-high);
+  border-bottom-left-radius: 3px;
+  box-shadow: 0 2px 8px rgba(43, 32, 23, 0.07);
 }
 
 .content {
   margin: 0;
-  color: white;
-  font-size: 0.88rem;
-  line-height: 1.45;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
   word-break: break-word;
+}
+
+.bubbleMine .content {
+  color: #fff;
+}
+
+.bubbleTheirs .content {
+  color: var(--on-surface);
 }
 
 .time {
   display: block;
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-label);
+  font-size: 0.62rem;
   text-align: right;
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
+  letter-spacing: 0.04em;
 }
 
-/* System messages centered in the middle */
+.bubbleMine .time {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bubbleTheirs .time {
+  color: color-mix(in srgb, var(--on-surface) 45%, transparent);
+}
+
+/* System messages: centered pill */
 .systemWrap {
   display: flex;
   justify-content: center;
@@ -53,10 +72,12 @@
 }
 
 .systemMsg {
-  background-color: rgba(0, 0, 0, 0.07);
-  color: var(--darkest);
-  font-size: 0.76rem;
+  background-color: color-mix(in srgb, var(--outline-variant) 30%, transparent);
+  color: var(--on-surface-variant);
+  font-family: var(--font-label);
+  font-size: 0.7rem;
   font-style: italic;
+  letter-spacing: 0.04em;
   padding: 0.3rem 1rem;
   border-radius: 20px;
   margin: 0;

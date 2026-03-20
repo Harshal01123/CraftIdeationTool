@@ -26,13 +26,27 @@ function MessageBubble({ message, currentUserId }: Props) {
 
   return (
     <div className={`${styles.wrap} ${isMine ? styles.mine : styles.theirs}`}>
-      <div
-        className={`${styles.bubble} ${
-          isMine ? styles.bubbleMine : styles.bubbleTheirs
-        }`}
-      >
-        <p className={styles.content}>{message.content}</p>
-        <span className={styles.time}>{time}</span>
+      <div className={styles.container}>
+        <div className={styles.metaRow}>
+          {isMine ? (
+            <>
+              <span className={styles.time}>{time}</span>
+              <span className={styles.name}>You</span>
+            </>
+          ) : (
+            <>
+              {/* <span className={styles.name}>Sender</span> */}
+              <span className={styles.time}>{time}</span>
+            </>
+          )}
+        </div>
+        <div
+          className={`${styles.bubble} ${
+            isMine ? styles.bubbleMine : styles.bubbleTheirs
+          }`}
+        >
+          <p className={styles.content}>{message.content}</p>
+        </div>
       </div>
     </div>
   );

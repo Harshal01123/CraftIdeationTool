@@ -6,6 +6,45 @@ import styles from "./Notifications.module.css";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 
+function isToday(dateStr: string) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return (
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear()
+  );
+}
+
+function isYesterday(dateStr: string) {
+  const d = new Date(dateStr);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return (
+    d.getDate() === yesterday.getDate() &&
+    d.getMonth() === yesterday.getMonth() &&
+    d.getFullYear() === yesterday.getFullYear()
+  );
+}
+
+function groupByDate(notifications: Notification[]) {
+  const groups: { label: string; items: Notification[] }[] = [];
+  const today: Notification[] = [];
+  const yesterday: Notification[] = [];
+  const older: Notification[] = [];
+
+  for (const n of notifications) {
+    if (isToday(n.created_at)) today.push(n);
+    else if (isYesterday(n.created_at)) yesterday.push(n);
+    else older.push(n);
+  }
+
+  if (today.length) groups.push({ label: "Today", items: today });
+  if (yesterday.length) groups.push({ label: "Yesterday", items: yesterday });
+  if (older.length) groups.push({ label: "Earlier", items: older });
+  return groups;
+}
+
 function Notifications() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -101,16 +140,17 @@ function Notifications() {
   }
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const groups = groupByDate(notifications);
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h2 className={styles.heading}>
-          Notifications
+        <div className={styles.headingGroup}>
+          <h2 className={styles.heading}>Notifications</h2>
           {unreadCount > 0 && (
             <span className={styles.badge}>{unreadCount}</span>
           )}
-        </h2>
+        </div>
         {unreadCount > 0 && (
           <button className={styles.markAllBtn} onClick={markAllAsRead}>
             Mark all as read
@@ -119,42 +159,64 @@ function Notifications() {
       </div>
 
       {notifications.length === 0 ? (
-        <p className={styles.empty}>You're all caught up!</p>
+        <div className={styles.empty}>
+          <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
+            notifications_none
+          </span>
+          <p>You&apos;re all caught up!</p>
+          <span className={styles.emptySubtext}>
+            No notifications at this time.
+          </span>
+        </div>
       ) : (
-        <ul className={styles.list}>
-          {notifications.map((n) => (
-            <li
-              key={n.id}
-              className={`${styles.item} ${n.is_read ? styles.read : styles.unread}`}
-              onClick={() => handleClick(n)}
-            >
-              <span className={styles.icon}>🟢</span>
-              <div className={styles.content}>
-                <p className={styles.title}>{n.title}</p>
-                {n.body && <p className={styles.body}>{n.body}</p>}
-                <p className={styles.time}>
-                  {new Date(n.created_at).toLocaleString()}
-                </p>
-              </div>
-              {!n.is_read && (
-                <button
-                  className={styles.readBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    markAsRead(n.id);
-                  }}
-                >
-                  Mark read
-                </button>
-              )}
-              {n.is_read && (
-                <span className={styles.readDot} title="Read">
-                  ✓
-                </span>
-              )}
-            </li>
+        <div className={styles.groups}>
+          {groups.map((group) => (
+            <div key={group.label} className={styles.group}>
+              <div className={styles.groupLabel}>{group.label}</div>
+              <ul className={styles.list}>
+                {group.items.map((n) => (
+                  <li
+                    key={n.id}
+                    className={`${styles.item} ${n.is_read ? styles.read : styles.unread}`}
+                    onClick={() => handleClick(n)}
+                  >
+                    <div className={styles.iconWrap}>
+                      <span className={`material-symbols-outlined ${styles.icon}`}>
+                        {n.conversation_id ? "mail" : "notifications"}
+                      </span>
+                      {!n.is_read && <div className={styles.unreadDot} />}
+                    </div>
+                    <div className={styles.content}>
+                      <p className={styles.title}>{n.title}</p>
+                      {n.body && <p className={styles.body}>{n.body}</p>}
+                      <p className={styles.time}>
+                        {new Date(n.created_at).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                    {!n.is_read ? (
+                      <button
+                        className={styles.readBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(n.id);
+                        }}
+                      >
+                        Mark read
+                      </button>
+                    ) : (
+                      <span className={styles.readCheck} title="Read">
+                        <span className="material-symbols-outlined">check_circle</span>
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
