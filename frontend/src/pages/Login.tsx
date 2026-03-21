@@ -81,7 +81,7 @@ function Login() {
                   className={styles.input}
                   id="email"
                   type="email"
-                  placeholder="curator@craftconnect.in"
+                  placeholder="customertor@craftconnect.in"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

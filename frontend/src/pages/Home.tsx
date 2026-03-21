@@ -13,7 +13,7 @@ function Home() {
           CraftConnect
         </div>
         <nav className={styles.navLinks}>
-          <a href="#curator">For the Curator</a>
+          <a href="#customer">For the Customer</a>
           <a href="#learner">For the Learner</a>
           <a href="#artisan">For the Artisan</a>
         </nav>
@@ -40,11 +40,11 @@ function Home() {
       </section>
 
       {/* ================= ECOSYSTEM ================= */}
-      <section className={styles.ecosystemSection} id="curator">
+      <section className={styles.ecosystemSection} id="customer">
         <h2 className={styles.sectionTitle}>The Ecosystem of Creation</h2>
         <div className={styles.ecosystemGrid}>
           <div className={styles.ecoCard}>
-            <h3>For the Curator</h3>
+            <h3>For the Customer</h3>
             <p>Discover authenticated heritage pieces from remote clusters, delivered with the story of their origin.</p>
           </div>
           <div className={styles.ecoCard}>
