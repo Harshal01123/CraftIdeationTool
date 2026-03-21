@@ -12,11 +12,6 @@ function Home() {
         <div className={styles.logo} onClick={() => navigate("/")}>
           CraftConnect
         </div>
-        <nav className={styles.navLinks}>
-          <a href="#customer">For the Customer</a>
-          <a href="#learner">For the Learner</a>
-          <a href="#artisan">For the Artisan</a>
-        </nav>
         <div className={styles.auth}>
           <button className={styles.navBtn} onClick={() => navigate("/login")}>Login</button>
           <Button variant="primary" onClick={() => navigate("/signup")}>Sign Up</Button>
