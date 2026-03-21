@@ -105,18 +105,20 @@ h3 {
   padding: 6rem 4rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: space-between;
+  gap: 4rem;
   background: linear-gradient(
     180deg,
     var(--surface) 0%,
     var(--surface-container-low) 100%
   );
-  min-height: 60vh;
+  min-height: 80vh;
 }
 
 .heroContent {
-  max-width: 800px;
+  flex: 1;
+  max-width: 600px;
+  text-align: left;
 }
 
 .heroTitle {
@@ -131,6 +133,44 @@ h3 {
   margin-bottom: 2.5rem;
   color: var(--on-surface);
   opacity: 0.85;
+}
+
+/* ── Hero Grid ── */
+.heroGrid {
+  flex: 1;
+  max-width: 500px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.gridColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.gridImage {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 4px solid #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.gridImage:hover {
+  transform: scale(1.03) translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.imgShort {
+  height: 200px;
+}
+
+.imgTall {
+  height: 320px;
 }
 
 /* ── Ecosystem Section ── */
@@ -268,9 +308,11 @@ h3 {
   box-shadow: var(--shadow-ambient);
 }
 
-.courseImagePlaceholder {
+.courseImage {
+  width: 100%;
   height: 180px;
-  background: var(--surface);
+  object-fit: cover;
+  display: block;
 }
 
 .courseInfo {

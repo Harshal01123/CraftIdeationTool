@@ -29,11 +29,22 @@ function Home() {
             Bridging the gap between the master artisan and the modern connoisseur.
           </p>
         </div>
+        
+        <div className={styles.heroGrid}>
+          <div className={styles.gridColumn}>
+            <img src="/images/bluePottery.jpg" alt="Blue Pottery" className={`${styles.gridImage} ${styles.imgShort}`} />
+            <img src="/images/handloom.jpg" alt="Handloom" className={`${styles.gridImage} ${styles.imgTall}`} />
+          </div>
+          <div className={styles.gridColumn}>
+            <img src="/images/zardozi.jpg" alt="Zardozi" className={`${styles.gridImage} ${styles.imgTall}`} />
+            <img src="/images/home_section_1.jpg" alt="Indian Crafts" className={`${styles.gridImage} ${styles.imgShort}`} />
+          </div>
+        </div>
       </section>
 
       {/* ================= ECOSYSTEM ================= */}
       <section className={styles.ecosystemSection} id="customer">
-        <h2 className={styles.sectionTitle}>The Ecosystem of Creation</h2>
+        <h2 className={styles.sectionTitle}>Message from the DEVS</h2>
         <div className={styles.ecosystemGrid}>
           <div className={styles.ecoCard}>
             <h3>For the Customer</h3>
@@ -54,9 +65,6 @@ function Home() {
       <section className={styles.craftsmenSection} id="artisan">
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Master Craftsmen</h2>
-          <button className={styles.linkRaw} onClick={() => navigate("/dashboard/artisans")}>
-            View Artisan Directory
-          </button>
         </div>
         
         <div className={styles.craftsmenGrid}>
@@ -103,17 +111,14 @@ function Home() {
         <h2 className={styles.sectionTitle}>Masterclass Series</h2>
         <div className={styles.masterclassGrid}>
           {[
-            "The Art of Blue Pottery",
-            "Handloom Fundamentals",
-            "Mastering Zardozi"
-          ].map((title, i) => (
+            { title: "The Art of Blue Pottery", img: "/images/bluePottery.jpg" }, 
+            { title: "Handloom Fundamentals", img: "/images/handloom.jpg" },
+            { title: "Mastering Zardozi", img: "/images/zardozi.jpg" }
+          ].map((course, i) => (
             <div key={i} className={styles.courseCard}>
-              <div className={styles.courseImagePlaceholder}></div>
+              <img src={course.img} alt={course.title} className={styles.courseImage} />
               <div className={styles.courseInfo}>
-                <h3>{title}</h3>
-                <button className={styles.linkRaw} onClick={() => navigate("/dashboard/courses")}>
-                  Explore Course
-                </button>
+                <h3>{course.title}</h3>
               </div>
             </div>
           ))}
