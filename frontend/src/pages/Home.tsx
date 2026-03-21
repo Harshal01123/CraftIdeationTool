@@ -28,9 +28,6 @@ function Home() {
             A digital curator dedicated to the timeless beauty of Indian hand-artistry.
             Bridging the gap between the master artisan and the modern connoisseur.
           </p>
-          <div className={styles.heroActions}>
-            <Button variant="primary" onClick={() => navigate("/dashboard/products")}>Explore Collection</Button>
-          </div>
         </div>
       </section>
 
