@@ -132,7 +132,7 @@ function DashboardLayout() {
       {/* SIDEBAR */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <h1 className={styles.brandTitle}><span style={{fontFamily: 'var(--font-hindi)'}}>कला</span>kriti</h1>
+          <h1 className={styles.brandTitle}>CraftConnect</h1>
           <p className={styles.brandSubtitle}>The Digital Curator</p>
         </div>
         
@@ -232,8 +232,8 @@ function DashboardLayout() {
             <a href="#">Sustainability</a>
             <a href="#">Contact</a>
           </div>
-          <div className={styles.footerBrand}>कलाkriti Heritage Editorial</div>
-          <p className={styles.footerCopyright}>© 2024 कलाkriti Heritage Editorial. All rights reserved.</p>
+          <div className={styles.footerBrand}>CraftConnect Heritage Editorial</div>
+          <p className={styles.footerCopyright}>© 2024 CraftConnect Heritage Editorial. All rights reserved.</p>
         </footer>
 
       </main>

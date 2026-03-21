@@ -1,6 +1,6 @@
-# CraftIdeationTool
+# CraftConnect
 
-**CraftIdeationTool** is a comprehensive web platform designed to revitalize the local handicraft sector, aligning with the "Vocal for Local" initiative. The platform addresses the lack of digital visibility for local artisans and the fading of traditional heritage skills by combining a **Marketplace** for custom goods with an **Educational Ecosystem**.
+**CraftConnect** is a comprehensive web platform designed to revitalize the local handicraft sector, aligning with the "Vocal for Local" initiative. The platform addresses the lack of digital visibility for local artisans and the fading of traditional heritage skills by combining a **Marketplace** for custom goods with an **Educational Ecosystem**.
 
 ## Overview
 

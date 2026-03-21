@@ -53,7 +53,7 @@ function Login() {
 
       <header className={styles.header}>
         <h1 className={styles.headerTitle}>
-          <span className={styles.hindiText}>कला</span>kriti
+          CraftConnect
         </h1>
       </header>
 
@@ -81,7 +81,7 @@ function Login() {
                   className={styles.input}
                   id="email"
                   type="email"
-                  placeholder="curator@kalakriti.in"
+                  placeholder="curator@craftconnect.in"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -168,7 +168,7 @@ function Login() {
           <a href="#contact">Contact</a>
         </div>
         <p className={styles.copyright}>
-          © 2024 कलाkriti. Handcrafted in India.
+          © 2024 CraftConnect. Handcrafted in India.
         </p>
       </footer>
 

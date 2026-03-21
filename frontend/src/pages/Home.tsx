@@ -10,7 +10,7 @@ function Home() {
       {/* ================= NAV ================= */}
       <header className={styles.header}>
         <div className={styles.logo} onClick={() => navigate("/")}>
-          कलाkriti
+          CraftConnect
         </div>
         <nav className={styles.navLinks}>
           <a href="#curator">For the Curator</a>
@@ -130,7 +130,7 @@ function Home() {
 
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>
-        <div className={styles.logo}>कलाkriti</div>
+        <div className={styles.logo}>CraftConnect</div>
         <div className={styles.footerLinks}>
           <span>Contact Us</span>
           <span>About Us</span>

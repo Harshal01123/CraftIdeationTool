@@ -214,7 +214,7 @@ function Signup() {
               <input
                 className={styles.input}
                 type="email"
-                placeholder="arjun@kalakriti.in"
+                placeholder="arjun@craftconnect.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
