@@ -72,32 +72,36 @@ function Home() {
         <div className={styles.craftsmenGrid}>
           {[
             {
-              name: "Madan Lal",
-              specialty: "Blue Pottery Master",
-              location: "Jaipur, Rajasthan",
-              initials: "ML"
+              name: "Hirabai Jhareka Baghel",
+              specialty: "Dhokra Artisan",
+              location: "Sarangarh, Chhattisgarh",
+              initials: "HJ",
+              img : "/images/hirbaiPFP.avif"
             },
             {
-              name: "Savitri Devi",
-              specialty: "Madhubani Artist",
-              location: "Madhubani, Bihar",
-              initials: "SD"
+              name: "Udayram Jhara",
+              specialty: "Dhokra Artisan",
+              location: "Raigarh, Chhattisgarh",
+              initials: "UJ",
+              img : "/images/udayramPFP.jpg"
             },
             {
-              name: "Rameshwar Das",
-              specialty: "Brass Smith",
-              location: "Moradabad, UP",
-              initials: "RD"
+              name: "Jagat Ram Dewangan",
+              specialty: "Tuma Artisan",
+              location: "Kondagaon, Chhattisgarh",
+              initials: "JRD",
+              img : "/images/jagatPFP.webp"
             },
             {
-              name: "Meera Bai",
-              specialty: "Ajrakh Weaver",
-              location: "Kutch, Gujarat",
-              initials: "MB"
+              name: "Pandiram Mandavi",
+              specialty: "Instrument Artisan",
+              location: "Bastar, Chhattisgarh",
+              initials: "PM",
+              img : "/images/pandiramPFP.webp"
             }
           ].map(artisan => (
             <div key={artisan.name} className={styles.artisanCard}>
-              <div className={styles.avatarPlaceholder}>{artisan.initials}</div>
+              <div ><img src={artisan.img} alt={artisan.initials} className={styles.artisanImage} /></div>
               <div className={styles.artisanInfo}>
                 <h3 className={styles.artisanName}>{artisan.name}</h3>
                 <p className={styles.artisanSpecialty}>{artisan.specialty}</p>
