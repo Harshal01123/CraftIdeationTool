@@ -54,6 +54,39 @@ function Signup() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  function acquireLocation() {
+    setError("");
+    setLocationLoading(true);
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      setLocationLoading(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          if (!res.ok) throw new Error("Reverse geocoding failed");
+          const data = await res.json();
+          const addr = data.address || {};
+          const localArea = addr.village || addr.suburb || addr.town || addr.city || addr.county || "";
+          const stateArea = addr.state || "";
+          const areaName = [localArea, stateArea].filter(Boolean).join(", ");
+          setShopLocation(areaName || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        } catch (fetchErr) {
+          setShopLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        }
+        setLocationLoading(false);
+      },
+      (err) => {
+        setError("Failed to get location: " + err.message);
+        setLocationLoading(false);
+      }
+    );
+  }
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -283,12 +316,22 @@ function Signup() {
                   </option>
                 ))}
               </select>
-              <input
+              <button
+                type="button"
                 className={styles.input}
-                placeholder="Shop Location"
-                value={shopLocation}
-                onChange={(e) => setShopLocation(e.target.value)}
-              />
+                style={{ 
+                  cursor: "pointer", 
+                  textAlign: "center", 
+                  border: "2px solid var(--primary)",
+                  backgroundColor: shopLocation ? "var(--primary)" : "transparent",
+                  color: shopLocation ? "var(--surface)" : "var(--primary)",
+                  fontWeight: "600"
+                }}
+                onClick={acquireLocation}
+                disabled={locationLoading}
+              >
+                {locationLoading ? "Acquiring GPS..." : shopLocation ? `📍 ${shopLocation}` : "📍 Acquire GPS Location"}
+              </button>
               <textarea
                 placeholder="Describe your work..."
                 className={styles.textarea}
