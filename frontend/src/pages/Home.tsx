@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import Button from "../components/Button";
 
 function Home() {
+  const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -129,12 +131,21 @@ function Home() {
       <footer className={styles.footer}>
         <div className={styles.logo}>CraftConnect</div>
         <div className={styles.footerLinks}>
-          <span>Contact Us</span>
-          <span>About Us</span>
-          <span>Privacy Policy</span>
-          <span>Terms & Conditions</span>
+          <span className={styles.disclaimerLink} onClick={() => setShowPopup(true)}>Disclaimer</span>
         </div>
       </footer>
+
+      {showPopup && (
+        <div className={styles.popupOverlay} onClick={() => setShowPopup(false)}>
+          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
+            <h3>Disclaimer</h3>
+            <p>
+              This website is only for connecting Chhattisgarh craftsmen with customers and give people a chance to learn a wide variety of traditional crafts via verified tutors. This site does not offer payment gateways and also does not ask for any donations. Happy exploring!
+            </p>
+            <button className={styles.closeBtn} onClick={() => setShowPopup(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
