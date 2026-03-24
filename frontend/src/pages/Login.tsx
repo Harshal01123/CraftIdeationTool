@@ -122,9 +122,6 @@ function Login() {
                 <input className={styles.checkbox} type="checkbox" />
                 <span>REMEMBER ME</span>
               </label>
-              <a className={styles.forgotPwd} href="#forgot">
-                FORGOT PASSWORD?
-              </a>
             </div>
 
             <button
@@ -162,13 +159,8 @@ function Login() {
       </main>
 
       <footer className={styles.footer}>
-        <div className={styles.footerLinks}>
-          <a href="#privacy">Privacy Policy</a>
-          <a href="#terms">Terms of Service</a>
-          <a href="#contact">Contact</a>
-        </div>
         <p className={styles.copyright}>
-          © 2024 CraftConnect. Handcrafted in India.
+          © 2026 CraftConnect. Handcrafted in India.
         </p>
       </footer>
 
