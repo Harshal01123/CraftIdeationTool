@@ -108,7 +108,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
   const activeOrders = sales.filter((s) => s.status !== "completed").length;
 
   return (
-    <section className={styles.hero}>
+    <section className={styles.hero}> 
       <header className={styles.header}>
         <div className={styles.headerLeft}>
         </div>

@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import type { Profile } from "../../types/chat";
 import Spinner from "../../components/Spinner";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import ContactDialog from "../../components/chat/ContactDialog";
 import { startConversation } from "../../lib/chatUtils";
 
@@ -13,6 +13,7 @@ function Artisans() {
   const navigate = useNavigate();
   const [artisans, setArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
 
   // Dialog State
   const [showDialog, setShowDialog] = useState(false);
@@ -66,15 +67,6 @@ function Artisans() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.filterBarTop}>
-        <div className={styles.headerLeft}>
-        </div>
-        <div className={styles.searchBox}>
-          <span className="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Find an artisan by craft..." />
-        </div>
-      </div>
-
       <div className={styles.contentWrap}>
         {/* Featured Spotlight Section */}
         <section className={styles.spotlight}>
@@ -144,11 +136,20 @@ function Artisans() {
           <div className={styles.loader}>
             <Spinner label="Loading artisans..." />
           </div>
-        ) : artisans.length === 0 ? (
-          <p className={styles.emptyText}>No artisans found.</p>
-        ) : (
-          <div className={styles.grid}>
-            {artisans.map((artisan) => (
+        ) : (() => {
+          const filteredArtisans = artisans.filter(a => {
+            if (!searchQuery) return true;
+            const q = searchQuery.toLowerCase();
+            return a.name.toLowerCase().includes(q) || (a.industry && a.industry.toLowerCase().includes(q));
+          });
+          
+          if (filteredArtisans.length === 0) {
+            return <p className={styles.emptyText}>No artisans found.</p>;
+          }
+          
+          return (
+            <div className={styles.grid}>
+              {filteredArtisans.map((artisan) => (
               <div key={artisan.id} className={styles.artisanCard}>
                 <div className={styles.cardHeader}>
                   <div className={styles.avatarWrapper}>
@@ -204,8 +205,9 @@ function Artisans() {
                 </div>
               </div>
             ))}
-          </div>
-        )}
+            </div>
+          );
+        })()}
       </div>
 
       <ContactDialog
