@@ -16,7 +16,7 @@ function Home() {
         </div>
         <div className={styles.auth}>
           <button className={styles.navBtn} onClick={() => navigate("/login")}>Login</button>
-          <Button variant="primary" onClick={() => navigate("/signup")}>Sign Up</Button>
+          <Button variant="primary" onClick={() => navigate("/signup")}>SIGN UP</Button>
         </div>
       </header>
 

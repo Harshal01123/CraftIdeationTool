@@ -169,20 +169,18 @@ function DashboardLayout() {
         </nav>
 
         <div className={styles.sidebarBottom}>
-          <button
-            className={styles.newCollectionBtn}
-            onClick={() => {
-              if (profile?.role === "artisan") {
+          {profile?.role === "artisan" && (
+            <button
+              className={styles.newCollectionBtn}
+              onClick={() => {
                 setEditingProduct(null);
                 setIsModalOpen(true);
-              } else {
-                navigate("/dashboard/products");
-              }
-            }}
-          >
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>add_circle</span>
-            New Collection
-          </button>
+              }}
+            >
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>add_circle</span>
+              New Collection
+            </button>
+          )}
           
           <div className={styles.profileSummary}>
             <div className={styles.profileAvatarBox}>
@@ -225,15 +223,8 @@ function DashboardLayout() {
 
         {/* FOOTER */}
         <footer className={styles.footer}>
-          <div className={styles.footerLinks}>
-            <a href="#" className={styles.activeFooterLink}>The Curator's Story</a>
-            <a href="#">Artisan Directory</a>
-            <a href="#">Heritage Blog</a>
-            <a href="#">Sustainability</a>
-            <a href="#">Contact</a>
-          </div>
           <div className={styles.footerBrand}>CraftConnect Heritage Editorial</div>
-          <p className={styles.footerCopyright}>© 2024 CraftConnect Heritage Editorial. All rights reserved.</p>
+          <p className={styles.footerCopyright}>© 2026 CraftConnect Heritage Editorial. All rights reserved.</p>
         </footer>
 
       </main>
