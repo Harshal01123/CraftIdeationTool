@@ -136,7 +136,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>shopping_bag</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+Live</span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
           <p className={styles.kpiLabel}>Active Orders</p>
@@ -146,7 +145,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>storefront</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeNeutral}`}>Catalog</span>
           </div>
           <p className={styles.kpiValue}>{products.length}</p>
           <p className={styles.kpiLabel}>Total Products</p>
@@ -156,7 +154,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>group</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeNeutral}`}>Reach</span>
           </div>
           <p className={styles.kpiValue}>{sales.length}</p>
           <p className={styles.kpiLabel}>All-time Sales</p>
