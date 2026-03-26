@@ -1,0 +1,64 @@
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 6px 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.thumbnail {
+  height: 130px;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+  background-color: #f2f2f2;
+}
+
+.thumbnailFallback {
+  height: 130px;
+  width: 100%;
+  background-image: url("/images/dummyPFP.jpg");
+  background-size: cover;
+  background-position: center;
+  background-color: #f2f2f2;
+}
+
+.info {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--darkest);
+}
+
+.industry {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+.location {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0;
+}

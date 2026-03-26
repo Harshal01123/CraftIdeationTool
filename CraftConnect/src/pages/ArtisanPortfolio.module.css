@@ -1,0 +1,229 @@
+/* ── Page container ── */
+.container {
+  padding: 2rem 2.5rem;
+  max-width: 1100px;
+}
+
+/* ── Profile header ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.profileImage {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 3px solid #e5e5e5;
+}
+
+.headerInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.name {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--darkest);
+}
+
+.industry {
+  font-size: 1rem;
+  color: #555;
+  margin: 0;
+  font-weight: 500;
+}
+
+.location {
+  font-size: 0.875rem;
+  color: #888;
+  margin: 0;
+}
+
+/* Chat button — right-aligned in the header */
+.chatBtn {
+  padding: 0.65rem 1.75rem;
+  background-color: var(--darkest);
+  color: var(--light);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.chatBtn:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.chatBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── About section ── */
+.about {
+  margin-bottom: 2rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  color: #444;
+  line-height: 1.65;
+}
+
+/* ── Section headings ── */
+.sectionHeading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: var(--darkest);
+}
+
+/* ── Products grid ── */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .header {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Back button (not found state) ── */
+.backBtn {
+  margin-top: 1rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--darkest);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--darkest);
+}
+
+/* ── Dialog overlay ── */
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dialogTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--darkest);
+}
+
+.dialogSubtitle {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+}
+
+.dialogInput {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.dialogInput:focus {
+  border-color: var(--darkest);
+}
+
+.dialogError {
+  color: #d93025;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.dialogActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.dialogCancel {
+  padding: 0.55rem 1.2rem;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.dialogCancel:hover {
+  border-color: var(--darkest);
+  color: var(--darkest);
+}
+
+.dialogConfirm {
+  padding: 0.55rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--darkest);
+  color: var(--light);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.dialogConfirm:hover:not(:disabled) {
+  opacity: 0.82;
+}
+
+.dialogConfirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
