@@ -13,6 +13,8 @@ import Messages from "./pages/dashboard/Messages";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 import EditProfile from "./pages/dashboard/EditProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { WishlistProvider } from "./hooks/useWishlist";
+import { Outlet } from "react-router-dom";
 
 function App() {
   return (
@@ -24,16 +26,18 @@ function App() {
 
         {/* All dashboard routes are protected — requires login */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="courses" element={<Courses />} />
-            <Route path="artisans" element={<Artisans />} />
-            <Route path="artisans/:id" element={<ArtisanPortfolio />} />{" "}
-            {/* ← portfolio route */}
-            <Route path="products" element={<Products />} />
-            <Route path="profile" element={<EditProfile />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="messages" element={<Messages />} />
+          <Route element={<WishlistProvider><Outlet /></WishlistProvider>}>
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="courses" element={<Courses />} />
+              <Route path="artisans" element={<Artisans />} />
+              <Route path="artisans/:id" element={<ArtisanPortfolio />} />{" "}
+              {/* ← portfolio route */}
+              <Route path="products" element={<Products />} />
+              <Route path="profile" element={<EditProfile />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="messages" element={<Messages />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

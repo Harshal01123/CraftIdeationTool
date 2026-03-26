@@ -216,6 +216,7 @@ function ArtisanPortfolio() {
         <div className={styles.productsGrid}>
           {products.map((product) => (
             <ProductCard
+              id={product.id}
               key={product.id}
               name={product.name}
               price={`₹${product.price}`}

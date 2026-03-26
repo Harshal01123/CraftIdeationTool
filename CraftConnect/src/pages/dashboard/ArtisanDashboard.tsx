@@ -18,6 +18,10 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
   const [salesLoading, setSalesLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Deletion modal state
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   async function fetchProducts() {
     const { data } = await supabase
       .from("products")
@@ -87,15 +91,23 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
     };
   }, []);
 
-  async function handleDelete(product: Product) {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+  function handleDeleteRequest(product: Product) {
+    setProductToDelete(product);
+  }
 
-    if (product.image_url) {
-      const path = product.image_url.split("/products/")[1];
+  async function confirmDelete() {
+    if (!productToDelete) return;
+    setIsDeleting(true);
+
+    if (productToDelete.image_url) {
+      const path = productToDelete.image_url.split("/products/")[1];
       if (path) await supabase.storage.from("products").remove([path]);
     }
 
-    await supabase.from("products").delete().eq("id", product.id);
+    await supabase.from("products").delete().eq("id", productToDelete.id);
+    
+    setProductToDelete(null);
+    setIsDeleting(false);
     fetchProducts();
   }
 
@@ -247,17 +259,47 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             {products.map((p) => (
               <ProductCard
                 key={p.id}
+                id={p.id}
                 name={p.name}
                 price={`₹${p.price}`}
                 description={p.description ?? ""}
                 imageUrl={p.image_url}
                 onEdit={() => handleEdit(p)}
-                onDelete={() => handleDelete(p)}
+                onDelete={() => handleDeleteRequest(p)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className={styles.popupOverlay} onClick={() => !isDeleting && setProductToDelete(null)}>
+          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f" }}>warning</span>
+            <h3>Delete Product?</h3>
+            <p>
+              Are you sure you want to delete <strong>{productToDelete.name}</strong>? This action cannot be undone and will permanently remove it from your shop.
+            </p>
+            <div className={styles.popupActions}>
+              <button 
+                className={styles.cancelBtn} 
+                onClick={() => setProductToDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className={styles.deleteConfirmBtn} 
+                onClick={confirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -48,7 +48,8 @@
   transition: opacity 0.3s ease;
 }
 
-.card:hover .favoriteBtn {
+.card:hover .favoriteBtn,
+.favoriteBtn.wishlisted {
   opacity: 1;
 }
 
