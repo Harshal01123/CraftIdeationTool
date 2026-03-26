@@ -112,7 +112,7 @@ function Products() {
             <span className="material-symbols-outlined">search</span>
             <input
               type="text"
-              placeholder="Search heritage..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -143,7 +143,7 @@ function Products() {
               <li
                 className={`${styles.categoryItem} ${
                   selectedCategory === null ? styles.categoryItemActive : ""
-                }`}
+                }`} 
                 onClick={() => setSelectedCategory(null)}
               >
                 <span className={styles.catName}>All Collections</span>

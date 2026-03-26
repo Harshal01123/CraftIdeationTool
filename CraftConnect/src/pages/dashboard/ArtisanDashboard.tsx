@@ -124,7 +124,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div className={styles.welcomeIcon}>
           <span className="material-symbols-outlined" style={{ fontSize: "inherit" }}>brush</span>
         </div>
-        <div className={styles.welcomePattern}></div>
+        <div className={styles.welcomePattern}></div> 
       </div>
 
       {/* Stats KPI Grid */}
