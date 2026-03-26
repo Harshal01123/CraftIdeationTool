@@ -12,6 +12,7 @@ export interface Profile {
   industry: string | null;
   location: string | null;
   description: string | null;
+  experience: string | null;
   avatar_url: string | null;
 }
 

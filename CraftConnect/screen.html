@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Artisan Portfolio | CraftConnect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&amp;family=Noto+Serif:wght@400;700&amp;family=Tiro+Devanagari+Hindi&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+        .paper-grain {
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDedUIU2NZfbZicqsbT6Z2hDXZai-eCvsOh2bWxdo9s1zZlUw2FcFRQWGUZyaOJtYTpb4Kyr49ksw4eNLCEeNa26Gv5rDmF5jHQn57uKaObDUedwQ1vVBVQ-fbkd03Nt0RIY6V0cMe8lX-RfpV4Iom7LVrAM2aFYE_arVV4R_pcSM4xvmAYHtUcNhAf4ANfsLLYvogPlwSXgiUVtCwMOCA4qXUYeFmIuPt7vFeFk8Agh5_IirPf0VgJ9o09YZpLMAUTTrUb7cmSm70);
+            opacity: 0.03;
+            pointer-events: none
+        }
+        .glass-effect {
+            backdrop-filter: blur(20px);
+            background: rgba(245, 239, 224, 0.8)
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#A0522D", // Terracotta
+                        "secondary": "#C9962A", // Brass Gold
+                        "surface": "#F5EFE0", // Parchment
+                        "on-surface": "#241911",
+                        "surface-container": "#EDE4D0",
+                        "outline-variant": "#D4C8B0",
+                        "tertiary": "#443f7a"
+                    },
+                    fontFamily: {
+                        "headline": ["Cormorant Garamond", "serif"],
+                        "body": ["Lora", "serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif": ["Cormorant Garamond", "serif"],
+                        "hindi": ["Tiro Devanagari Hindi", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary/20">
+<div class="fixed inset-0 paper-grain z-50"></div>
+<!-- SideNavBar (As per Image 20) -->
+<aside class="hidden md:flex flex-col h-screen py-8 fixed left-0 w-64 bg-[#EBE4D1] z-40 border-r border-black/5">
+<div class="px-8 mb-12">
+<h1 class="text-2xl font-serif text-primary leading-none" style="font-family: 'Newsreader', serif; color: #72422C;">CraftConnect</h1>
+<p class="font-label uppercase tracking-[0.2em] text-[10px] font-bold opacity-60 mt-2">The Digital Curator</p>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<a class="flex items-center px-4 py-3 text-on-surface/70 hover:text-on-surface hover:bg-black/5 rounded-lg transition-all duration-300 group" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="grid_view">grid_view</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Dashboard</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface/70 hover:text-on-surface hover:bg-black/5 rounded-lg transition-all duration-300 group" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="inventory_2">inventory_2</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Products</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface/70 hover:text-on-surface hover:bg-black/5 rounded-lg transition-all duration-300 group" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="school">school</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Courses</span>
+</a>
+<a class="flex items-center px-4 py-3 bg-[#A0522D] text-white rounded-lg shadow-md transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="brush">brush</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Artisans</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface/70 hover:text-on-surface hover:bg-black/5 rounded-lg transition-all duration-300 group" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="mail">mail</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Messages</span>
+</a>
+<a class="flex items-center px-4 py-3 text-on-surface/70 hover:text-on-surface hover:bg-black/5 rounded-lg transition-all duration-300 group" href="#">
+<span class="material-symbols-outlined mr-4 text-xl" data-icon="notifications">notifications</span>
+<span class="font-label uppercase tracking-wider text-[11px] font-bold">Notifications</span>
+</a>
+</nav>
+<div class="px-6 space-y-6 mt-auto">
+<button class="w-full py-3.5 bg-[#D4A044] text-white font-label uppercase tracking-widest text-[11px] font-bold rounded-lg hover:bg-[#C9962A] transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                New Collection
+            </button>
+<div class="flex items-center px-2 py-4 border-t border-black/5">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-black/10 overflow-hidden">
+<span class="material-symbols-outlined text-primary" data-icon="account_circle">account_circle</span>
+</div>
+<span class="ml-3 font-label uppercase tracking-widest text-[11px] font-bold text-on-surface/80">Profile</span>
+</div>
+</div>
+</aside>
+<div class="md:ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar (As per Image 20) -->
+<header class="sticky top-0 z-30 flex justify-between items-center w-full px-8 py-4 bg-surface/80 glass-effect border-b border-black/5">
+<div class="flex items-center gap-4">
+<h2 class="font-serif text-2xl text-on-surface flex items-center gap-3">
+                    Artisans <span class="font-hindi text-secondary opacity-80">शिल्पी</span>
+</h2>
+</div>
+<div class="flex items-center gap-8">
+<div class="relative flex items-center bg-[#EBE4D1]/60 px-5 py-2.5 rounded-full border border-black/5 w-80">
+<span class="material-symbols-outlined text-on-surface/40 text-lg" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs font-label ml-3 w-full text-on-surface placeholder:text-on-surface/30 uppercase tracking-widest font-medium" placeholder="Search artisans..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALIxnhiVBgdM807bQRPHpUhT3xr1rkS3qBftf5X0w5mhPaeJr2cP1haWAtBxzqaOH-bJ5TZfU-Tp9NkQ8mj43_ROjMrRsstFhQmoqkFwkIJNsC6PQZpAzKSAGGehVZJZegPtwetXHP8vw5MjxwaxeD8M1dXfjrPmldI8FKhbhBV1v0bfEVAgHcFT808rM9Zb0z9W0nuP8_5EukLGFVbKatV8edMRStL4BMvGrwDl3annp8vQ6C_NSYdw6H1018aYKbmX_lQ7r6PtA"/>
+</div>
+<button class="text-on-surface/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-6xl mx-auto w-full px-12 py-12">
+<!-- Portfolio Content Area -->
+<!-- Artisan Profile Section -->
+<section class="flex flex-col md:flex-row items-center gap-10 mb-16 pb-16 border-b border-black/5">
+<div class="relative group">
+<div class="w-48 h-48 rounded-full border-4 border-secondary/30 p-1.5 transition-transform duration-500 group-hover:scale-105">
+<img alt="Revanth Mora" class="w-full h-full object-cover rounded-full shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALIxnhiVBgdM807bQRPHpUhT3xr1rkS3qBftf5X0w5mhPaeJr2cP1haWAtBxzqaOH-bJ5TZfU-Tp9NkQ8mj43_ROjMrRsstFhQmoqkFwkIJNsC6PQZpAzKSAGGehVZJZegPtwetXHP8vw5MjxwaxeD8M1dXfjrPmldI8FKhbhBV1v0bfEVAgHcFT808rM9Zb0z9W0nuP8_5EukLGFVbKatV8edMRStL4BMvGrwDl3annp8vQ6C_NSYdw6H1018aYKbmX_lQ7r6PtA"/>
+</div>
+<div class="absolute bottom-2 right-2 bg-secondary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-2 border-surface">
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+</div>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h1 class="font-headline text-6xl text-on-surface mb-3">Revanth Mora</h1>
+<div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-8">
+<span class="font-hindi text-xl text-secondary">रेवंत मोरा</span>
+<div class="h-4 w-[1px] bg-black/10"></div>
+<span class="text-primary font-label uppercase tracking-widest text-xs font-bold">Master Potter &amp; Sculptor</span>
+<div class="h-4 w-[1px] bg-black/10"></div>
+<div class="flex items-center text-on-surface/60 font-label uppercase tracking-widest text-[10px] font-semibold">
+<span class="material-symbols-outlined text-sm mr-1.5" data-icon="location_on">location_on</span>
+                            Kondapalli, Andhra Pradesh
+                        </div>
+</div>
+<div class="flex items-center justify-center md:justify-start gap-4">
+<button class="px-12 py-3.5 bg-[#3B4228] text-white font-label uppercase tracking-[0.2em] text-[10px] font-bold rounded-lg hover:bg-[#2A2F1D] transition-all shadow-lg flex items-center gap-2">
+                            Chat
+                        </button>
+<button class="px-8 py-3.5 border border-primary/20 text-primary font-label uppercase tracking-[0.2em] text-[10px] font-bold rounded-lg hover:bg-white/50 transition-all">
+                            View Curriculum
+                        </button>
+</div>
+</div>
+</section>
+<!-- About Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
+<div class="lg:col-span-2">
+<div class="bg-white/40 p-10 rounded-2xl border border-black/5 shadow-sm relative overflow-hidden h-full">
+<div class="absolute -top-6 -right-6 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[180px] text-primary" data-icon="format_quote">format_quote</span>
+</div>
+<h3 class="font-serif text-3xl text-primary mb-6 border-b border-primary/10 pb-4">About the Artisan</h3>
+<div class="space-y-6 text-on-surface/80 leading-relaxed font-body text-lg">
+<p>Revanth Mora is a 4th-generation master artisan whose family has defined the clay traditions of Kondapalli for over a century. His work is not merely craft; it is a spiritual dialogue with the earth itself.</p>
+<p>Specializing in high-fire terracotta and ancient firing techniques, Revanth bridges the gap between traditional iconography and contemporary minimalist form. Each piece undergoes a rigorous process of hand-kneading, sun-drying, and pit-firing that can take up to three weeks.</p>
+<p class="italic text-primary font-serif text-xl border-l-4 border-secondary/30 pl-6 py-2">"The clay remembers the touch of the hand long after the artisan is gone. We are just temporary custodians of this earth."</p>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="bg-primary/5 p-8 rounded-2xl border border-primary/10">
+<h4 class="font-label uppercase tracking-widest text-[11px] font-bold text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="cognition">cognition</span>
+                            Craftsmanship Details
+                        </h4>
+<div class="space-y-4">
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-xs font-label uppercase tracking-tighter opacity-50">Medium</span>
+<span class="text-sm font-semibold text-on-surface">Fine Black Clay</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-xs font-label uppercase tracking-tighter opacity-50">Technique</span>
+<span class="text-sm font-semibold text-on-surface">Open Pit Firing</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-xs font-label uppercase tracking-tighter opacity-50">Experience</span>
+<span class="text-sm font-semibold text-on-surface">28 Years</span>
+</div>
+<div class="flex justify-between items-center py-2">
+<span class="text-xs font-label uppercase tracking-tighter opacity-50">Pigments</span>
+<span class="text-sm font-semibold text-secondary">Organic Ochre</span>
+</div>
+</div>
+</div>
+<div class="rounded-2xl overflow-hidden shadow-xl border border-black/5 group">
+<img alt="Artisan at work" class="w-full h-48 object-cover grayscale transition-all duration-1000 group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMfC92to3pUA5UU8Wh0cyo00xt53iQHvuTVVzt40JwzV0kOmmgX9kaa3pRmKk6S4fNq8Skps-eilpnYd819rQDef1oywVvX59BmQ2ArhJUS04Or3ja_2hztvPn01ZNCjaA_NqRDsD-reyp8jBmp6qdDM3nRGrlt0O8nm6XLUWb0_eWTOosV5RcwkX5SRabKLmrEiGBTzBlovn98Bf0PCGHaaexYue2Zf4LAGNQH96njMGuGuoebAVsH8xzRlyDodjgoG6BjC4PlJg"/>
+</div>
+</div>
+</section>
+<!-- Products Section -->
+<section class="mb-12">
+<div class="flex justify-between items-end mb-10">
+<div>
+<h3 class="font-serif text-4xl text-on-surface">The Mora Archive</h3>
+<p class="font-body italic text-on-surface/50 mt-1">Available hand-sculpted works</p>
+</div>
+<a class="text-primary font-label uppercase tracking-widest text-[10px] font-bold border-b border-primary/30 pb-1 hover:text-secondary hover:border-secondary transition-all" href="#">
+                        View Full Collection
+                    </a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Product Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden rounded-xl mb-5 bg-[#EDE4D0] shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl">
+<img alt="The Earth Mother" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYujBScgQqKCLMyDzZnplO_ZWUcZJ1e-6PrhtFhVVeVA0DxcD14LDdPCtIHtzCYfTqvSjHAISe_N7AdssPk4uJ8v17obHrjrAlXihkW1LNBSBNSd6cuhEURmKSjq0zGW3CpyWHYUfwL9anD6M8-Hhy2cbu4JjmjpLsdSr8DqmWlGlknC8sTyWjhcDgUB8xS7FaY1T0aa7KqNRuDUsWOBXNC9adnMvTrKIhKLpGScJioS2E8BjZT9vBfKaXMt8hL8y_twEwN-iwEh8"/>
+</div>
+<h4 class="font-serif text-xl text-on-surface group-hover:text-primary transition-colors">The Earth Mother</h4>
+<div class="flex justify-between items-center mt-2">
+<p class="font-label uppercase tracking-widest text-[9px] font-bold text-on-surface/40">Hand-Sculpted</p>
+<span class="text-primary font-serif italic text-sm">₹12,400</span>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden rounded-xl mb-5 bg-[#EDE4D0] shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl">
+<img alt="Kondapalli Tuskers" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiVrkFGvga4lxVeslhQa5ZTtBsidAlOB1sG8wwOa4OsoFSBeIqOyYj0aTDh--LcvtZ7KeQVWvbi41lLdRQytrLgGHB9DifbEn0kqG5MXrzePB64qbJ8ylc3clofXky86CsooxjZ_Z6CVqqnT7uQFmbzEwOUX4A9B3bJ5OMH2qI7t8683eeM7m4tKkOpaMydovDc5i1mrlh-5TVEF4ci2yKAxA6sl1vHQ5PqWl8usMe6PyVGWVxGfC1vIbb32y-tXTg2U3pfwji6co"/>
+</div>
+<h4 class="font-serif text-xl text-on-surface group-hover:text-primary transition-colors">Kondapalli Tuskers</h4>
+<div class="flex justify-between items-center mt-2">
+<p class="font-label uppercase tracking-widest text-[9px] font-bold text-on-surface/40">Heritage Trio</p>
+<span class="text-primary font-serif italic text-sm">₹6,800</span>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden rounded-xl mb-5 bg-[#EDE4D0] shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl">
+<img alt="Lunar Vessel" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbnZswAcKOZw1wJnjOS_lbn7hPPha7_cHaDV5j8n6aV_4s52chr3hjcuAPb6ZQ-UC3YDF8qpTppc9ueNVQnNf2y0CRPU9JinLQXJf7V_MnebNGvxE-ZK7P1ABiUft2mVVJ9L6OxH4P7ArfsHyPwysEKi77gA0JEXQNv058FVohXZbfjyfck2ZHPf8WmvFUA5ESWmeQKGhYcIKEsKknptUh4Ik9B2XPBjqzeHyUVOTeMOBmDrDBgCD0hL1DaWWnuiKvJzpgdE_ImLE"/>
+</div>
+<h4 class="font-serif text-xl text-on-surface group-hover:text-primary transition-colors">Lunar Vessel</h4>
+<div class="flex justify-between items-center mt-2">
+<p class="font-label uppercase tracking-widest text-[9px] font-bold text-on-surface/40">Pit-Fired Clay</p>
+<span class="text-primary font-serif italic text-sm">₹18,900</span>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden rounded-xl mb-5 bg-[#EDE4D0] shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-xl">
+<img alt="Dharma Seal" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5WhO0cpWnmB1GbzJyTusWQwsRKL8q81L6o4_hdZeVXOXliN8A0LXW-lkBSB5K4M2_exHkh_Ik_sJjzcM518cN1P6hofiuYRZc0i3_kBcCEfUWP7vHqv3Tcv0FRbP1uLopJ1mHmQrK7efZ-egyJt9cxhMgr7RYRJD9e7r1xMJVwr76iNnj80o083e1FehD1-F_PtJ01Oftf-mbzQN6KkrBB4oUnrTdAwDVdGnEIn99CirC31tAcoop3znHQmxmQp6BCjLM3wmcgfg"/>
+</div>
+<h4 class="font-serif text-xl text-on-surface group-hover:text-primary transition-colors">Dharma Seal</h4>
+<div class="flex justify-between items-center mt-2">
+<p class="font-label uppercase tracking-widest text-[9px] font-bold text-on-surface/40">Wall Installation</p>
+<span class="text-primary font-serif italic text-sm">₹9,200</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (As per Image 20) -->
+<footer class="w-full py-16 bg-[#2B231D] text-[#EDE4D0]">
+<div class="max-w-6xl mx-auto px-12 flex flex-col items-center">
+<h3 class="font-serif text-2xl tracking-widest mb-6" style="font-family: 'Newsreader', serif;">CraftConnect Heritage Editorial</h3>
+<div class="flex gap-8 mb-10 opacity-60">
+<a class="font-label uppercase tracking-widest text-[10px] hover:opacity-100 transition-opacity" href="#">Our Story</a>
+<a class="font-label uppercase tracking-widest text-[10px] hover:opacity-100 transition-opacity" href="#">Heritage Map</a>
+<a class="font-label uppercase tracking-widest text-[10px] hover:opacity-100 transition-opacity" href="#">Curator Notes</a>
+<a class="font-label uppercase tracking-widest text-[10px] hover:opacity-100 transition-opacity" href="#">Sustainability</a>
+</div>
+<p class="font-label uppercase tracking-[0.2em] text-[9px] opacity-40">
+                    © 2026 CraftConnect Heritage Editorial. All Rights Reserved.
+                </p>
+</div>
+</footer>
+</div>
+</body></html>

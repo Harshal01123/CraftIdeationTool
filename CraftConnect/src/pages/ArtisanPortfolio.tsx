@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
-import ProductCard from "../components/products/ProductCard";
 import Spinner from "../components/Spinner";
+import ContactDialog from "../components/chat/ContactDialog";
 import { supabase } from "../lib/supabase";
 import type { Profile, Product } from "../types/chat";
 
@@ -20,7 +20,6 @@ function ArtisanPortfolio() {
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
-  const [convTitle, setConvTitle] = useState("");
   const [dialogError, setDialogError] = useState("");
 
   useEffect(() => {
@@ -66,14 +65,13 @@ function ArtisanPortfolio() {
     }
 
     // Always show dialog to start a fresh conversation
-    setConvTitle(`Chat with ${artisan.name}`);
     setDialogError("");
     setShowDialog(true);
   }
 
   // Called when user confirms title in dialog
-  async function handleCreateConversation() {
-    if (!convTitle.trim()) {
+  async function handleCreateConversation(title: string) {
+    if (!title.trim()) {
       setDialogError("Please enter a title.");
       return;
     }
@@ -86,7 +84,7 @@ function ArtisanPortfolio() {
       .insert({
         artisan_id: artisan.id,
         customer_id: currentUserId,
-        title: convTitle.trim(),
+        title: title.trim(),
         status: "OPEN",
       })
       .select("id")
@@ -125,107 +123,202 @@ function ArtisanPortfolio() {
 
   return (
     <div className={styles.container}>
-      {/* Title dialog overlay */}
-      {showDialog && (
-        <div className={styles.dialogOverlay}>
-          <div className={styles.dialog}>
-            <h3 className={styles.dialogTitle}>Start a Conversation</h3>
-            <p className={styles.dialogSubtitle}>
-              Give this conversation a title
-            </p>
-            <input
-              className={styles.dialogInput}
-              type="text"
-              value={convTitle}
-              onChange={(e) => {
-                setConvTitle(e.target.value);
-                setDialogError("");
-              }}
-              onKeyDown={(e) => e.key === "Enter" && handleCreateConversation()}
-              placeholder="e.g. Custom pottery order"
-              autoFocus
+      {/* Contact Dialog */}
+      <ContactDialog
+        isOpen={showDialog}
+        onClose={() => {
+          setShowDialog(false);
+          setDialogError("");
+        }}
+        artisanName={artisan.name}
+        isProcessing={chatLoading}
+        error={dialogError}
+        mode="new_conversation"
+        onSubmit={handleCreateConversation}
+      />
+
+      {/* Hero / Header */}
+      <section className={styles.heroSection}>
+        <div className={styles.avatarGroup}>
+          <div className={styles.avatarRing}>
+            <img
+              src={artisan.avatar_url ?? "/images/dummyPFP.jpg"}
+              alt={artisan.name}
+              className={styles.avatarImg}
             />
-            {dialogError && <p className={styles.dialogError}>{dialogError}</p>}
-            <div className={styles.dialogActions}>
+          </div>
+          <div className={styles.verifiedBadge}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "1rem" }}
+            >
+              verified
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.heroContent}>
+          <h1 className={styles.artisanName}>{artisan.name}</h1>
+          <div className={styles.metaRow}>
+            <span className={styles.metaIndustry}>
+              {artisan.industry || "Master Artisan"}
+            </span>
+            <div className={styles.metaDivider}></div>
+            <div className={styles.metaLocation}>
+              <span className="material-symbols-outlined">location_on</span>
+              {artisan.location || "India"}
+            </div>
+          </div>
+          <div className={styles.actionRow}>
+            {!isOwnProfile && (
               <button
-                className={styles.dialogCancel}
-                onClick={() => setShowDialog(false)}
+                className={styles.chatBtn}
+                onClick={handleChatClick}
                 disabled={chatLoading}
               >
-                Cancel
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: "1.25rem",
+                    marginRight: "0.5rem",
+                    verticalAlign: "middle",
+                  }}
+                >
+                  chat
+                </span>
+                Chat with Artisan
               </button>
+            )}
+            {isOwnProfile && (
               <button
-                className={styles.dialogConfirm}
-                onClick={handleCreateConversation}
-                disabled={chatLoading}
+                className={styles.viewProfileBtn}
+                onClick={() => navigate("/dashboard/profile")}
               >
-                {chatLoading ? (
-                  <>
-                    <Spinner size="sm" inline />
-                    Starting...
-                  </>
-                ) : (
-                  "Start Chat"
-                )}
+                Edit Profile
               </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className={styles.aboutSection}>
+        <div className={styles.aboutContent}>
+          <div className={styles.aboutBox}>
+            <div className={styles.aboutQuoteIcon}>
+              <span className="material-symbols-outlined">format_quote</span>
+            </div>
+            <h3 className={styles.aboutTitle}>About the Artisan</h3>
+            <div className={styles.aboutText}>
+              <p>
+                {artisan.description ||
+                  "This artisan has not provided a description yet."}
+              </p>
+              {artisan.description && artisan.description.length > 50 && (
+                <div className={styles.aboutQuote}>
+                  "
+                  {artisan.description.substring(
+                    0,
+                    Math.min(artisan.description.length, 120),
+                  )}
+                  ..."
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
 
-      {/* Header */}
-      <div className={styles.header}>
-        <img
-          src={artisan.avatar_url ?? "/images/dummyPFP.jpg"}
-          alt={artisan.name}
-          className={styles.profileImage}
-        />
-        <div className={styles.headerInfo}>
-          <h1 className={styles.name}>{artisan.name}</h1>
-          {artisan.industry && (
-            <p className={styles.industry}>{artisan.industry}</p>
-          )}
-          {artisan.location && (
-            <p className={styles.location}>📍 {artisan.location}</p>
-          )}
-        </div>
-        {!isOwnProfile && (
-          <button
-            className={styles.chatBtn}
-            onClick={handleChatClick}
-            disabled={chatLoading}
-          >
-            Chat
-          </button>
-        )}
-      </div>
+        <div className={styles.detailsCol}>
+          <div className={styles.detailsBox}>
+            <h4 className={styles.detailsTitle}>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "1.125rem" }}
+              >
+                cognition
+              </span>
+              Craftsmanship Details
+            </h4>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Industry</span>
+              <span className={styles.detailValue}>
+                {artisan.industry || "Local Artist"}
+              </span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Experience</span>
+              <span className={styles.detailValue}>
+                {artisan.experience || "Not Specified"}
+              </span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Location</span>
+              <span className={styles.detailValue}>
+                {artisan.location || "Chhattisgarh"}
+              </span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>Authenticity</span>
+              <span className={`${styles.detailValue} ${styles.highlight}`}>
+                Verified Seller
+              </span>
+            </div>
+          </div>
 
-      {artisan.description && (
-        <section className={styles.about}>
-          <h2 className={styles.sectionHeading}>About</h2>
-          <p>{artisan.description}</p>
-        </section>
-      )}
-
-      <h2 className={styles.sectionHeading}>Products</h2>
-      {productsLoading ? (
-        <Spinner label="Loading products..." />
-      ) : products.length === 0 ? (
-        <p style={{ color: "gray" }}>No products listed yet.</p>
-      ) : (
-        <div className={styles.productsGrid}>
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              name={product.name}
-              price={`₹${product.price}`}
-              description={product.description ?? ""}
-              imageUrl={product.image_url}
-              artisanName={artisan.name}
+          <div className={styles.atWorkImgBox}>
+            <img
+              src={artisan.avatar_url ?? "/images/dummyPFP.jpg"}
+              alt="Artisan at work"
             />
-          ))}
+          </div>
         </div>
-      )}
+      </section>
+
+      {/* Products Section */}
+      <section className={styles.productsSection}>
+        <div className={styles.productsHeader}>
+          <div>
+            <h3 className={styles.productsTitle}>
+              The {artisan.name.split(" ").pop()} Archive
+            </h3>
+            <p className={styles.productsSubtitle}>
+              Available hand-sculpted works
+            </p>
+          </div>
+          {products.length > 0 && (
+            <span className={styles.viewAllLink}>Explore Full Collection</span>
+          )}
+        </div>
+
+        {productsLoading ? (
+          <Spinner label="Loading products..." />
+        ) : products.length === 0 ? (
+          <p style={{ color: "gray", fontStyle: "italic" }}>
+            No products listed yet.
+          </p>
+        ) : (
+          <div className={styles.productsGrid}>
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className={styles.artisanProductCard}
+                onClick={() => navigate("/products/" + product.id)}
+              >
+                <div className={styles.artisanProductImgBox}>
+                  <img src={product.image_url ?? ""} alt={product.name} />
+                </div>
+                <h4 className={styles.artisanProductTitle}>{product.name}</h4>
+                <div className={styles.artisanProductMetaRow}>
+                  <p className={styles.artisanProductCategory}>Handcrafted</p>
+                  <span className={styles.artisanProductPrice}>
+                    ₹{product.price}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
