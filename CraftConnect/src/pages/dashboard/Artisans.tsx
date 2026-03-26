@@ -3,10 +3,21 @@ import styles from "./Artisans.module.css";
 import { supabase } from "../../lib/supabase";
 import type { Profile } from "../../types/chat";
 import Spinner from "../../components/Spinner";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import ContactDialog from "../../components/chat/ContactDialog";
+import { startConversation } from "../../lib/chatUtils";
 
 function Artisans() {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
   const [artisans, setArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Dialog State
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedArtisan, setSelectedArtisan] = useState<Profile | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchArtisans() {
@@ -23,6 +34,35 @@ function Artisans() {
 
     fetchArtisans();
   }, []);
+
+  function handleMessageClick(artisan: Profile) {
+    if (!profile) return alert("Please log in to chat.");
+    setSelectedArtisan(artisan);
+    setShowDialog(true);
+  }
+
+  async function handleStartChat(messageText: string) {
+    if (!selectedArtisan || !profile) return;
+    setProcessing(true);
+
+    const result = await startConversation({
+      customerId: profile.id,
+      artisanId: selectedArtisan.id,
+      title: `Chat with ${selectedArtisan.name}`,
+      messageText,
+      isOrder: false,
+    });
+
+    setProcessing(false);
+
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+
+    setShowDialog(false);
+    navigate(`/dashboard/messages?conversation=${result.conversationId}`);
+  }
 
   return (
     <div className={styles.page}>
@@ -159,7 +199,10 @@ function Artisans() {
                   <button className={styles.viewProfileBtn}>
                     View Profile
                   </button>
-                  <button className={styles.mailBtn}>
+                  <button
+                    className={styles.mailBtn}
+                    onClick={() => handleMessageClick(artisan)}
+                  >
                     <span className="material-symbols-outlined">mail</span>
                   </button>
                 </div>
@@ -168,6 +211,15 @@ function Artisans() {
           </div>
         )}
       </div>
+
+      <ContactDialog
+        isOpen={showDialog && selectedArtisan !== null}
+        onClose={() => setShowDialog(false)}
+        artisanName={selectedArtisan?.name}
+        isProcessing={processing}
+        onSubmit={handleStartChat}
+        mode="chat"
+      />
     </div>
   );
 }
