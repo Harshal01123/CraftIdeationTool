@@ -45,6 +45,7 @@
   border-radius: 0.75rem;
   overflow: hidden;
   padding: 2rem;
+  margin: 1rem;
   color: #ffffff;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   display: flex;
