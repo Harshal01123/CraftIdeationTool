@@ -4,6 +4,7 @@ import styles from "./DashboardLayout.module.css";
 import { supabase } from "../lib/supabase";
 import { type Profile, type Product } from "../types/chat";
 import AddProductModal from "../components/products/AddProductModal";
+import WishlistPopup from "../components/products/WishlistPopup";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
@@ -35,6 +36,7 @@ function DashboardLayout() {
   const [bugSubject, setBugSubject] = useState("");
   const [bugContent, setBugContent] = useState("");
   const [bugStatus, setBugStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   useEffect(() => {
     setSearchQuery("");
@@ -278,6 +280,14 @@ function DashboardLayout() {
             <div className={styles.navActions}>
               <button
                 className={styles.iconBtn}
+                title="Wishlist"
+                onClick={() => setWishlistOpen(true)}
+              >
+                <span className="material-symbols-outlined">favorite</span>
+              </button>
+              
+              <button
+                className={styles.iconBtn}
                 onClick={() => navigate("/dashboard/notifications")}
               >
                 <span className="material-symbols-outlined">notifications</span>
@@ -422,6 +432,9 @@ function DashboardLayout() {
           </div>
         </div>
       )}
+
+      {/* WISHLIST POPUP */}
+      {wishlistOpen && <WishlistPopup onClose={() => setWishlistOpen(false)} />}
     </div>
   );
 }

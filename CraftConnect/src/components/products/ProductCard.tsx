@@ -1,6 +1,8 @@
 import styles from "./ProductCard.module.css";
+import { useWishlist } from "../../hooks/useWishlist";
 
 type ProductCardProps = {
+  id: string;
   name: string;
   price: string;
   description?: string;
@@ -12,6 +14,7 @@ type ProductCardProps = {
 };
 
 function ProductCard({
+  id,
   name,
   price,
   artisanName,
@@ -20,6 +23,9 @@ function ProductCard({
   onDelete,
   onBuy,
 }: ProductCardProps) {
+  const { wishlistIds, toggleWishlist } = useWishlist();
+  const isWishlisted = wishlistIds.has(id);
+
   return (
     <article className={styles.card}>
       <div className={styles.imageWrapper}>
@@ -28,8 +34,20 @@ function ProductCard({
           className={styles.productImage}
           src={imageUrl || "/images/dummyProduct.jpg"}
         />
-        <button className={styles.favoriteBtn}>
-          <span className="material-symbols-outlined">favorite</span>
+        <button 
+          className={`${styles.favoriteBtn} ${isWishlisted ? styles.wishlisted : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleWishlist(id);
+          }}
+        >
+          <span 
+            className="material-symbols-outlined"
+            style={isWishlisted ? { fontVariationSettings: "'FILL' 1", color: "#d32f2f" } : {}}
+          >
+            favorite
+          </span>
         </button>
       </div>
       <div className={styles.content}>

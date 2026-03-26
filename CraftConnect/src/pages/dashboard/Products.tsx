@@ -181,6 +181,7 @@ function Products() {
               {filteredProducts.map((p) => (
                 <ProductCard
                   key={p.id}
+                  id={p.id}
                   name={p.name}
                   price={`₹${p.price}`}
                   description={p.description ?? ""}
