@@ -12,10 +12,6 @@
   height: 50vh;
 }
 
-.pageHeader {
-  margin-bottom: 3rem;
-}
-
 .title {
   font-family: var(--font-brand);
   font-size: 3rem;
@@ -37,10 +33,10 @@
 }
 
 .sectionCardHeader {
-  background-color: #EDE5D0;
+  background-color: #ede5d0;
   border-radius: 0.75rem;
   padding: 2rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s;
 }
 
@@ -49,7 +45,7 @@
 }
 
 .sectionCard {
-  background-color: #EDE5D0;
+  background-color: #ede5d0;
   border-radius: 0.75rem;
   padding: 2.5rem;
 }
@@ -68,8 +64,8 @@
   width: 8rem;
   height: 8rem;
   border-radius: 50%;
-  border: 4px solid #F5EFE0;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+  border: 4px solid #f5efe0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   background-color: white;
   overflow: hidden;
   display: flex;
@@ -128,7 +124,7 @@
 
 .roleBadge {
   background-color: rgba(201, 150, 42, 0.1);
-  color: #C9962A;
+  color: #c9962a;
   font-family: var(--font-label);
   font-size: 0.625rem;
   text-transform: uppercase;
@@ -144,13 +140,6 @@
   opacity: 0.8;
   font-style: italic;
   font-size: 0.875rem;
-}
-
-.hindiName {
-  font-family: var(--font-hindi);
-  color: var(--primary-container);
-  font-size: 1.25rem;
-  margin-top: 0.5rem;
 }
 
 .sectionTitleRow {
@@ -211,7 +200,7 @@
 .hindiLabel {
   font-family: var(--font-hindi);
   font-size: 0.625rem;
-  color: #C9962A;
+  color: #c9962a;
 }
 
 .inputGroup input,
@@ -231,7 +220,7 @@
 .inputGroup input:focus,
 .inputGroup textarea:focus {
   outline: none;
-  border-bottom-color: #C9962A;
+  border-bottom-color: #c9962a;
 }
 
 .securityLayout {
@@ -300,35 +289,60 @@
   font-size: 0.875rem;
 }
 
-.decorativeFooter {
-  margin-top: 6rem;
-  text-align: center;
+/* ── Popup Card ── */
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
+  align-items: center;
   justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
-.quoteBox {
-  display: inline-block;
-  padding: 1.5rem 2.5rem;
-  border: 1px solid rgba(201, 150, 42, 0.2);
-  position: relative;
-}
-
-.quoteBox p {
-  font-family: var(--font-brand);
-  font-style: italic;
+.popupCard {
+  background: var(--surface);
   color: var(--on-surface);
-  font-size: 1.125rem;
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
-.dotTopLeft, .dotTopRight, .dotBottomLeft, .dotBottomRight {
-  position: absolute;
-  width: 0.5rem;
-  height: 0.5rem;
-  background-color: #C9962A;
+.popupCard h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
 }
 
-.dotTopLeft { top: -0.25rem; left: -0.25rem; }
-.dotTopRight { top: -0.25rem; right: -0.25rem; }
-.dotBottomLeft { bottom: -0.25rem; left: -0.25rem; }
-.dotBottomRight { bottom: -0.25rem; right: -0.25rem; }
+.popupCard p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+.closeBtn {
+  background: var(--primary);
+  color: var(--surface);
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 2rem;
+  font-family: var(--font-label);
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+}
+
+.closeBtn:hover {
+  opacity: 0.9;
+}

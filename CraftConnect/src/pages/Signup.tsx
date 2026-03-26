@@ -40,6 +40,8 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState<UserType | null>(null);
 
   // Avatar
@@ -97,6 +99,7 @@ function Signup() {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setError("");
 
     if (!avatarFile) {
@@ -257,26 +260,46 @@ function Signup() {
               <label className={styles.inputLabel}>
                 Password <span className={styles.inputLabelHindi}>पासवर्ड</span>
               </label>
-              <input
-                className={styles.input}
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  className={styles.input}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ width: '100%', paddingRight: '2.5rem' }}
+                />
+                <span 
+                  className="material-symbols-outlined" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
+                >
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
+              </div>
             </div>
 
             <div className={styles.inputGroup}>
               <label className={styles.inputLabel}>
                 Confirm Password <span className={styles.inputLabelHindi}>पुष्टि करें</span>
               </label>
-              <input
-                className={styles.input}
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  className={styles.input}
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{ width: '100%', paddingRight: '2.5rem' }}
+                />
+                <span 
+                  className="material-symbols-outlined" 
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
+                >
+                  {showConfirmPassword ? "visibility_off" : "visibility"}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -333,11 +356,12 @@ function Signup() {
                 {locationLoading ? "Acquiring GPS..." : shopLocation ? `📍 ${shopLocation}` : "📍 Acquire GPS Location"}
               </button>
               <textarea
-                placeholder="Describe your work..."
+                placeholder="Describe your work (optional)..."
                 className={styles.textarea}
                 value={artisanDesc}
                 onChange={(e) => setArtisanDesc(e.target.value)}
                 rows={3}
+                required={false}
               />
             </div>
           )}
