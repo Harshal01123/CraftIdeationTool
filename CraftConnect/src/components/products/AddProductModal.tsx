@@ -30,7 +30,6 @@ function AddProductModal({
   );
   const [weight, setWeight] = useState("");
   const [dimensions, setDimensions] = useState("");
-  const [giStatus, setGiStatus] = useState("Unregistered");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -212,18 +211,6 @@ function AddProductModal({
                       {option}
                     </option>
                   ))}
-                </select>
-              </label>
-              <label className={styles.label}>
-                GI Status
-                <select
-                  className={styles.input}
-                  value={giStatus}
-                  onChange={(e) => setGiStatus(e.target.value)}
-                >
-                  <option value="Unregistered">Select if registered</option>
-                  <option value="Registered">Registered GI</option>
-                  <option value="Pending">Pending</option>
                 </select>
               </label>
             </div>
