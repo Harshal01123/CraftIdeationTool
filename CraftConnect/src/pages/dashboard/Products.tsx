@@ -188,16 +188,6 @@ function Products() {
               </div>
             </div>
           </div>
-
-          <div className={styles.promoCard}>
-            <h4 className={styles.promoTitle}>Artisan Spotlight</h4>
-            <p className={styles.promoDesc}>
-              Meet Rameshwar, the master of blue pottery from Jaipur.
-            </p>
-            <a href="/dashboard/artisans" className={styles.promoLink}>
-              Read Story
-            </a>
-          </div>
         </aside>
 
         <div className={styles.contentArea}>

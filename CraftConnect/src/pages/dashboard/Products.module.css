@@ -48,7 +48,7 @@
   background-color: var(--surface-container-low);
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  border: 1px solid rgba(218, 193, 184, 0.2); 
+  border: 1px solid rgba(218, 193, 184, 0.2);
 }
 
 .searchBox span {
@@ -100,13 +100,13 @@
   display: flex;
   align-items: center;
   padding: 0 3rem;
-  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrvoDk1-HAClcEoM1dt4O6tVYL-ZEncoWgcO383Yd5zj-IRXnA-uANzhr31jCgCGAkqthSOUppYIRbVjGniJ1V56CtnosUNH7xt_VT3Pi2YNd4-sCb4Ux92AeNBlxoBgu2nR_ejy0F75S2pBXfaVr9NCBXsHEe3AgDZeMt0e0eUWJQIDMwsao8-gmCdesi52rPeQ7OUNLi-o9jO0KSmH0szNAph0xVp9rTMcaUmLRllfwN4DZ9ZcYwaHthdPaz0HT4EPG1VHwkWsg');
+  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrvoDk1-HAClcEoM1dt4O6tVYL-ZEncoWgcO383Yd5zj-IRXnA-uANzhr31jCgCGAkqthSOUppYIRbVjGniJ1V56CtnosUNH7xt_VT3Pi2YNd4-sCb4Ux92AeNBlxoBgu2nR_ejy0F75S2pBXfaVr9NCBXsHEe3AgDZeMt0e0eUWJQIDMwsao8-gmCdesi52rPeQ7OUNLi-o9jO0KSmH0szNAph0xVp9rTMcaUmLRllfwN4DZ9ZcYwaHthdPaz0HT4EPG1VHwkWsg");
   background-size: cover;
   background-position: center;
 }
 
 .heroBanner::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(to right, rgba(43, 32, 23, 0.9), transparent);
@@ -281,38 +281,6 @@
   font-family: var(--font-label);
   font-size: 0.75rem;
   color: var(--on-surface-variant);
-}
-
-.promoCard {
-  background-color: var(--surface-container-high);
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border-top: 1px solid rgba(218, 193, 184, 0.2);
-}
-
-.promoTitle {
-  font-family: var(--font-display);
-  color: var(--primary);
-  font-style: italic;
-  font-size: 1.125rem;
-  margin-bottom: 0.5rem;
-}
-
-.promoDesc {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--on-surface-variant);
-  margin-bottom: 1rem;
-}
-
-.promoLink {
-  font-family: var(--font-label);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--secondary);
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
 /* Grid Area */

@@ -107,7 +107,6 @@ function Artisans() {
               </p>
 
               <div className={styles.spotlightMeta}>
-                <span className={styles.giTag}>GI Tag: Madhubani Pottery</span>
                 <span className={styles.masterGrade}>
                   <span
                     className="material-symbols-outlined"
@@ -134,7 +133,6 @@ function Artisans() {
           </button>
           <button className={styles.filterPill}>State: Rajasthan</button>
           <button className={styles.filterPill}>Craft: Block Print</button>
-          <button className={styles.filterPill}>GI Tag Certified</button>
           <button className={styles.filterPill}>Master Craftsperson</button>
           <div className={styles.divider}></div>
           <button className={styles.advancedFilter}>
