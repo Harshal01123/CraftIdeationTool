@@ -41,12 +41,6 @@ function Messages() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.filterBar}>
-        <div className={styles.headerLeft}>
-          <h2 className={styles.title}>Messages</h2>
-          <span className={styles.hindiSubtitle}>संदेश</span>
-        </div>
-      </div>
       <div className={styles.container}>
       <ChatSidebar
         currentProfile={profile}

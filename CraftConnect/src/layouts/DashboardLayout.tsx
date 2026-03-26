@@ -30,6 +30,11 @@ function DashboardLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setSearchQuery("");
+  }, [location.pathname]);
 
   useEffect(() => {
     function handleUnreadCountChange(event: Event) {
@@ -233,12 +238,20 @@ function DashboardLayout() {
             <span className={styles.navHindiSubtitle}>{titles.hi}</span>
           </div>
           <div className={styles.topNavRight}>
+            {(location.pathname.includes("/products") || 
+              location.pathname.includes("/courses") || 
+              location.pathname.includes("/artisans")) && (
+              <div className={styles.headerSearchBox}>
+                <span className="material-symbols-outlined">search</span>
+                <input 
+                  type="text" 
+                  placeholder={`Search ${titles.en.toLowerCase()}...`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            )}
             <div className={styles.navActions}>
-              <span
-                className={`material-symbols-outlined ${styles.searchIcon}`}
-              >
-                search
-              </span>
               <button
                 className={styles.iconBtn}
                 onClick={() => navigate("/dashboard/notifications")}
@@ -277,7 +290,7 @@ function DashboardLayout() {
 
         {/* Dashboard Content Container */}
         <div className={styles.contentContainer}>
-          <Outlet />
+          <Outlet context={{ searchQuery, setSearchQuery }} />
         </div>
 
         {/* FOOTER */}

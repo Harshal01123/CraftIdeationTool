@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import ProductCard from "../../components/products/ProductCard";
@@ -17,7 +17,7 @@ function Products() {
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
@@ -101,25 +101,6 @@ function Products() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.filterBar}>
-        <div className={styles.headerLeft}>
-          <span className={styles.subtitle}>
-            ({filteredProducts.length} Artifacts)
-          </span>
-        </div>
-        <div className={styles.filterRight}>
-          <div className={styles.searchBox}>
-            <span className="material-symbols-outlined">search</span>
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
       <section className={styles.heroSection}>
         <div className={styles.heroBanner}>
           <div className={styles.heroContent}>

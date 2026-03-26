@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import styles from "./Courses.module.css";
 
 // Sample static data mapping from Stitch concept 
@@ -46,19 +47,16 @@ const NEW_COURSES = [
 
 function Courses() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+
+  const filteredCourses = NEW_COURSES.filter(course => {
+    if (!searchQuery) return true;
+    return course.title.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className={styles.page}>
-      
-      {/* Top Header */}
-      <div className={styles.filterBarTop}>
-        <div className={styles.headerLeft}>
-        </div>
-        <div className={styles.searchBox}>
-          <span className="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Search Masterclasses..." />
-        </div>
-      </div>
+
 
       <div className={styles.contentWrap}>
         
@@ -147,8 +145,11 @@ function Courses() {
               <a href="#" className={styles.viewAllLink}>View All Mastery Courses</a>
            </div>
            
-           <div className={styles.grid}>
-              {NEW_COURSES.map(course => (
+           {filteredCourses.length === 0 ? (
+             <p style={{ color: 'var(--outline)', fontStyle: 'italic', padding: '2rem 0' }}>No courses found.</p>
+           ) : (
+             <div className={styles.grid}>
+               {filteredCourses.map(course => (
                  <div key={course.id} className={styles.courseCard}>
                     <div className={styles.cardThumbWrapper}>
                        <img src={course.thumbnail} alt={course.title} className={styles.cardThumb} />
@@ -181,7 +182,8 @@ function Courses() {
                     </div>
                  </div>
               ))}
-           </div>
+             </div>
+           )}
         </section>
 
         {/* Learning Path Roadmap */}
