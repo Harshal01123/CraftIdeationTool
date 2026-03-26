@@ -4,6 +4,8 @@ import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import ProductCard from "../../components/products/ProductCard";
 import Spinner from "../../components/Spinner";
+import ContactDialog from "../../components/chat/ContactDialog";
+import { startConversation } from "../../lib/chatUtils";
 import styles from "./Products.module.css";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -20,7 +22,6 @@ function Products() {
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [messageText, setMessageText] = useState("");
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
@@ -70,71 +71,32 @@ function Products() {
       return alert("Only customers can purchase items.");
 
     setSelectedProduct(product);
-    setMessageText("");
     setShowDialog(true);
   }
 
-  async function handleConfirmOrder() {
+  async function handleConfirmOrder(messageText: string) {
     if (!selectedProduct || !profile) return;
     setProcessing(true);
 
-    const { data: conv, error: convError } = await supabase
-      .from("conversations")
-      .insert({
-        artisan_id: selectedProduct.artisan_id,
-        customer_id: profile.id,
-        title: `Order: ${selectedProduct.name}`,
-        status: "OPEN",
-      })
-      .select("id")
-      .single();
-
-    if (convError || !conv) {
-      console.error(convError);
-      alert("Failed to start order chat.");
-      setProcessing(false);
-      return;
-    }
-
-    const { error: purchaseError } = await supabase.from("purchases").insert({
-      customer_id: profile.id,
-      product_id: selectedProduct.id,
-      artisan_id: selectedProduct.artisan_id,
-      total_price: selectedProduct.price,
-      status: "pending",
-      conversation_id: conv.id,
-      confirmed_by_customer: false,
-      confirmed_by_artisan: false,
-    });
-
-    if (purchaseError) {
-      console.error(purchaseError);
-      alert("Failed to create order record.");
-      setProcessing(false);
-      return;
-    }
-
-    if (messageText.trim()) {
-      await supabase.from("messages").insert({
-        conversation_id: conv.id,
-        sender_id: profile.id,
-        sender_role: "customer",
-        type: "TEXT",
-        content: messageText.trim(),
-      });
-    }
-
-    await supabase.from("messages").insert({
-      conversation_id: conv.id,
-      sender_id: null,
-      sender_role: "system",
-      type: "SYSTEM",
-      content: `Order request started for ${selectedProduct.name} (₹${selectedProduct.price}). Waiting for mutual confirmation.`,
+    const result = await startConversation({
+      customerId: profile.id,
+      artisanId: selectedProduct.artisan_id,
+      title: `Order: ${selectedProduct.name}`,
+      productId: selectedProduct.id,
+      productPrice: selectedProduct.price,
+      messageText,
+      isOrder: true,
     });
 
     setProcessing(false);
+
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+
     setShowDialog(false);
-    navigate(`/dashboard/messages?conversation=${conv.id}`);
+    navigate(`/dashboard/messages?conversation=${result.conversationId}`);
   }
 
   return (
@@ -143,7 +105,7 @@ function Products() {
         <div className={styles.headerLeft}>
           <h2 className={styles.pageTitle}>Products</h2>
           <span className={styles.hindiSubtitle}>उत्पाद</span>
-          <span className={styles.subtitle} style={{marginLeft: '1rem'}}>
+          <span className={styles.subtitle} style={{ marginLeft: "1rem" }}>
             ({filteredProducts.length} Artifacts)
           </span>
         </div>
@@ -267,46 +229,15 @@ function Products() {
         </div>
       </div>
 
-      {showDialog && selectedProduct && (
-        <div className={styles.dialogOverlay}>
-          <div className={styles.dialog}>
-            <h3>Contact Artisan</h3>
-            <p>
-              Start a chat with <strong>{selectedProduct.artisan?.name}</strong>{" "}
-              to order <strong>{selectedProduct.name}</strong>.
-            </p>
-
-            <textarea
-              className={styles.dialogInput}
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Type a short message to artisan (optional)..."
-              rows={3}
-            />
-
-            <div className={styles.dialogActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setShowDialog(false)}
-                disabled={processing}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmBtn}
-                onClick={handleConfirmOrder}
-                disabled={processing}
-              >
-                {processing ? (
-                  <Spinner size="sm" inline label="Starting Chat..." />
-                ) : (
-                  "Start Order Chat"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ContactDialog
+        isOpen={showDialog && selectedProduct !== null}
+        onClose={() => setShowDialog(false)}
+        artisanName={selectedProduct?.artisan?.name}
+        productName={selectedProduct?.name}
+        isProcessing={processing}
+        onSubmit={handleConfirmOrder}
+        mode="order"
+      />
     </div>
   );
 }
