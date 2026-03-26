@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "../Spinner";
 import styles from "./ContactDialog.module.css";
 
@@ -8,8 +8,9 @@ type ContactDialogProps = {
   artisanName?: string;
   productName?: string;
   isProcessing?: boolean;
+  error?: string;
   onSubmit: (messageText: string) => void;
-  mode: "order" | "chat";
+  mode: "order" | "chat" | "new_conversation";
 };
 
 function ContactDialog({
@@ -18,39 +19,82 @@ function ContactDialog({
   artisanName,
   productName,
   isProcessing,
+  error,
   onSubmit,
   mode,
 }: ContactDialogProps) {
   const [messageText, setMessageText] = useState("");
 
+  useEffect(() => {
+    if (isOpen) {
+      setMessageText("");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const getTitle = () => {
+    if (mode === "order") return "Contact Artisan";
+    if (mode === "new_conversation") return "Start a Conversation";
+    return `Chat with ${artisanName || "Artisan"}`;
+  };
+
+  const getSubtitle = () => {
+    if (mode === "order")
+      return (
+        <>
+          Start a chat with <strong>{artisanName}</strong> to order{" "}
+          <strong>{productName}</strong>.
+        </>
+      );
+    if (mode === "new_conversation")
+      return "Give this conversation a title to begin.";
+    return `Send a message to ${artisanName} to start a conversation.`;
+  };
+
+  const getPlaceholder = () => {
+    if (mode === "order") return "Type a short message to artisan (optional)...";
+    if (mode === "new_conversation") return "e.g. Custom pottery order";
+    return "Type your message here...";
+  };
+
+  const getButtonText = () => {
+    if (mode === "order") return "Start Order Chat";
+    if (mode === "new_conversation") return "Create Chat";
+    return "Send Message";
+  };
+
+  const isInputSingleLine = mode === "new_conversation";
 
   return (
     <div className={styles.dialogOverlay}>
       <div className={styles.dialog}>
-        <h3>{mode === "order" ? "Contact Artisan" : `Chat with ${artisanName}`}</h3>
-        <p>
-          {mode === "order" ? (
-            <>
-              Start a chat with <strong>{artisanName}</strong> to order{" "}
-              <strong>{productName}</strong>.
-            </>
-          ) : (
-            `Send a message to ${artisanName} to start a conversation.`
-          )}
-        </p>
+        <h3 className={styles.dialogTitle}>{getTitle()}</h3>
+        <p className={styles.dialogSubtitle}>{getSubtitle()}</p>
 
-        <textarea
-          className={styles.dialogInput}
-          value={messageText}
-          onChange={(e) => setMessageText(e.target.value)}
-          placeholder={
-            mode === "order"
-              ? "Type a short message to artisan (optional)..."
-              : "Type your message here..."
-          }
-          rows={3}
-        />
+        {isInputSingleLine ? (
+          <input
+            className={styles.dialogInput}
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onSubmit(messageText);
+            }}
+            placeholder={getPlaceholder()}
+            autoFocus
+          />
+        ) : (
+          <textarea
+            className={styles.dialogInput}
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            placeholder={getPlaceholder()}
+            rows={3}
+            autoFocus
+          />
+        )}
+
+        {error && <p className={styles.dialogError}>{error}</p>}
 
         <div className={styles.dialogActions}>
           <button
@@ -66,11 +110,9 @@ function ContactDialog({
             disabled={isProcessing}
           >
             {isProcessing ? (
-              <Spinner size="sm" inline label="Starting Chat..." />
-            ) : mode === "order" ? (
-              "Start Order Chat"
+              <Spinner size="sm" inline label="Wait..." />
             ) : (
-              "Send Message"
+              getButtonText()
             )}
           </button>
         </div>

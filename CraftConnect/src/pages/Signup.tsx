@@ -53,6 +53,7 @@ function Signup() {
   const [industry, setIndustry] = useState("");
   const [shopLocation, setShopLocation] = useState("");
   const [artisanDesc, setArtisanDesc] = useState("");
+  const [experience, setExperience] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -166,6 +167,7 @@ function Signup() {
       profileUpdate.industry = industry;
       profileUpdate.location = shopLocation;
       profileUpdate.description = artisanDesc;
+      profileUpdate.experience = experience;
     }
 
     if (Object.keys(profileUpdate).length > 0) {
@@ -338,6 +340,17 @@ function Signup() {
                     {option}
                   </option>
                 ))}
+              </select>
+              <select
+                className={styles.select}
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+              >
+                <option value="">Select Experience</option>
+                <option value="Less than 1 year">Less than 1 year</option>
+                <option value="Less than 5 years">Less than 5 years</option>
+                <option value="Less than 10 years">Less than 10 years</option>
+                <option value="Greater than 10 years">Greater than 10 years</option>
               </select>
               <button
                 type="button"
