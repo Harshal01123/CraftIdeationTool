@@ -28,7 +28,8 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="courses" element={<Courses />} />
             <Route path="artisans" element={<Artisans />} />
-            <Route path="artisans/:id" element={<ArtisanPortfolio />} /> {/* ← portfolio route */}
+            <Route path="artisans/:id" element={<ArtisanPortfolio />} />{" "}
+            {/* ← portfolio route */}
             <Route path="products" element={<Products />} />
             <Route path="profile" element={<EditProfile />} />
             <Route path="notifications" element={<Notifications />} />

@@ -38,7 +38,7 @@
   opacity: 0.9;
   font-size: 1.25rem;
   margin: 0;
-} 
+}
 
 /* Header Replacement */
 .filterBarTop {
@@ -106,7 +106,7 @@
   background-color: var(--surface-container-low);
   display: flex;
   flex-direction: column;
-  min-height: 400px;
+  min-height: 280px;
 }
 
 @media (min-width: 1024px) {
@@ -147,7 +147,7 @@
 
 .spotlightContent {
   width: 100%;
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -160,7 +160,7 @@
 @media (min-width: 1024px) {
   .spotlightContent {
     width: 50%;
-    padding: 4rem;
+    padding: 2.5rem 3rem;
   }
 }
 
@@ -197,34 +197,34 @@
 
 .spotlightTitle {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: 2.25rem;
   color: var(--on-surface);
   line-height: 1.1;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .hindiTitle {
   font-family: var(--font-hindi);
   opacity: 0.6;
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   margin-left: 0.5rem;
   font-weight: normal;
 }
 
 .spotlightQuote {
   font-family: var(--font-body);
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--on-surface-variant);
-  line-height: 1.6;
+  line-height: 1.5;
   font-style: italic;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .spotlightMeta {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .masterGrade {
@@ -416,7 +416,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid var(--surface);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .verifiedBadge span {
@@ -472,23 +472,6 @@
   color: rgba(84, 67, 60, 0.7); /* on-surface-variant / 70% */
   font-style: italic;
   line-height: 1.5;
-}
-
-.cardTags {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.miniTag {
-  padding: 0.25rem 0.5rem;
-  background-color: var(--surface-container-highest);
-  border-radius: 0.25rem;
-  font-family: var(--font-label);
-  font-size: 0.5625rem; /* 9px */
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.05em;
-  color: var(--on-surface-variant);
 }
 
 .cardActions {
