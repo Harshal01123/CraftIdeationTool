@@ -31,6 +31,10 @@ function DashboardLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [bugReportOpen, setBugReportOpen] = useState(false);
+  const [bugSubject, setBugSubject] = useState("");
+  const [bugContent, setBugContent] = useState("");
+  const [bugStatus, setBugStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     setSearchQuery("");
@@ -140,6 +144,26 @@ function DashboardLayout() {
   async function handleLogout() {
     await supabase.auth.signOut();
     navigate("/");
+  }
+
+  async function handleSendBugReport() {
+    if (!bugSubject.trim() || !bugContent.trim()) return;
+    setBugStatus("sending");
+    try {
+      const { error } = await supabase.functions.invoke("send-bug-report", {
+        body: { subject: bugSubject, content: bugContent },
+      });
+      if (error) throw error;
+      setBugStatus("sent");
+      setTimeout(() => {
+        setBugReportOpen(false);
+        setBugSubject("");
+        setBugContent("");
+        setBugStatus("idle");
+      }, 1500);
+    } catch {
+      setBugStatus("error");
+    }
   }
 
   // Helper for NavLink styling
@@ -301,6 +325,13 @@ function DashboardLayout() {
           <p className={styles.footerCopyright}>
             © 2026 CraftConnect Heritage Editorial. All rights reserved.
           </p>
+          <button
+            className={styles.bugReportBtn}
+            onClick={() => { setBugReportOpen(true); setBugStatus("idle"); }}
+          >
+            <span className="material-symbols-outlined">bug_report</span>
+            Report a Bug
+          </button>
         </footer>
       </main>
 
@@ -318,6 +349,78 @@ function DashboardLayout() {
             window.dispatchEvent(new Event(PRODUCT_SAVED_EVENT));
           }}
         />
+      )}
+
+      {/* BUG REPORT MODAL */}
+      {bugReportOpen && (
+        <div className={styles.bugOverlay} onClick={() => setBugReportOpen(false)}>
+          <div className={styles.bugModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.bugModalHeader}>
+              <h3 className={styles.bugModalTitle}>Report a Bug</h3>
+              <button className={styles.bugCloseBtn} onClick={() => setBugReportOpen(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className={styles.bugModalSubtitle}>Help us improve CraftConnect by describing the issue.</p>
+
+            {bugStatus === "sent" ? (
+              <div className={styles.bugSuccess}>
+                <span className="material-symbols-outlined">check_circle</span>
+                Report sent successfully!
+              </div>
+            ) : (
+              <>
+                <div className={styles.bugField}>
+                  <label className={styles.bugLabel}>Subject</label>
+                  <input
+                    className={styles.bugInput}
+                    type="text"
+                    placeholder="Brief description of the bug..."
+                    value={bugSubject}
+                    onChange={(e) => setBugSubject(e.target.value)}
+                    disabled={bugStatus === "sending"}
+                  />
+                </div>
+                <div className={styles.bugField}>
+                  <label className={styles.bugLabel}>Details</label>
+                  <textarea
+                    className={styles.bugTextarea}
+                    placeholder="What happened? What did you expect? Steps to reproduce..."
+                    rows={5}
+                    value={bugContent}
+                    onChange={(e) => setBugContent(e.target.value)}
+                    disabled={bugStatus === "sending"}
+                  />
+                </div>
+                {bugStatus === "error" && (
+                  <p className={styles.bugError}>Failed to send. Please try again.</p>
+                )}
+                <div className={styles.bugActions}>
+                  <button className={styles.bugCancelBtn} onClick={() => setBugReportOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className={styles.bugSubmitBtn}
+                    onClick={handleSendBugReport}
+                    disabled={bugStatus === "sending" || !bugSubject.trim() || !bugContent.trim()}
+                  >
+                    {bugStatus === "sending" ? (
+                      <>
+                        <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined">send</span>
+                        Send Report
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

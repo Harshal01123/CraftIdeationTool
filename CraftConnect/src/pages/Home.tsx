@@ -4,8 +4,16 @@ import styles from "./Home.module.css";
 import Button from "../components/Button";
 
 function Home() {
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(
+    () => !localStorage.getItem("craftconnect_disclaimer_seen")
+  );
   const navigate = useNavigate();
+
+  function closePopup() {
+    localStorage.setItem("craftconnect_disclaimer_seen", "1");
+    setShowPopup(false);
+  }
+
 
   return (
     <div className={styles.home}>
@@ -140,13 +148,13 @@ function Home() {
       </footer>
 
       {showPopup && (
-        <div className={styles.popupOverlay} onClick={() => setShowPopup(false)}>
+        <div className={styles.popupOverlay} onClick={closePopup}>
           <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
             <h3>Disclaimer</h3>
             <p>
               This website is only for connecting Chhattisgarh craftsmen with customers and give people a chance to learn a wide variety of traditional crafts via verified tutors. This site does not offer payment gateways and also does not ask for any donations. Happy exploring!
             </p>
-            <button className={styles.closeBtn} onClick={() => setShowPopup(false)}>Close</button>
+            <button className={styles.closeBtn} onClick={closePopup}>Close</button>
           </div>
         </div>
       )}
