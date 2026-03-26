@@ -54,6 +54,7 @@
   border: 1px solid rgba(218, 193, 184, 0.2);
   width: 100%;
   max-width: 350px;
+  margin-right: 10rem;
 }
 
 .searchBox span {

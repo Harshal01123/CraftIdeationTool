@@ -157,10 +157,6 @@ function Products() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className={styles.sortBtn}>
-            <span>Sort: Featured</span>
-            <span className="material-symbols-outlined">expand_more</span>
-          </button>
         </div>
       </div>
 
