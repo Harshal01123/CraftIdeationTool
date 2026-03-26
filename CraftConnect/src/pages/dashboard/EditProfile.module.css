@@ -1,0 +1,334 @@
+.mainContent {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 4rem 2.5rem 5rem;
+  width: 100%;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+.pageHeader {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-family: var(--font-brand);
+  font-size: 3rem;
+  color: var(--on-surface);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  color: var(--on-surface-variant);
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.sectionCardHeader {
+  background-color: #EDE5D0;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.sectionCardHeader:hover {
+  transform: scale(1.005);
+}
+
+.sectionCard {
+  background-color: #EDE5D0;
+  border-radius: 0.75rem;
+  padding: 2.5rem;
+}
+
+.headerLayout {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.avatarGroup {
+  position: relative;
+}
+
+.avatarWrapper {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  border: 4px solid #F5EFE0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+  background-color: white;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cameraBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: var(--primary-container);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cameraBtn:hover {
+  background-color: var(--primary);
+}
+
+.cameraBtn span {
+  font-size: 0.875rem;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.profileName {
+  font-family: var(--font-brand);
+  font-size: 1.875rem;
+  color: var(--on-surface);
+}
+
+.roleBadge {
+  background-color: rgba(201, 150, 42, 0.1);
+  color: #C9962A;
+  font-family: var(--font-label);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 150, 42, 0.2);
+}
+
+.memberSince {
+  font-family: var(--font-body);
+  color: var(--on-surface-variant);
+  opacity: 0.8;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.hindiName {
+  font-family: var(--font-hindi);
+  color: var(--primary-container);
+  font-size: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.sectionIcon {
+  color: var(--primary-container);
+}
+
+.sectionTitle {
+  font-family: var(--font-brand);
+  font-size: 1.5rem;
+  color: var(--on-surface);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem 3rem;
+}
+
+@media (min-width: 768px) {
+  .grid2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.colSpan2 {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inputGroup label {
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--primary-container);
+  font-weight: 600;
+}
+
+.hindiLabel {
+  font-family: var(--font-hindi);
+  font-size: 0.625rem;
+  color: #C9962A;
+}
+
+.inputGroup input,
+.inputGroup textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--outline-variant);
+  background: transparent;
+  padding: 0.5rem 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--on-surface);
+  transition: border-color 0.3s ease;
+  resize: none;
+}
+
+.inputGroup input:focus,
+.inputGroup textarea:focus {
+  outline: none;
+  border-bottom-color: #C9962A;
+}
+
+.securityLayout {
+  max-width: 36rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(218, 193, 184, 0.3);
+}
+
+.cancelBtn {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--primary-container);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelBtn:hover {
+  background-color: rgba(160, 82, 45, 0.05);
+}
+
+.saveBtn {
+  background-color: var(--primary-container);
+  color: white;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 1rem 2.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: var(--primary);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.saveBtn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.saveBtn span {
+  font-size: 0.875rem;
+}
+
+.decorativeFooter {
+  margin-top: 6rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.quoteBox {
+  display: inline-block;
+  padding: 1.5rem 2.5rem;
+  border: 1px solid rgba(201, 150, 42, 0.2);
+  position: relative;
+}
+
+.quoteBox p {
+  font-family: var(--font-brand);
+  font-style: italic;
+  color: var(--on-surface);
+  font-size: 1.125rem;
+}
+
+.dotTopLeft, .dotTopRight, .dotBottomLeft, .dotBottomRight {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #C9962A;
+}
+
+.dotTopLeft { top: -0.25rem; left: -0.25rem; }
+.dotTopRight { top: -0.25rem; right: -0.25rem; }
+.dotBottomLeft { bottom: -0.25rem; left: -0.25rem; }
+.dotBottomRight { bottom: -0.25rem; right: -0.25rem; }

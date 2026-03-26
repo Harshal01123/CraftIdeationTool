@@ -53,8 +53,6 @@ function Courses() {
       {/* Top Header */}
       <div className={styles.filterBarTop}>
         <div className={styles.headerLeft}>
-          <h2 className={styles.pageTitle}>Courses</h2>
-          <span className={styles.hindiSubtitle}>शिक्षा</span>
         </div>
         <div className={styles.searchBox}>
           <span className="material-symbols-outlined">search</span>

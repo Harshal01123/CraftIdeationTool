@@ -10,7 +10,8 @@ import Products from "./pages/dashboard/Products";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Notifications from "./pages/dashboard/Notifications";
 import Messages from "./pages/dashboard/Messages";
-import ArtisanPortfolio from "./pages/ArtisanPortfolio";  // ← new import
+import ArtisanPortfolio from "./pages/ArtisanPortfolio";
+import EditProfile from "./pages/dashboard/EditProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="artisans" element={<Artisans />} />
             <Route path="artisans/:id" element={<ArtisanPortfolio />} /> {/* ← portfolio route */}
             <Route path="products" element={<Products />} />
+            <Route path="profile" element={<EditProfile />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="messages" element={<Messages />} />
           </Route>

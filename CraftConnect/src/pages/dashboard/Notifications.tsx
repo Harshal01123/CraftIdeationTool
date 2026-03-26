@@ -146,8 +146,6 @@ function Notifications() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.headingGroup}>
-          <h2 className={styles.heading}>Notifications</h2>
-          <span className={styles.hindiSubtitle}>सूचनाएँ</span>
           {unreadCount > 0 && (
             <span className={styles.badge}>{unreadCount}</span>
           )}
