@@ -68,8 +68,6 @@ function Artisans() {
     <div className={styles.page}>
       <div className={styles.filterBarTop}>
         <div className={styles.headerLeft}>
-          <h2 className={styles.pageTitle}>Artisans</h2>
-          <span className={styles.hindiSubtitle}>शिल्पी</span>
         </div>
         <div className={styles.searchBox}>
           <span className="material-symbols-outlined">search</span>

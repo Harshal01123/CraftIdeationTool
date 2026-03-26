@@ -103,9 +103,7 @@ function Products() {
     <div className={styles.page}>
       <div className={styles.filterBar}>
         <div className={styles.headerLeft}>
-          <h2 className={styles.pageTitle}>Products</h2>
-          <span className={styles.hindiSubtitle}>उत्पाद</span>
-          <span className={styles.subtitle} style={{ marginLeft: "1rem" }}>
+          <span className={styles.subtitle}>
             ({filteredProducts.length} Artifacts)
           </span>
         </div>

@@ -11,6 +11,21 @@ export const PRODUCT_SAVED_EVENT = "dashboard:product-saved";
 
 function DashboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine page title based on route
+  const getPageTitles = () => {
+    const path = location.pathname;
+    if (path.includes("/products")) return { en: "Products", hi: "उत्पाद" };
+    if (path.includes("/courses")) return { en: "Courses", hi: "शिक्षा" };
+    if (path.includes("/artisans")) return { en: "Artisans", hi: "शिल्पी" };
+    if (path.includes("/messages")) return { en: "Messages", hi: "संदेश" };
+    if (path.includes("/notifications")) return { en: "Notifications", hi: "सूचनाएं" };
+    if (path.includes("/profile")) return { en: "Edit Profile", hi: "प्रोफ़ाइल" };
+    return { en: "Dashboard", hi: "डैशबोर्ड" };
+  };
+  const titles = getPageTitles();
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,7 +36,7 @@ function DashboardLayout() {
       const customEvent = event as CustomEvent<{ unreadCount: number }>;
       setUnreadCount(customEvent.detail?.unreadCount ?? 0);
     }
-    
+
     function handleOpenEditModal(event: Event) {
       const customEvent = event as CustomEvent<{ product: Product }>;
       setEditingProduct(customEvent.detail.product);
@@ -36,7 +51,7 @@ function DashboardLayout() {
       OPEN_EDIT_PRODUCT_MODAL_EVENT,
       handleOpenEditModal as EventListener,
     );
-    
+
     return () => {
       window.removeEventListener(
         UNREAD_COUNT_EVENT,
@@ -128,41 +143,55 @@ function DashboardLayout() {
 
   return (
     <div className={styles.page}>
-      
       {/* SIDEBAR */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
           <h1 className={styles.brandTitle}>CraftConnect</h1>
           <p className={styles.brandSubtitle}>The Digital Curator</p>
         </div>
-        
+
         <nav className={styles.nav}>
           <NavLink to="/dashboard" end className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`} style={{fontVariationSettings: "'FILL' 1"}}>dashboard</span>
+            <span
+              className={`material-symbols-outlined ${styles.navIcon}`}
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              dashboard
+            </span>
             <span className={styles.navLinkText}>Dashboard</span>
           </NavLink>
           <NavLink to="/dashboard/products" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>storefront</span>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>
+              storefront
+            </span>
             <span className={styles.navLinkText}>Products</span>
           </NavLink>
           <NavLink to="/dashboard/courses" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>school</span>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>
+              school
+            </span>
             <span className={styles.navLinkText}>Courses</span>
           </NavLink>
           <NavLink to="/dashboard/artisans" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>brush</span>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>
+              brush
+            </span>
             <span className={styles.navLinkText}>Artisans</span>
           </NavLink>
           <NavLink to="/dashboard/messages" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>mail</span>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>
+              mail
+            </span>
             <span className={styles.navLinkText}>Messages</span>
           </NavLink>
           <NavLink to="/dashboard/notifications" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>notifications</span>
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>
+              notifications
+            </span>
             <span className={styles.navLinkText}>Notifications</span>
             {unreadCount > 0 && (
               <span className={styles.navBadge}>
-                {unreadCount > 99 ? "99+" : unreadCount}
+                {unreadCount > 5 ? "5+" : unreadCount}
               </span>
             )}
           </NavLink>
@@ -177,39 +206,69 @@ function DashboardLayout() {
                 setIsModalOpen(true);
               }}
             >
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>add_circle</span>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                add_circle
+              </span>
               New Collection
             </button>
           )}
-          
-          <div className={styles.profileSummary}>
-            <div className={styles.profileAvatarBox}>
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className={styles.profileImg} />
-              ) : (
-                <span className="material-symbols-outlined" style={{color: 'white', margin: '6px'}}>person</span>
-              )}
-            </div>
-            <div className={styles.profileInfo}>
-              <p className={styles.profileName}>{profile?.name ?? "Loading..."}</p>
-              <p className={styles.profileRole}>{profile?.role ?? "Guest"}</p>
-            </div>
+
+          <div className={styles.profileNavWrapper}>
+            <NavLink to="/dashboard/profile" className={navClass}>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                account_circle
+              </span>
+              <span className={styles.navLinkText}>Profile</span>
+            </NavLink>
           </div>
         </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
       <main className={styles.mainWrapper}>
-        
         {/* TOP NAV ACTIONS ONLY */}
         <div className={styles.topNav}>
+          <div className={styles.topNavLeft}>
+            <h2 className={styles.navPageTitle}>{titles.en}</h2>
+            <span className={styles.navHindiSubtitle}>{titles.hi}</span>
+          </div>
           <div className={styles.topNavRight}>
             <div className={styles.navActions}>
-              <button className={styles.iconBtn} onClick={() => navigate("/dashboard/notifications")}>
+              <span
+                className={`material-symbols-outlined ${styles.searchIcon}`}
+              >
+                search
+              </span>
+              <button
+                className={styles.iconBtn}
+                onClick={() => navigate("/dashboard/notifications")}
+              >
                 <span className="material-symbols-outlined">notifications</span>
                 {unreadCount > 0 && <span className={styles.notifDot}></span>}
               </button>
-              <button className={styles.iconBtn} onClick={handleLogout} title="Logout">
+
+              <div className={styles.headerProfileBox}>
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt="Profile"
+                    className={styles.headerProfileImg}
+                  />
+                ) : (
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ color: "white", margin: "4px" }}
+                  >
+                    person
+                  </span>
+                )}
+              </div>
+
+              <button
+                className={styles.iconBtn}
+                onClick={handleLogout}
+                title="Logout"
+              >
                 <span className="material-symbols-outlined">logout</span>
               </button>
             </div>
@@ -223,10 +282,13 @@ function DashboardLayout() {
 
         {/* FOOTER */}
         <footer className={styles.footer}>
-          <div className={styles.footerBrand}>CraftConnect Heritage Editorial</div>
-          <p className={styles.footerCopyright}>© 2026 CraftConnect Heritage Editorial. All rights reserved.</p>
+          <div className={styles.footerBrand}>
+            CraftConnect Heritage Editorial
+          </div>
+          <p className={styles.footerCopyright}>
+            © 2026 CraftConnect Heritage Editorial. All rights reserved.
+          </p>
         </footer>
-
       </main>
 
       {isModalOpen && profile?.role === "artisan" && (
