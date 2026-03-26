@@ -39,7 +39,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: var(--surface-bright);
+  background-color: rgba(245, 239, 224, 0.9);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 40;

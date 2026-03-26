@@ -105,16 +105,13 @@ function Products() {
         <div className={styles.headerLeft}>
           <h2 className={styles.pageTitle}>Products</h2>
           <span className={styles.hindiSubtitle}>उत्पाद</span>
-          <span className={styles.subtitle} style={{ marginLeft: "1rem" }}>
-            ({filteredProducts.length} Artifacts)
-          </span>
         </div>
         <div className={styles.filterRight}>
           <div className={styles.searchBox}>
             <span className="material-symbols-outlined">search</span>
             <input
               type="text"
-              placeholder="Search heritage..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -145,7 +142,7 @@ function Products() {
               <li
                 className={`${styles.categoryItem} ${
                   selectedCategory === null ? styles.categoryItemActive : ""
-                }`}
+                }`} 
                 onClick={() => setSelectedCategory(null)}
               >
                 <span className={styles.catName}>All Collections</span>

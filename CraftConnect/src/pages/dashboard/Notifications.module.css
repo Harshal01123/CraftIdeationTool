@@ -1,5 +1,5 @@
 .page {
-  padding: 2rem 2.5rem;
+  padding: 0 2.5rem 2rem;
   max-width: 780px;
   width: 100%;
 }
@@ -10,6 +10,21 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 2rem;
+  padding: 2rem 0 1rem;
+  background-color: rgba(245, 239, 224, 0.9);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.hindiSubtitle {
+  font-family: var(--font-hindi);
+  color: var(--primary);
+  opacity: 0.9;
+  font-size: 1.25rem;
+  margin: 0;
+  margin-left: 0.5rem;
 }
 
 .headingGroup {
@@ -20,7 +35,7 @@
 
 .heading {
   font-family: var(--font-headline);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--on-surface);
   margin: 0;
