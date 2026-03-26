@@ -7,6 +7,7 @@ function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +22,7 @@ function Login() {
 
   async function handleLogin(e?: React.FormEvent) {
     if (e) e.preventDefault();
+    if (loading) return;
     if (!email || !password) {
       setError("Please enter email and password");
       return;
@@ -93,15 +95,23 @@ function Login() {
               <label className={styles.inputLabel} htmlFor="password">
                 Password
               </label>
-              <div className={styles.inputWrapper}>
+              <div className={styles.inputWrapper} style={{ position: 'relative' }}>
                 <input
                   className={styles.input}
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingRight: '2.5rem' }}
                 />
+                <span 
+                  className="material-symbols-outlined" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '3rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
+                >
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
                 <div className={styles.inputHindiLabel}>कूटशब्द</div>
               </div>
               {error && (
