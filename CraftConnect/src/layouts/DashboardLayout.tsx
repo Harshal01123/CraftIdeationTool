@@ -264,9 +264,9 @@ function DashboardLayout() {
             <span className={styles.navHindiSubtitle}>{titles.hi}</span>
           </div>
           <div className={styles.topNavRight}>
-            {(location.pathname.includes("/products") || 
-              location.pathname.includes("/courses") || 
-              location.pathname.includes("/artisans")) && (
+            {(location.pathname === "/dashboard/products" || 
+              location.pathname === "/dashboard/courses" || 
+              location.pathname === "/dashboard/artisans") && (
               <div className={styles.headerSearchBox}>
                 <span className="material-symbols-outlined">search</span>
                 <input 

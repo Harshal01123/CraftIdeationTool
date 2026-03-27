@@ -1,5 +1,6 @@
 import styles from "./ProductCard.module.css";
 import { useWishlist } from "../../hooks/useWishlist";
+import StarRating from "../ratings/StarRating";
 
 type ProductCardProps = {
   id: string;
@@ -8,9 +9,12 @@ type ProductCardProps = {
   description?: string;
   artisanName?: string;
   imageUrl?: string | null;
+  avgRating?: number;
+  totalRatings?: number;
   onEdit?: () => void;
   onDelete?: () => void;
   onBuy?: () => void;
+  onView?: () => void;   // navigate to product portfolio
 };
 
 function ProductCard({
@@ -19,9 +23,12 @@ function ProductCard({
   price,
   artisanName,
   imageUrl,
+  avgRating = 0,
+  totalRatings = 0,
   onEdit,
   onDelete,
   onBuy,
+  onView,
 }: ProductCardProps) {
   const { wishlistIds, toggleWishlist } = useWishlist();
   const isWishlisted = wishlistIds.has(id);
@@ -34,7 +41,7 @@ function ProductCard({
           className={styles.productImage}
           src={imageUrl || "/images/dummyProduct.jpg"}
         />
-        <button 
+        <button
           className={`${styles.favoriteBtn} ${isWishlisted ? styles.wishlisted : ""}`}
           onClick={(e) => {
             e.stopPropagation();
@@ -42,7 +49,7 @@ function ProductCard({
             toggleWishlist(id);
           }}
         >
-          <span 
+          <span
             className="material-symbols-outlined"
             style={isWishlisted ? { fontVariationSettings: "'FILL' 1", color: "#d32f2f" } : {}}
           >
@@ -67,38 +74,25 @@ function ProductCard({
 
         <div className={styles.priceRow}>
           <span className={styles.productPrice}>{price}</span>
-          <div className={styles.stars}>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
+          <div className={styles.ratingDisplay}>
+            <StarRating value={avgRating} size="sm" />
+            <span className={styles.ratingCount}>
+              {totalRatings > 0 ? `(${totalRatings})` : "No reviews"}
             </span>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
-            <span
-              className="material-symbols-outlined"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
-            <span className="material-symbols-outlined">star</span>
           </div>
         </div>
 
         {/* Actions */}
-        {(onEdit || onDelete || onBuy) && (
+        {(onEdit || onDelete || onBuy || onView) && (
           <div className={styles.actions}>
+            {onView && (
+              <button className={styles.viewBtn} onClick={onView}>
+                <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>
+                  visibility
+                </span>
+                <span>View</span>
+              </button>
+            )}
             {onEdit && (
               <button className={styles.editBtn} onClick={onEdit}>
                 Edit

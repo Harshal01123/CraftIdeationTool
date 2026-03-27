@@ -7,6 +7,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import ContactDialog from "../../components/chat/ContactDialog";
 import { startConversation } from "../../lib/chatUtils";
+import RatingModal from "../../components/ratings/RatingModal";
+import StarRating from "../../components/ratings/StarRating";
+
+interface ArtisanRatingSummary {
+  artisan_id: string;
+  avg_rating: number;
+  total_ratings: number;
+}
 
 function Artisans() {
   const { profile } = useAuth();
@@ -14,36 +22,55 @@ function Artisans() {
   const [artisans, setArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+  const [ratingsMap, setRatingsMap] = useState<Record<string, ArtisanRatingSummary>>({});
 
   // Filter & Sort state
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
-  // Dialog State
+  // Dialog State (chat)
   const [showDialog, setShowDialog] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<Profile | null>(null);
   const [processing, setProcessing] = useState(false);
 
+  // Rating modal state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingArtisan, setRatingArtisan] = useState<Profile | null>(null);
+  const [ratingProcessing, setRatingProcessing] = useState(false);
+
+  async function fetchRatings() {
+    const { data } = await supabase.from("artisan_avg_ratings").select("*");
+    if (data) {
+      const map: Record<string, ArtisanRatingSummary> = {};
+      (data as ArtisanRatingSummary[]).forEach((r) => { map[r.artisan_id] = r; });
+      setRatingsMap(map);
+    }
+  }
+
   useEffect(() => {
     async function fetchArtisans() {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("role", "artisan");
+      const [{ data, error }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("role", "artisan"),
+      ]);
 
-      if (!error && data) {
-        setArtisans(data as Profile[]);
-      }
+      if (!error && data) setArtisans(data as Profile[]);
       setLoading(false);
     }
 
     fetchArtisans();
+    fetchRatings();
   }, []);
 
   function handleMessageClick(artisan: Profile) {
     if (!profile) return alert("Please log in to chat.");
     setSelectedArtisan(artisan);
     setShowDialog(true);
+  }
+
+  function handleRateClick(artisan: Profile, e: React.MouseEvent) {
+    e.stopPropagation();
+    setRatingArtisan(artisan);
+    setShowRatingModal(true);
   }
 
   async function handleStartChat(messageText: string) {
@@ -60,19 +87,34 @@ function Artisans() {
 
     setProcessing(false);
 
-    if (result.error) {
-      alert(result.error);
-      return;
-    }
+    if (result.error) { alert(result.error); return; }
 
     setShowDialog(false);
     navigate(`/dashboard/messages?conversation=${result.conversationId}`);
+  }
+
+  async function handleSubmitRating(rating: number, comment: string) {
+    if (!ratingArtisan || !profile) return;
+    setRatingProcessing(true);
+
+    await supabase.from("artisan_ratings").upsert({
+      artisan_id: ratingArtisan.id,
+      reviewer_id: profile.id,
+      rating,
+      comment: comment || null,
+    }, { onConflict: "artisan_id,reviewer_id" });
+
+    setRatingProcessing(false);
+    setShowRatingModal(false);
+    await fetchRatings(); // refresh ratings map
   }
 
   // Pick one artisan based on week number
   const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const spotlightArtisan =
     artisans.length > 0 ? artisans[weekNumber % artisans.length] : null;
+
+  const spotlightRating = spotlightArtisan ? ratingsMap[spotlightArtisan.id] : null;
 
   return (
     <div className={styles.page}>
@@ -110,13 +152,10 @@ function Artisans() {
 
                 <div className={styles.spotlightMeta}>
                   <span className={styles.masterGrade}>
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
-                    4.9 Master Grade
+                    <StarRating value={spotlightRating ? Number(spotlightRating.avg_rating) : 0} size="sm" />
+                    {spotlightRating
+                      ? `${spotlightRating.avg_rating} (${spotlightRating.total_ratings} reviews)`
+                      : "0.0 (0 reviews)"}
                   </span>
                 </div>
 
@@ -201,10 +240,8 @@ function Artisans() {
               filteredArtisans.sort((a, b) => b.name.localeCompare(a.name));
             }
 
-            // If no search and no strict filter, truncate to 9 elements
             if (!searchQuery && !selectedIndustry && !sortOrder) {
-              // "don't show all the artisans at once"
-              filteredArtisans = filteredArtisans.slice(0, 9); // Only show first 9 when not searching
+              filteredArtisans = filteredArtisans.slice(0, 9);
             }
 
             if (filteredArtisans.length === 0) {
@@ -213,66 +250,85 @@ function Artisans() {
 
             return (
               <div className={styles.grid}>
-                {filteredArtisans.map((artisan) => (
-                  <div key={artisan.id} className={styles.artisanCard}>
-                    <div className={styles.cardHeader}>
-                      <div className={styles.avatarWrapper}>
-                        <img
-                          src={
-                            artisan.avatar_url ||
-                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
-                          }
-                          alt={artisan.name}
-                          className={styles.avatarImg}
-                        />
-                        <div className={styles.verifiedBadge}>
-                          <span
-                            className="material-symbols-outlined"
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                          >
-                            verified
+                {filteredArtisans.map((artisan) => {
+                  const ratingInfo = ratingsMap[artisan.id];
+                  return (
+                    <div key={artisan.id} className={styles.artisanCard}>
+                      <div className={styles.cardHeader}>
+                        <div className={styles.avatarWrapper}>
+                          <img
+                            src={
+                              artisan.avatar_url ||
+                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ccc'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"
+                            }
+                            alt={artisan.name}
+                            className={styles.avatarImg}
+                          />
+                          <div className={styles.verifiedBadge}>
+                            <span
+                              className="material-symbols-outlined"
+                              style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                              verified
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.headerInfo}>
+                          <h4 className={styles.artisanName}>{artisan.name}</h4>
+                          <p className={styles.artisanIndustry}>
+                            {artisan.industry || "Master Artisan"}
+                          </p>
+                          <p className={styles.artisanLocation}>
+                            <span className="material-symbols-outlined">
+                              location_on
+                            </span>
+                            {artisan.location || "Chhattisgarh"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className={styles.cardBody}>
+                        <p className={styles.artisanBio}>
+                          {artisan.description ||
+                            "Traditional artisan preserving ancient heritage crafts with skills passed down for generations."}
+                        </p>
+                        {/* Rating display */}
+                        <div className={styles.ratingRow}>
+                          <StarRating value={ratingInfo ? Number(ratingInfo.avg_rating) : 0} size="sm" />
+                          <span className={styles.ratingCount}>
+                            {ratingInfo && ratingInfo.total_ratings > 0
+                              ? `${ratingInfo.avg_rating} (${ratingInfo.total_ratings})`
+                              : "No reviews yet"}
                           </span>
                         </div>
                       </div>
-                      <div className={styles.headerInfo}>
-                        <h4 className={styles.artisanName}>{artisan.name}</h4>
-                        <p className={styles.artisanIndustry}>
-                          {artisan.industry || "Master Artisan"}
-                        </p>
-                        <p className={styles.artisanLocation}>
-                          <span className="material-symbols-outlined">
-                            location_on
-                          </span>
-                          {artisan.location || "Chhattisgarh"}
-                        </p>
+
+                      <div className={styles.cardActions}>
+                        <button
+                          className={styles.viewProfileBtn}
+                          onClick={() => navigate(`/dashboard/artisans/${artisan.id}`)}
+                        >
+                          View Profile
+                        </button>
+                        {profile?.role === "customer" && (
+                          <button
+                            className={styles.rateBtn}
+                            onClick={(e) => handleRateClick(artisan, e)}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "1rem", fontVariationSettings: "'FILL' 1" }}>star</span>
+                            Rate
+                          </button>
+                        )}
+                        <button
+                          className={styles.mailBtn}
+                          onClick={() => handleMessageClick(artisan)}
+                        >
+                          <span className="material-symbols-outlined">mail</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className={styles.cardBody}>
-                      <p className={styles.artisanBio}>
-                        {artisan.description ||
-                          "Traditional artisan preserving ancient heritage crafts with skills passed down for generations."}
-                      </p>
-                    </div>
-
-                    <div className={styles.cardActions}>
-                      <button
-                        className={styles.viewProfileBtn}
-                        onClick={() =>
-                          navigate(`/dashboard/artisans/${artisan.id}`)
-                        }
-                      >
-                        View Profile
-                      </button>
-                      <button
-                        className={styles.mailBtn}
-                        onClick={() => handleMessageClick(artisan)}
-                      >
-                        <span className="material-symbols-outlined">mail</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })()
@@ -286,6 +342,14 @@ function Artisans() {
         isProcessing={processing}
         onSubmit={handleStartChat}
         mode="chat"
+      />
+
+      <RatingModal
+        isOpen={showRatingModal && ratingArtisan !== null}
+        onClose={() => setShowRatingModal(false)}
+        title={`Rate ${ratingArtisan?.name ?? "Artisan"}`}
+        onSubmit={handleSubmitRating}
+        isProcessing={ratingProcessing}
       />
     </div>
   );

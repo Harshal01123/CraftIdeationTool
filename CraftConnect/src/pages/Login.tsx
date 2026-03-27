@@ -21,6 +21,8 @@ function Login() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+    
     supabase.auth.getSession().then(({ data }) => {
       if (window.location.hash.includes("type=recovery")) {
         setIsRecoveryFlow(true);

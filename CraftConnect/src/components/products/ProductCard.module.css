@@ -14,7 +14,7 @@
 
 .imageWrapper {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 3;
   overflow: hidden;
 }
 
@@ -54,7 +54,7 @@
 }
 
 .content {
-  padding: 1.5rem;
+  padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -93,9 +93,9 @@
 
 .productName {
   font-family: var(--font-display);
-  font-size: 1.25rem; /* xl */
+  font-size: 1rem;
   color: var(--on-surface);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
   line-height: 1.2;
 }
 
@@ -122,20 +122,22 @@
 }
 
 .productPrice {
-  font-size: 1.125rem; /* lg */
+  font-size: 0.95rem;
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--on-surface);
 }
 
-.stars {
+.ratingDisplay {
   display: flex;
-  color: var(--secondary-container);
-  gap: 2px;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.stars span {
-  font-size: 0.875rem; /* sm */
+.ratingCount {
+  font-size: 0.7rem;
+  font-family: var(--font-label);
+  color: var(--on-surface-variant);
 }
 
 /* Actions Section */
@@ -143,16 +145,43 @@
   display: flex;
   gap: 0.5rem;
   width: 100%;
+  flex-wrap: wrap;
+}
+
+.viewBtn {
+  flex: 1;
+  min-width: 60px;
+  padding: 0.55rem 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 1.5px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+.viewBtn:hover {
+  background: var(--surface-container-high);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .buyBtn {
   width: 100%;
   background-color: var(--primary);
   color: white;
-  padding: 0.75rem 0;
+  padding: 0.55rem 0;
   border-radius: 0.5rem;
   font-family: var(--font-label);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 600;
@@ -172,10 +201,10 @@
 .editBtn,
 .deleteBtn {
   flex: 1;
-  padding: 0.75rem 0;
+  padding: 0.55rem 0;
   border-radius: 0.5rem;
   font-family: var(--font-label);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 600;

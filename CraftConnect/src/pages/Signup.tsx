@@ -1,5 +1,5 @@
 import styles from "./Signup.module.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
@@ -35,6 +35,10 @@ function compressImage(file: File): Promise<Blob> {
 
 function Signup() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

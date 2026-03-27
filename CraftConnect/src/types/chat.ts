@@ -61,6 +61,9 @@ export interface Product {
   price: number;
   category: string | null;
   image_url: string | null;
+  dimensions?: string | null;
+  weight?: string | null;
+  additional_images?: string[] | null;
   is_available: boolean;
   created_at: string;
   // Populated by join query
@@ -90,4 +93,26 @@ export interface WishlistItem {
   product_id: string;
   created_at: string;
   product?: Product;
+}
+
+export interface ArtisanRating {
+  id: string;
+  artisan_id: string;
+  reviewer_id: string;
+  rating: number; // 1–5
+  comment: string | null;
+  created_at: string;
+  // Populated by join query
+  reviewer?: Profile;
+}
+
+export interface ProductRating {
+  id: string;
+  product_id: string;
+  reviewer_id: string;
+  rating: number; // 1–5
+  comment: string | null;
+  created_at: string;
+  // Populated by join query
+  reviewer?: Profile;
 }

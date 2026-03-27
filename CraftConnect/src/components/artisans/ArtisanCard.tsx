@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./ArtisanCard.module.css";
 import type { Profile } from "../../types/chat";
+import StarRating from "../ratings/StarRating";
 
 type ArtisanCardProps = {
   artisan: Profile;
+  avgRating?: number;
+  totalRatings?: number;
 };
 
-function ArtisanCard({ artisan }: ArtisanCardProps) {
+function ArtisanCard({ artisan, avgRating = 0, totalRatings = 0 }: ArtisanCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -30,6 +33,12 @@ function ArtisanCard({ artisan }: ArtisanCardProps) {
         {artisan.location && (
           <p className={styles.location}>📍 {artisan.location}</p>
         )}
+        <div className={styles.ratingRow}>
+          <StarRating value={avgRating} size="sm" />
+          <span className={styles.ratingCount}>
+            {totalRatings > 0 ? `(${totalRatings})` : "No reviews"}
+          </span>
+        </div>
       </div>
     </div>
   );
