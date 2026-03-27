@@ -3,12 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
 import Spinner from "../components/Spinner";
 import ContactDialog from "../components/chat/ContactDialog";
+import RatingModal from "../components/ratings/RatingModal";
+import ReviewCard from "../components/ratings/ReviewCard";
+import StarRating from "../components/ratings/StarRating";
 import { supabase } from "../lib/supabase";
-import type { Profile, Product } from "../types/chat";
+import type { Profile, Product, ArtisanRating } from "../types/chat";
 
 function ArtisanPortfolio() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [reviews, setReviews] = useState<ArtisanRating[]>([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalRatings, setTotalRatings] = useState(0);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -17,10 +23,39 @@ function ArtisanPortfolio() {
   const [notFound, setNotFound] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [dialogError, setDialogError] = useState("");
+
+  // Rating modal state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingProcessing, setRatingProcessing] = useState(false);
+  const [existingRating, setExistingRating] = useState(0);
+  const [existingComment, setExistingComment] = useState("");
+
+  async function fetchReviews() {
+    if (!id) return;
+    const [{ data: ratingsData }, { data: avgData }] = await Promise.all([
+      supabase
+        .from("artisan_ratings")
+        .select("*, reviewer:profiles!reviewer_id(id, name, avatar_url)")
+        .eq("artisan_id", id)
+        .order("created_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("artisan_avg_ratings")
+        .select("avg_rating, total_ratings")
+        .eq("artisan_id", id)
+        .maybeSingle(),
+    ]);
+    if (ratingsData) setReviews(ratingsData as ArtisanRating[]);
+    if (avgData) {
+      setAvgRating(Number(avgData.avg_rating) || 0);
+      setTotalRatings(Number(avgData.total_ratings) || 0);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -48,10 +83,35 @@ function ArtisanPortfolio() {
       if (error || !artisanData) setNotFound(true);
       else setArtisan(artisanData as Profile);
 
-      if (sessionData.session) setCurrentUserId(sessionData.session.user.id);
+      if (sessionData.session) {
+        const uid = sessionData.session.user.id;
+        setCurrentUserId(uid);
+
+        // fetch role
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", uid)
+          .single();
+        if (profileData) setCurrentUserRole(profileData.role);
+
+        // fetch existing rating by this user
+        const { data: myRating } = await supabase
+          .from("artisan_ratings")
+          .select("rating, comment")
+          .eq("artisan_id", id)
+          .eq("reviewer_id", uid)
+          .maybeSingle();
+        if (myRating) {
+          setExistingRating(myRating.rating);
+          setExistingComment(myRating.comment ?? "");
+        }
+      }
+
       setProducts((productsData as Product[]) ?? []);
       setProductsLoading(false);
       setLoading(false);
+      await fetchReviews();
     }
     fetchData();
   }, [id]);
@@ -63,10 +123,22 @@ function ArtisanPortfolio() {
       alert("You cannot start a chat with yourself.");
       return;
     }
-
-    // Always show dialog to start a fresh conversation
     setDialogError("");
     setShowDialog(true);
+  }
+
+  async function handleSubmitRating(rating: number, comment: string) {
+    if (!id || !currentUserId) return;
+    setRatingProcessing(true);
+    await supabase.from("artisan_ratings").upsert(
+      { artisan_id: id, reviewer_id: currentUserId, rating, comment: comment || null },
+      { onConflict: "artisan_id,reviewer_id" }
+    );
+    setRatingProcessing(false);
+    setShowRatingModal(false);
+    setExistingRating(rating);
+    setExistingComment(comment);
+    await fetchReviews();
   }
 
   // Called when user confirms title in dialog
@@ -123,20 +195,6 @@ function ArtisanPortfolio() {
 
   return (
     <div className={styles.container}>
-      {/* Contact Dialog */}
-      <ContactDialog
-        isOpen={showDialog}
-        onClose={() => {
-          setShowDialog(false);
-          setDialogError("");
-        }}
-        artisanName={artisan.name}
-        isProcessing={chatLoading}
-        error={dialogError}
-        mode="new_conversation"
-        onSubmit={handleCreateConversation}
-      />
-
       {/* Hero / Header */}
       <section className={styles.heroSection}>
         <div className={styles.avatarGroup}>
@@ -168,6 +226,17 @@ function ArtisanPortfolio() {
               <span className="material-symbols-outlined">location_on</span>
               {artisan.location || "India"}
             </div>
+            {totalRatings > 0 && (
+              <>
+                <div className={styles.metaDivider}></div>
+                <div className={styles.metaRating}>
+                  <StarRating value={avgRating} size="sm" />
+                  <span className={styles.metaRatingText}>
+                    {avgRating.toFixed(1)} ({totalRatings})
+                  </span>
+                </div>
+              </>
+            )}
           </div>
           <div className={styles.actionRow}>
             {!isOwnProfile && (
@@ -178,11 +247,7 @@ function ArtisanPortfolio() {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{
-                    fontSize: "1.25rem",
-                    marginRight: "0.5rem",
-                    verticalAlign: "middle",
-                  }}
+                  style={{ fontSize: "1.25rem", marginRight: "0.5rem", verticalAlign: "middle" }}
                 >
                   chat
                 </span>
@@ -195,6 +260,15 @@ function ArtisanPortfolio() {
                 onClick={() => navigate("/dashboard/profile")}
               >
                 Edit Profile
+              </button>
+            )}
+            {!isOwnProfile && currentUserRole === "customer" && (
+              <button
+                className={styles.rateArtisanBtn}
+                onClick={() => setShowRatingModal(true)}
+              >
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: "1.1rem" }}>star</span>
+                {existingRating ? "Edit Rating" : "Rate Artisan"}
               </button>
             )}
           </div>
@@ -302,7 +376,7 @@ function ArtisanPortfolio() {
               <div
                 key={product.id}
                 className={styles.artisanProductCard}
-                onClick={() => navigate("/products/" + product.id)}
+                onClick={() => navigate("/dashboard/products/" + product.id)}
               >
                 <div className={styles.artisanProductImgBox}>
                   <img src={product.image_url ?? ""} alt={product.name} />
@@ -319,6 +393,61 @@ function ArtisanPortfolio() {
           </div>
         )}
       </section>
+
+      {/* Reviews Section */}
+      <section className={styles.reviewsSection}>
+        <div className={styles.reviewsHeader}>
+          <h3 className={styles.reviewsTitle}>Reviews & Ratings</h3>
+          {!isOwnProfile && currentUserRole === "customer" && (
+            <button
+              className={styles.writeReviewBtn}
+              onClick={() => setShowRatingModal(true)}
+            >
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: "1rem" }}>star</span>
+              {existingRating ? "Edit Your Review" : "Write a Review"}
+            </button>
+          )}
+        </div>
+
+        {reviews.length === 0 ? (
+          <p className={styles.noReviews}>No reviews yet. Be the first to review this artisan!</p>
+        ) : (
+          <div className={styles.reviewsList}>
+            {reviews.map((r) => (
+              <ReviewCard
+                key={r.id}
+                reviewerName={r.reviewer?.name ?? "Anonymous"}
+                reviewerAvatar={r.reviewer?.avatar_url}
+                rating={r.rating}
+                comment={r.comment}
+                createdAt={r.created_at}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Contact Dialog */}
+      <ContactDialog
+        isOpen={showDialog}
+        onClose={() => { setShowDialog(false); setDialogError(""); }}
+        artisanName={artisan.name}
+        isProcessing={chatLoading}
+        error={dialogError}
+        mode="new_conversation"
+        onSubmit={handleCreateConversation}
+      />
+
+      {/* Rating Modal */}
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        title={`Rate ${artisan.name}`}
+        onSubmit={handleSubmitRating}
+        isProcessing={ratingProcessing}
+        existingRating={existingRating}
+        existingComment={existingComment}
+      />
     </div>
   );
 }

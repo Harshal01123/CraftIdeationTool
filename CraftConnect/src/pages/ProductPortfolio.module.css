@@ -1,0 +1,498 @@
+/* ═══════════════════════════════════════════════
+   PRODUCT PORTFOLIO — Content Area Only
+   Uses DashboardLayout's sidebar + topbar
+   ═══════════════════════════════════════════════ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  background: #fff8f5;
+  font-family: "Noto Serif", Georgia, serif;
+  min-height: 100%;
+}
+
+.loadingWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1.5rem;
+}
+
+.backLink {
+  background: none;
+  border: 1px solid #dac1b8;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  color: #54433c;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.85rem;
+}
+
+/* ─── Breadcrumb ─────────────────────────────── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 2.5rem 0;
+}
+
+.breadcrumbLink {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: #87736b;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s;
+  padding: 0;
+}
+.breadcrumbLink:hover { color: #823b18; }
+
+.breadcrumbSep { color: #dac1b8; }
+
+.breadcrumbCurrent {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.78rem;
+  color: #241911;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+/* ─── HERO SECTION ─────────────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0;
+  margin: 1.5rem 2.5rem 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 24px rgba(36, 25, 17, 0.07);
+  background: #fff8f5;
+  border: 1px solid rgba(218, 193, 184, 0.4);
+}
+
+/* Left image column */
+.imageCol {
+  background: #f3dfd0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mainImgBox {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #dac1b8;
+  min-height: 320px;
+  max-height: 420px;
+}
+
+.mainImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+.mainImgBox:hover .mainImg { transform: scale(1.04); }
+
+.thumbStrip { display: flex; gap: 0.75rem; }
+
+.thumb {
+  flex: 1;
+  height: 64px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  background: #dac1b8;
+}
+.thumbActive { border-color: #a0522d; }
+.thumb:hover { border-color: #c9962a; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Right info column */
+.infoCol {
+  padding: 2.25rem 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-left: 1px solid rgba(218, 193, 184, 0.45);
+  background: #fffaf7;
+}
+
+.scriptTag {
+  font-family: "Tiro Devanagari Hindi", "Noto Serif", serif;
+  font-size: 0.82rem;
+  color: #c9962a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.productTitle {
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-size: 2.75rem;
+  font-weight: 300;
+  line-height: 1.06;
+  color: #241911;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.artisanLine {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #87736b;
+  margin: -0.25rem 0 0;
+}
+
+.artisanNameBtn {
+  background: none;
+  border: none;
+  color: #823b18;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+  transition: color 0.15s;
+}
+.artisanNameBtn:hover { color: #c9962a; }
+
+.productQuote {
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #54433c;
+  line-height: 1.8;
+  border-left: 3px solid rgba(201, 150, 42, 0.4);
+  padding-left: 0.875rem;
+  margin: 0;
+}
+
+.ratingRow { display: flex; align-items: center; gap: 0.5rem; }
+.ratingText {
+  font-size: 0.78rem;
+  color: #87736b;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+/* CTA Buttons */
+.ctaRow { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.enquireBtn {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.8rem 1.25rem;
+  background: linear-gradient(135deg, #823b18, #a0522d);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.enquireBtn:hover { opacity: 0.87; transform: translateY(-1px); }
+
+.cartBtn {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.8rem 1.25rem;
+  background: transparent;
+  color: #241911;
+  border: 1.5px solid rgba(36, 25, 17, 0.22);
+  border-radius: 6px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.cartBtn:hover { background: #f3dfd0; border-color: #a0522d; }
+
+/* Specifications */
+.specsBox {
+  border-top: 1px solid rgba(218, 193, 184, 0.5);
+  padding-top: 1rem;
+}
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(218, 193, 184, 0.2);
+}
+
+.specLabel {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #87736b;
+}
+
+.specValue {
+  font-size: 0.85rem;
+  color: #241911;
+  font-family: "Noto Serif", serif;
+}
+
+.priceVal { color: #823b18 !important; font-weight: 700; }
+.inStock { color: #2e7d32; font-weight: 600; }
+.outOfStock { color: #c62828; font-weight: 600; }
+
+/* ─── CREATOR'S NOTE ───────────────────────────── */
+.creatorSection {
+  background: #fdf0e6;
+  padding: 4rem 2.5rem;
+  margin-top: 2.5rem;
+}
+
+.creatorInner {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.creatorHeadRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.goldStar { color: #c9962a; font-size: 1rem; }
+
+.sectionTitle {
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: #241911;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.creatorText {
+  font-size: 0.98rem;
+  line-height: 1.9;
+  color: #54433c;
+  margin: 0 0 2rem;
+}
+
+.dropCap {
+  float: left;
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-size: 5.5rem;
+  font-weight: 600;
+  line-height: 0.70;
+  margin-right: 0.1rem;
+  margin-top: 0.1rem;
+  color: #a0522d;
+}
+
+.artisanCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 10px;
+  border: 1px solid rgba(218, 193, 184, 0.45);
+  margin-top: 1rem;
+  clear: both;
+}
+
+.artisanCardAvatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #dac1b8;
+  flex-shrink: 0;
+}
+
+.artisanCardName {
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #241911;
+  margin: 0 0 0.2rem;
+}
+
+.artisanCardRole {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #87736b;
+  margin: 0;
+}
+
+.viewArtisanBtn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1.5px solid #c9962a;
+  color: #c9962a;
+  border-radius: 6px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.viewArtisanBtn:hover { background: rgba(201, 150, 42, 0.1); }
+
+/* ─── GALLERY ──────────────────────────────────── */
+.gallerySection {
+  padding: 4rem 2.5rem;
+  background: #fff8f5;
+}
+
+.galleryTitleCentered { text-align: center; margin-bottom: 2.5rem; }
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.galleryLarge, .gallerySmall {
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: #f3dfd0;
+}
+.galleryLarge { aspect-ratio: 5/4; }
+.gallerySmall { aspect-ratio: 5/4; }
+.galleryStack { display: flex; flex-direction: column; gap: 1rem; }
+
+.galleryLarge img, .gallerySmall img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.55s ease;
+}
+.galleryLarge:hover img, .gallerySmall:hover img { transform: scale(1.05); }
+
+.galleryCap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(36,25,17,0.75), transparent);
+  color: #f3dfd0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 0.875rem 0.6rem;
+}
+
+/* ─── REVIEWS ──────────────────────────────────── */
+.reviewsSection {
+  background: #fdf0e6;
+  padding: 4rem 2.5rem;
+}
+
+.reviewsTopRow {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  max-width: 820px;
+}
+
+.overallRating { display: flex; align-items: center; gap: 0.75rem; }
+
+.bigNum {
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #241911;
+  line-height: 1;
+}
+
+.reviewCount {
+  font-size: 0.78rem;
+  color: #87736b;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.writeReviewBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #823b18, #a0522d);
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  margin-bottom: 1.75rem;
+}
+.writeReviewBtn:hover { opacity: 0.87; transform: translateY(-1px); }
+
+.noReviews {
+  font-style: italic;
+  color: #87736b;
+  font-family: "Noto Serif", serif;
+  max-width: 820px;
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 820px;
+}
+
+/* ─── Responsive ───────────────────────────────── */
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; margin: 1rem; }
+  .imageCol { padding: 1.25rem; }
+  .infoCol { padding: 1.25rem; border-left: none; border-top: 1px solid rgba(218,193,184,0.45); }
+  .galleryGrid { grid-template-columns: 1fr; }
+  .productTitle { font-size: 2rem; }
+  .breadcrumb { padding: 1rem 1.25rem 0; }
+  .creatorSection, .gallerySection, .reviewsSection { padding: 3rem 1.25rem; }
+}

@@ -11,6 +11,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Notifications from "./pages/dashboard/Notifications";
 import Messages from "./pages/dashboard/Messages";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
+import ProductPortfolio from "./pages/ProductPortfolio";
 import EditProfile from "./pages/dashboard/EditProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { WishlistProvider } from "./hooks/useWishlist";
@@ -31,9 +32,9 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<Courses />} />
               <Route path="artisans" element={<Artisans />} />
-              <Route path="artisans/:id" element={<ArtisanPortfolio />} />{" "}
-              {/* ← portfolio route */}
+              <Route path="artisans/:id" element={<ArtisanPortfolio />} />
               <Route path="products" element={<Products />} />
+              <Route path="products/:id" element={<ProductPortfolio />} />
               <Route path="profile" element={<EditProfile />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="messages" element={<Messages />} />

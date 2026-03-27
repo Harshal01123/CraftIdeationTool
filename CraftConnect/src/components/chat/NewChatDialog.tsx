@@ -43,7 +43,7 @@ function NewChatDialog({ currentProfile, onClose, onConversationStarted }: Props
 
   useEffect(() => {
     fetchArtisans().then((data) => {
-      setAllArtisans(data);
+      setAllArtisans(data.filter((a) => a.id !== currentProfile.id));
       setLoading(false);
     });
   }, []);

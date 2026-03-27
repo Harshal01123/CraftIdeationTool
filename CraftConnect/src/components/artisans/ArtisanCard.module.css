@@ -62,3 +62,16 @@
   color: #888;
   margin: 0;
 }
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.ratingCount {
+  font-size: 0.72rem;
+  color: #87736b;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}

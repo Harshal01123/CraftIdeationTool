@@ -518,3 +518,38 @@
 .mailBtn:hover {
   background-color: rgba(130, 59, 24, 0.05); /* primary/5 */
 }
+
+.rateBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 1.5px solid var(--secondary);
+  color: var(--secondary);
+  font-family: var(--font-label);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.rateBtn:hover {
+  background: rgba(201, 150, 42, 0.1);
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.ratingCount {
+  font-size: 0.72rem;
+  color: var(--outline);
+  font-family: var(--font-label);
+}

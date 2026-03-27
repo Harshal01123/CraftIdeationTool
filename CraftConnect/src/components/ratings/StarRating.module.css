@@ -1,0 +1,23 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  user-select: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.interactive.star {
+  cursor: pointer;
+}
+
+.interactive.star:hover {
+  transform: scale(1.2);
+}
+
+/* Sizes */
+.sm .star { font-size: 0.95rem; }
+.md .star { font-size: 1.15rem; }
+.lg .star { font-size: 1.5rem; }

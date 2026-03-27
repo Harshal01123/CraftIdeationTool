@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import Spinner from "../Spinner";
@@ -12,7 +12,7 @@ type Props = {
   onSaved: () => void;
 };
 
-function AddProductModal({
+export default function AddProductModal({
   artisanId,
   existingProduct,
   onClose,
@@ -24,20 +24,65 @@ function AddProductModal({
   );
   const [price, setPrice] = useState(existingProduct?.price?.toString() ?? "");
   const [category, setCategory] = useState(existingProduct?.category ?? "");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    existingProduct?.image_url ?? null,
+  const [weight, setWeight] = useState(existingProduct?.weight ?? "");
+  const [dimensions, setDimensions] = useState(
+    existingProduct?.dimensions ?? "",
   );
-  const [weight, setWeight] = useState("");
-  const [dimensions, setDimensions] = useState("");
+
+  const [existingImages, setExistingImages] = useState<string[]>(
+    existingProduct
+      ? ([
+          existingProduct.image_url,
+          ...(existingProduct.additional_images || []),
+        ].filter(Boolean) as string[])
+      : [],
+  );
+
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newPreviews, setNewPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const combinedPreviews = [...existingImages, ...newPreviews];
+
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    if (combinedPreviews.length + files.length > 6) {
+      setError("Gathering limit reached: You can upload a maximum of 6 views.");
+      e.target.value = "";
+      return;
+    }
+
+    setNewFiles((prev) => [...prev, ...files]);
+
+    const previews = files.map((f) => URL.createObjectURL(f));
+    setNewPreviews((prev) => [...prev, ...previews]);
+
+    e.target.value = "";
+    setError("");
+  }
+
+  function handleRemoveImage(index: number) {
+    if (index < existingImages.length) {
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      const newIdx = index - existingImages.length;
+      setNewFiles((prev) => prev.filter((_, i) => i !== newIdx));
+      setNewPreviews((prev) => {
+        const urlToRevoke = prev[newIdx];
+        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
+        return prev.filter((_, i) => i !== newIdx);
+      });
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,24 +90,24 @@ function AddProductModal({
     setError("");
 
     if (!name.trim()) return setError("Product name is required.");
-    if (!price || isNaN(Number(price)) || Number(price) <= 0)
-      return setError("Enter a valid price.");
-    if (!imageFile && !existingProduct?.image_url)
+    if (!price || isNaN(Number(price)) || Number(price) < 0)
+      return setError("Enter a valid price greater than or equal to Rs. 0.");
+    if (combinedPreviews.length === 0)
       return setError("Product image is required.");
 
     setLoading(true);
 
-    let imageUrl = existingProduct?.image_url ?? null;
+    let finalUrls: string[] = [...existingImages];
 
-    if (imageFile) {
-      const ext = imageFile.name.split(".").pop();
-      const filePath = `${artisanId}/${Date.now()}.${ext}`;
+    for (const file of newFiles) {
+      const ext = file.name.split(".").pop();
+      const filePath = `${artisanId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from("products")
-        .upload(filePath, imageFile, { upsert: true });
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) {
-        setError("Image upload failed. Try again.");
+        setError(`Failed to upload ${file.name}`);
         setLoading(false);
         return;
       }
@@ -70,19 +115,27 @@ function AddProductModal({
       const { data: urlData } = supabase.storage
         .from("products")
         .getPublicUrl(filePath);
-      imageUrl = urlData.publicUrl;
+      finalUrls.push(urlData.publicUrl);
     }
+
+    const imageUrl = finalUrls[0] || null;
+    const additionalImages = finalUrls.slice(1);
+
+    const productData = {
+      name,
+      description,
+      price: Number(price),
+      category,
+      weight,
+      dimensions,
+      image_url: imageUrl,
+      additional_images: additionalImages,
+    };
 
     if (existingProduct) {
       const { error: updateError } = await supabase
         .from("products")
-        .update({
-          name,
-          description,
-          price: Number(price),
-          category,
-          image_url: imageUrl,
-        })
+        .update(productData)
         .eq("id", existingProduct.id);
 
       if (updateError) {
@@ -92,12 +145,8 @@ function AddProductModal({
       }
     } else {
       const { error: insertError } = await supabase.from("products").insert({
+        ...productData,
         artisan_id: artisanId,
-        name,
-        description,
-        price: Number(price),
-        category,
-        image_url: imageUrl,
       });
 
       if (insertError) {
@@ -112,96 +161,216 @@ function AddProductModal({
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <div className={styles.header}>
-          <span className={styles.hindiSubtitle}>नया उत्पाद</span>
-          <h3 className={styles.title}>
-            {existingProduct ? "Edit Product" : "Add New Product"}
-          </h3>
-          <p className={styles.subtitleText}>Cataloging the soul of the craft.</p>
+    <div className={styles.overlay} onClick={() => !loading && onClose()}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className={styles.closeBtn}
+          onClick={onClose}
+          disabled={loading}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+
+        {/* ── Image Section ── */}
+        <div className={styles.imageSection}>
+          <div className={styles.gradientBg}></div>
+
+          <div className={styles.imageContent}>
+            {/* Primary View */}
+            <div>
+              <p className={styles.sectionLabel}>Primary View</p>
+              <div className={styles.mainImageContainer}>
+                {combinedPreviews.length > 0 ? (
+                  <>
+                    <img
+                      src={combinedPreviews[0]}
+                      alt="Primary"
+                      className={styles.mainImage}
+                    />
+                    <button
+                      type="button"
+                      className={styles.removeMainBtn}
+                      onClick={() => handleRemoveImage(0)}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: "1rem" }}
+                      >
+                        close
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.mainImageAction}>
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: "2.5rem", color: "var(--primary)" }}
+                      >
+                        photo_camera
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className={styles.fileInput}
+                      onChange={handleImageChange}
+                    />
+                  </>
+                )}
+              </div>
+
+              {combinedPreviews.length === 0 && (
+                <div className={styles.uploadTextBtn}>
+                  Upload Image
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className={styles.fileInput}
+                    onChange={handleImageChange}
+                    style={{ top: "auto", height: "30px" }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Additional Views */}
+            <div>
+              <p className={styles.sectionLabel}>Additional Views (Max 5)</p>
+              <div className={styles.thumbnailGrid}>
+                {combinedPreviews.slice(1).map((src, idx) => (
+                  <div key={idx} className={styles.thumbnailSlot}>
+                    <img
+                      src={src}
+                      alt="Thumbnail"
+                      className={styles.thumbImage}
+                    />
+                    <button
+                      type="button"
+                      className={styles.removeBtn}
+                      onClick={() => handleRemoveImage(idx + 1)}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        close
+                      </span>
+                    </button>
+                  </div>
+                ))}
+
+                {combinedPreviews.length < 6 && (
+                  <div className={styles.thumbnailSlot}>
+                    <span
+                      className={`material-symbols-outlined ${styles.thumbIcon}`}
+                    >
+                      add_a_photo
+                    </span>
+                    <span className={styles.thumbLabel}>Upload</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className={styles.fileInput}
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                )}
+                {/* Visual filler slots for the layout */}
+                {combinedPreviews.slice(1).length === 0 &&
+                  combinedPreviews.length < 6 && (
+                    <>
+                      <div className={styles.thumbnailSlot}>
+                        <span
+                          className={`material-symbols-outlined ${styles.thumbIcon}`}
+                        >
+                          add_a_photo
+                        </span>
+                        <span className={styles.thumbLabel}>Upload</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className={styles.fileInput}
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                      <div className={styles.thumbnailSlot}>
+                        <span
+                          className={`material-symbols-outlined ${styles.thumbIcon}`}
+                        >
+                          add_a_photo
+                        </span>
+                        <span className={styles.thumbLabel}>Upload</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className={styles.fileInput}
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                    </>
+                  )}
+                {combinedPreviews.slice(1).length === 1 && (
+                  <div className={styles.thumbnailSlot}>
+                    <span
+                      className={`material-symbols-outlined ${styles.thumbIcon}`}
+                    >
+                      add_a_photo
+                    </span>
+                    <span className={styles.thumbLabel}>Upload</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className={styles.fileInput}
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          
-          {/* Section 1: Artifact Identity */}
-          <div className={styles.sectionBlock}>
-            <h4 className={styles.sectionHeading}>Artifact Identity</h4>
-            <div className={styles.sectionContent}>
-              <label className={styles.label}>
-                Title
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Kanjeevaram Silk Saree"
-                />
-              </label>
-              <label className={styles.label}>
-                Origin Story
-                <textarea
-                  className={styles.textarea}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Provide the historical context and technique used."
-                  rows={3}
-                />
-              </label>
-            </div>
-          </div>
+        {/* ── Form Section ── */}
+        <div className={styles.formSection}>
+          <header className={styles.formHeader}>
+            <p className={styles.formHindi}>नया उत्पाद</p>
+            <h2 className={styles.formTitle}>
+              {existingProduct ? "Edit Product" : "Add New Product"}
+            </h2>
+            <p className={styles.formSubtitle}>
+              Cataloging the soul of the craft.
+            </p>
+          </header>
 
-          {/* Section 2: Pricing & Metrics */}
-          <div className={styles.sectionBlock}>
-            <h4 className={styles.sectionHeading}>Pricing & Metrics</h4>
-            <div className={styles.formRow3}>
-              <label className={styles.label}>
-                Guild Value (₹)
-                <input
-                  className={styles.input}
-                  type="number"
-                  min="1"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
-                />
-              </label>
-              <label className={styles.label}>
-                Weight (kg)
-                <input
-                  className={styles.input}
-                  type="number"
-                  step="0.1"
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  placeholder="0.0"
-                />
-              </label>
-              <label className={styles.label}>
-                Dimensions (cm)
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={dimensions}
-                  onChange={(e) => setDimensions(e.target.value)}
-                  placeholder="L x W x H"
-                />
-              </label>
+          <form onSubmit={handleSubmit} className={styles.formFields}>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Product Name</label>
+              <input
+                type="text"
+                className={styles.inputElement}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Pashmina Sozni Wrap"
+              />
             </div>
-          </div>
 
-          {/* Section 3: Category & Curation */}
-          <div className={styles.sectionBlock}>
-            <h4 className={styles.sectionHeading}>Category & Curation</h4>
-            <div className={styles.formRow2}>
-              <label className={styles.label}>
-                Craft Category
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Craft Type</label>
+              <div className={styles.selectWrapper}>
                 <select
-                  className={styles.input}
+                  className={styles.selectElement}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="">Select Category</option>
+                  <option value="">Select Type</option>
                   {category &&
                     !INDUSTRY_OPTIONS.includes(
                       category as (typeof INDUSTRY_OPTIONS)[number],
@@ -212,68 +381,89 @@ function AddProductModal({
                     </option>
                   ))}
                 </select>
-              </label>
+                <span
+                  className={`material-symbols-outlined ${styles.selectIcon}`}
+                >
+                  expand_more
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Images */}
-          <div className={styles.sectionBlock}>
-            <h4 className={styles.sectionHeading}>Images</h4>
-            <p className={styles.helperText} style={{marginBottom: "1rem"}}>Upload at least 3 high-resolution images showing texture and detail.</p>
-            <div className={styles.imageUploadArea}>
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className={styles.preview}
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Description</label>
+              <textarea
+                className={styles.textAreaElement}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Narrate the story of this piece..."
+                rows={3}
+              ></textarea>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Price (INR)</label>
+              <div className={styles.priceWrapper}>
+                <span className={styles.priceSymbol}>₹</span>
+                <input
+                  type="number"
+                  min="0"
+                  className={styles.inputElement}
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0.00"
                 />
-              ) : (
-                <div className={styles.imagePlaceholder}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "2rem", marginBottom: "0.5rem", color: "var(--primary)" }}>add_photo_alternate</span>
-                  <span>Click to upload high-quality cover photo</span>
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className={styles.fileInput}
-              />
+              </div>
             </div>
-          </div>
 
-          {error && <p className={styles.error}>{error}</p>}
+            <div className={styles.grid2Col}>
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Dimensions</label>
+                <input
+                  type="text"
+                  className={styles.inputElement}
+                  value={dimensions}
+                  onChange={(e) => setDimensions(e.target.value)}
+                  placeholder="e.g. 200 x 100 cm"
+                />
+              </div>
 
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.cancelBtn}
-              onClick={onClose}
-              disabled={loading}
-            >
-              Discard Draft
-            </button>
-            <button
-              type="submit"
-              className={styles.submitBtn}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner size="sm" inline />
-                  Publishing...
-                </>
-              ) : existingProduct ? (
-                "Update Catalog"
-              ) : (
-                "Publish to Catalog"
-              )}
-            </button>
-          </div>
-        </form>
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Weight</label>
+                <input
+                  type="text"
+                  className={styles.inputElement}
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="e.g. 450g"
+                />
+              </div>
+            </div>
+
+            {error && <p className={styles.errorText}>{error}</p>}
+
+            <div className={styles.submitSection}>
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={loading}
+              >
+                <span className={styles.submitText}>
+                  {loading ? (
+                    <>
+                      <Spinner size="sm" inline /> Processing...
+                    </>
+                  ) : existingProduct ? (
+                    "Save Changes"
+                  ) : (
+                    "Add to Collection"
+                  )}
+                </span>
+                <div className={styles.submitBtnHover}></div>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-
-export default AddProductModal;
