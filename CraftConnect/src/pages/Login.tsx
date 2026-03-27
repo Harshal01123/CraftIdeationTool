@@ -134,11 +134,19 @@ function Login() {
 
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>
-              {isRecoveryFlow ? "Set New Password" : (isForgotPassword ? "Reset Password" : "Welcome Back")}
+              {isRecoveryFlow ? "SET NEW PASSWORD" : (isForgotPassword ? "RESET PASSWORD" : "LOGIN")}
             </h2>
-            <p className={styles.cardSubtitle}>
-              {isRecoveryFlow ? "Enter your new credentials below" : (isForgotPassword ? "We will send a recovery link securely to your inbox" : "Log in to continue to CraftConnect")}
-            </p>
+            {(!isRecoveryFlow && !isForgotPassword) ? (
+              <div className={styles.swagatam}>
+                <span className={styles.swagatamLine}></span>
+                <span className={styles.swagatamText}>स्वागतम्</span>
+                <span className={styles.swagatamLine}></span>
+              </div>
+            ) : (
+              <p className={styles.cardSubtitle} style={{ fontFamily: 'var(--font-body)', color: 'rgba(43, 32, 23, 0.7)', fontStyle: 'italic', fontSize: '0.875rem' }}>
+                {isRecoveryFlow ? "Enter your new credentials below" : "We will send a recovery link securely to your inbox"}
+              </p>
+            )}
           </div>
 
           <form className={styles.form} onSubmit={isRecoveryFlow ? handleUpdateRecoveredPassword : (isForgotPassword ? handleResetPassword : handleLogin)}>

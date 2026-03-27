@@ -30,3 +30,9 @@ body {
   background-color: var(--surface);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Edge password reveal icon fix */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | कलाkriti</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&amp;family=Lora:ital,wght@0,400;0,500;1,400&amp;family=Jost:wght@400;500;600&amp;family=Tiro+Devanagari+Hindi&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error": "#ba1a1a",
+              "tertiary": "#4d4883",
+              "outline": "#87736b",
+              "on-primary-fixed": "#360f00",
+              "on-error-container": "#93000a",
+              "on-tertiary": "#ffffff",
+              "primary-container": "#a0522d",
+              "on-surface-variant": "#54433c",
+              "inverse-on-surface": "#ffeee2",
+              "tertiary-fixed": "#e4dfff",
+              "outline-variant": "#dac1b8",
+              "secondary-fixed-dim": "#f5be4f",
+              "on-error": "#ffffff",
+              "surface-container": "#ffeadc",
+              "error-container": "#ffdad6",
+              "surface-container-highest": "#f3dfd0",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#ffc656",
+              "on-primary-fixed-variant": "#76320f",
+              "surface": "#fff8f5",
+              "tertiary-container": "#65609d",
+              "on-tertiary-fixed": "#18114c",
+              "surface-container-low": "#fff1e8",
+              "on-primary-container": "#ffe1d6",
+              "background": "#fff8f5",
+              "surface-tint": "#944925",
+              "on-tertiary-container": "#e8e4ff",
+              "surface-bright": "#fff8f5",
+              "on-background": "#241911",
+              "on-primary": "#ffffff",
+              "surface-container-high": "#f9e4d6",
+              "on-secondary-fixed": "#271900",
+              "on-tertiary-fixed-variant": "#443f7a",
+              "on-surface": "#241911",
+              "inverse-primary": "#ffb596",
+              "surface-dim": "#ebd6c8",
+              "secondary-fixed": "#ffdea7",
+              "inverse-surface": "#3a2e24",
+              "on-secondary-container": "#745200",
+              "on-secondary-fixed-variant": "#5e4200",
+              "tertiary-fixed-dim": "#c6c0ff",
+              "primary-fixed": "#ffdbcd",
+              "primary-fixed-dim": "#ffb596",
+              "surface-variant": "#f3dfd0",
+              "primary": "#823b18",
+              "on-secondary": "#ffffff",
+              "secondary": "#7c5800"
+            },
+            fontFamily: {
+              "headline": ["Cormorant Garamond", "serif"],
+              "body": ["Lora", "serif"],
+              "label": ["Jost", "sans-serif"],
+              "hindi": ["Tiro Devanagari Hindi", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>.paper-grain {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCCfk0AXlhS8iwY9iRfUW-A_kmAJdi6GPCFvB5yqZmaMhAZ4QhtthTybszEy4mSZ9hUKTOgAYa7QcfECVPZOMfCX3_9kTzaBY5DMPcLl_pWMDO8EffrSFBUuB8fb8m4So5yePaJNR9s8ZKZx4dEMQNO22swu1_Qy99rwSFjoOrJZ-JzOYNB86fbm73swi7uw31RCWMWPyl-7t4Cil59GEiy9r652xUGYtnuekt87I2qHC2wVLNpQBIpcDFlrwK4Ss17zVMG8zUOkQQ);
+    opacity: 0.04;
+    pointer-events: none
+    }
+.heritage-pattern {
+    background-color: #823b18;
+    background-image: radial-gradient(#a0522d 1.5px, transparent 1.5px), radial-gradient(#a0522d 1.5px, #823b18 1.5px);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+    opacity: 0.9
+    }
+.glass-effect {
+    backdrop-filter: blur(20px);
+    background: rgba(255, 248, 245, 0.85)
+    }
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24
+    }
+.custom-shadow {
+    box-shadow: 0 12px 32px -4px rgba(43, 32, 23, 0.12)
+    }</style>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen relative overflow-x-hidden">
+<!-- Background Layer -->
+<div class="fixed inset-0 heritage-pattern z-0" data-alt="Intricate terracotta Indian block print textile pattern"></div>
+<div class="fixed inset-0 paper-grain z-10"></div>
+<!-- Main Navigation (Suppressed version for focused task) -->
+<header class="relative z-20 w-full px-8 py-10 flex justify-center">
+<h1 class="text-3xl font-headline font-semibold text-[#EDE5D0] tracking-widest flex items-center gap-3">
+<span class="font-hindi text-4xl">कला</span>kriti
+        </h1>
+</header>
+<main class="relative z-20 flex items-center justify-center px-6 pb-20">
+<!-- Login Card -->
+<div class="w-full max-w-md bg-[#EDE5D0] rounded-xl custom-shadow p-10 relative overflow-hidden">
+<!-- Decorative Border Motifs -->
+<div class="absolute top-0 left-0 w-full h-1 bg-[repeating-linear-gradient(90deg,#C9962A,#C9962A_10px,transparent_10px,transparent_20px)] opacity-40"></div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-[repeating-linear-gradient(90deg,#C9962A,#C9962A_10px,transparent_10px,transparent_20px)] opacity-40"></div>
+<div class="text-center mb-10">
+<h2 class="text-4xl font-headline font-light tracking-widest text-primary mb-2">LOGIN</h2>
+<div class="flex justify-center items-center gap-2">
+<span class="h-[1px] w-8 bg-secondary opacity-30"></span>
+<span class="text-secondary font-hindi text-lg">स्वागतम्</span>
+<span class="h-[1px] w-8 bg-secondary opacity-30"></span>
+</div>
+</div>
+<form class="space-y-8">
+<!-- Email Field -->
+<div class="group">
+<label class="block text-[11px] font-label font-medium tracking-[0.2em] text-outline mb-1 uppercase" for="email">
+                        Email Address
+                    </label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-secondary transition-colors placeholder:text-outline/30 font-body text-on-surface" id="email" placeholder="curator@kalakriti.in" type="email"/>
+<div class="absolute -top-4 right-0 font-hindi text-secondary text-sm opacity-0 group-focus-within:opacity-100 transition-opacity">
+                            ईमेल
+                        </div>
+</div>
+</div>
+<!-- Password Field -->
+<div class="group">
+<label class="block text-[11px] font-label font-medium tracking-[0.2em] text-outline mb-1 uppercase" for="password">
+                        Password
+                    </label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-secondary transition-colors placeholder:text-outline/30 font-body text-on-surface" id="password" placeholder="••••••••" type="password"/>
+<div class="absolute -top-4 right-0 font-hindi text-secondary text-sm opacity-0 group-focus-within:opacity-100 transition-opacity">
+                            कूटशब्द
+                        </div>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs font-label font-medium tracking-wider text-outline">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary/20 bg-transparent" type="checkbox"/>
+<span>REMEMBER ME</span>
+</label>
+<a class="hover:text-secondary transition-colors" href="#">FORGOT PASSWORD?</a>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-[#ffdea7] font-label font-semibold tracking-[0.2em] py-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#944925] transition-all transform active:scale-[0.98] uppercase" type="submit">
+                    LOGIN
+                </button>
+</form>
+<div class="mt-12 text-center">
+<p class="text-sm font-body italic text-on-surface/70 mb-4">New here? <a class="text-secondary font-label not-italic font-bold tracking-widest ml-1 hover:underline decoration-secondary underline-offset-4" href="#">SIGNUP!</a></p>
+<div class="flex items-center justify-center gap-4 opacity-40">
+<span class="material-symbols-outlined text-sm">filter_vintage</span>
+<span class="material-symbols-outlined text-sm">filter_vintage</span>
+<span class="material-symbols-outlined text-sm">filter_vintage</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Cluster (Simplified for Auth Flow) -->
+<footer class="relative z-20 w-full py-10 px-12 flex flex-col items-center gap-4">
+<div class="flex gap-8 text-[10px] font-label font-medium tracking-[0.2em] text-[#EDE5D0]/60 uppercase">
+<a class="hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-secondary transition-colors" href="#">Contact</a>
+</div>
+<p class="text-[11px] font-body italic text-[#EDE5D0]/40 tracking-wider">
+            © 2024 कलाkriti. Handcrafted in India.
+        </p>
+</footer>
+<!-- Bottom Decorative Texture -->
+<div class="fixed bottom-0 left-0 w-full h-32 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none z-10"></div>
+</body></html>
