@@ -4,11 +4,13 @@ import styles from "./DashboardLayout.module.css";
 import { supabase } from "../lib/supabase";
 import { type Profile, type Product } from "../types/chat";
 import AddProductModal from "../components/products/AddProductModal";
+import CreateCourseModal from "../components/courses/CreateCourseModal";
 import WishlistPopup from "../components/products/WishlistPopup";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 export const PRODUCT_SAVED_EVENT = "dashboard:product-saved";
+export const COURSE_SAVED_EVENT = "dashboard:course-saved";
 
 function DashboardLayout() {
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ function DashboardLayout() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [bugReportOpen, setBugReportOpen] = useState(false);
@@ -219,18 +222,30 @@ function DashboardLayout() {
 
         <div className={styles.sidebarBottom}>
           {profile?.role === "artisan" && (
-            <button
-              className={styles.newCollectionBtn}
-              onClick={() => {
-                setEditingProduct(null);
-                setIsModalOpen(true);
-              }}
-            >
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>
-                add_circle
-              </span>
-              New Collection
-            </button>
+            <>
+              <button
+                className={styles.newCollectionBtn}
+                style={{ marginBottom: '0.5rem' }}
+                onClick={() => setIsCourseModalOpen(true)}
+              >
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  library_add
+                </span>
+                New Course
+              </button>
+              <button
+                className={styles.newCollectionBtn}
+                onClick={() => {
+                  setEditingProduct(null);
+                  setIsModalOpen(true);
+                }}
+              >
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  add_circle
+                </span>
+                New Collection
+              </button>
+            </>
           )}
 
           <div className={styles.profileNavWrapper}>
@@ -350,6 +365,17 @@ function DashboardLayout() {
             setIsModalOpen(false);
             setEditingProduct(null);
             window.dispatchEvent(new Event(PRODUCT_SAVED_EVENT));
+          }}
+        />
+      )}
+
+      {isCourseModalOpen && profile?.role === "artisan" && (
+        <CreateCourseModal
+          artisanId={profile.id}
+          onClose={() => setIsCourseModalOpen(false)}
+          onSaved={() => {
+            setIsCourseModalOpen(false);
+            window.dispatchEvent(new Event(COURSE_SAVED_EVENT));
           }}
         />
       )}
