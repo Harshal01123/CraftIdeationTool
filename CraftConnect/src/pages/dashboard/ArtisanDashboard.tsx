@@ -45,12 +45,12 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
   }
 
   async function fetchUnreadCount() {
-    const { count } = await supabase
+    const { data: unreadData } = await supabase
       .from("notifications")
-      .select("*", { count: "exact", head: true })
+      .select("id")
       .eq("user_id", artisanId)
       .eq("is_read", false);
-    setUnreadCount(count ?? 0);
+    setUnreadCount(unreadData?.length ?? 0);
   }
 
   useEffect(() => {
