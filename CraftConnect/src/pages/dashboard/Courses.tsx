@@ -1,247 +1,238 @@
-import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useOutletContext, Link } from "react-router-dom";
+import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
+import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
 
-// Sample static data mapping from Stitch concept 
-const NEW_COURSES = [
-  {
-    id: 1,
-    category: "Textiles",
-    title: "Indigo Dyeing: The Art of Natural Blue",
-    instructor: "Sita Ramakrishnan",
-    instructorAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAVJdsRBLjKfETG-Pu4gg_YrER8SGkT7fHezkQPryAlD7t5L4N9d1_jl1eqM8_l5jEsyG93ySC6fnQFdHPZAZ0dEOYLF3ZNhU876fYA4rc4c57a1cqGGjeAATRcVon3tPNBfObg8rrPBm2CjeGEOfBLRyx9WRG62xeqYOpJTVf00ku8a-pQWU1XNUdecp9FotD7BmsY3fphwYF-MENVwtNJd99WHZIBErc-dZeGM3sdJfVO7L6RYAIMb6amnkBTr-hWymo1BS8TC_g",
-    rating: 4.9,
-    lessons: 12,
-    duration: "8h 30m",
-    price: "₹3,499",
-    thumbnail: "https://lh3.googleusercontent.com/aida-public/AB6AXuDoY1fJuAs1t7iwAYywHxYXdjJuqBZEhnsEIUW3BFznre11N9fSdOZJS6dUVpBsgumZu21kcZ5zXnJBzReUhVzxrdxOEIo-dx1m-HszQ8AMpCdNJPGu9RrskipZQMNsuCzxApJ7-1aFc2nprYGCZKejsL6jx4d3ZIA-KLQNNtshXnTXgrTpOyGQ9YGvhT0Q2Cj5gdubDoeg-fmqNNPFVSL-DrkyBXbvDi8QUx4RtcuqublynA45TG0LheV1_AmNi1kxVs1V71KO0wQ",
-    youtubeId: "9bZkp7q19f0" 
-  },
-  {
-    id: 2,
-    category: "Metalwork",
-    title: "Bidriware Essentials: Silver Inlay Mastery",
-    instructor: "Zeeshan Ali",
-    instructorAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuByVXAf5WXwdJKmPODUWrnLYaj9mXhfFMl7aBUuv658oA9-gB-1Mv6k1xcelywqPdZU_wjui3O635ii1CH9beneIQwJtIacq82Iu_OMQhhaxmh_Y2gzf-XtxsaHKrnyAkb_iazugHvokSEdYH8tBxwnmX6NQGe9x4i8sqCwDpDlohYohv-U9cCEH1zxFwNZeKg2UXLdXDB4bpwXzVtMGBX82ZcwE3iPqrcPIv8gV7nG4GcVBVk80EFWTUWZ4GemSSd-XXTtZDhepZw",
-    rating: 5.0,
-    lessons: 8,
-    duration: "4h 15m",
-    price: "₹2,899",
-    thumbnail: "https://lh3.googleusercontent.com/aida-public/AB6AXuDAE25cshmxk9WIbl6ookT7pY_aEumwDZ6wFMftoRdhAcuRaN41Wqk0Nn7CF4EixI2t_0UNM61s3Ai855ru9H3ToXX5UfraGZy-LaqX6SNX7ew-8D3KJfOiaCH9bHunRHeMjLNeJhokNBCIfOn1cRAv2RSw4PLtKxhOF4ITBYlYKKUodH53id1KNHWvJFE_kP1thCd_JiVTikUK4g4WM4WD0vjji7869eJm-YGQMpAMDd6wrNUPn9vVjs0NN_QXXlDwT_G1CrdPPfs",
-    youtubeId: "OPf0YbXqDm0"
-  },
-  {
-    id: 3,
-    category: "Woodwork",
-    title: "Channapatna Toys: Lacware Turning",
-    instructor: "Rekha Gowda",
-    instructorAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCgLEhw42YSI-iACLWnCUSZlmPI-gjnHmJXc9K24mwsV9tqJGh7YEpgWlfVWpsAk1aroAOoXcg4SOwytaVUifSd9ZNBq2Sc9lsfMASpg_QKk99oWnCc6NMRQ4qJPJE4cXO_fnevBAFCpHlI8ZhX7C_9Se1demMxZgjDmQJ4ts7IFWbRH7FsnjEnD2zZet4GUXuNI3UHcva-_afGEGm1iR42iCSJPm5fn7eTXVUvVl60B2xKSOK0q9Et112g-3m3Nb34RR_Wfq6DS8I",
-    rating: 4.8,
-    lessons: 15,
-    duration: "12h 00m",
-    price: "₹4,200",
-    thumbnail: "https://lh3.googleusercontent.com/aida-public/AB6AXuAlUdjV7D9608JfIpqiwKpgezcHwlyOFSD_ldgvJeKYl0eAplj0uxWXtzm46GRiAaWkDHwA2jCwcfaTUqulOcNukikgQjGBIDnSAiXT_FX9gMPQetUQG8YB-lViXHxwHFY1tMQ2-Bji7s-S-G3Dz96q4IPUx8ik_bzzIbovyLWE9ZBqLp_-l7Am1MuJVkg39NR6dXfSNdiEDmMJmjP5x4Ne75EV156WtW93jH3SrkrvGTBEhEwo9jIvu8JpzGDt08BnJ9blwFL1y5E",
-    youtubeId: "hT_nvWreIhg"
-  }
-];
+interface Profile {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
 
-function Courses() {
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+interface Video {
+  title: string;
+  duration_minutes: number;
+  youtube_id: string;
+}
+
+interface Course {
+  id: string;
+  category: string;
+  title: string;
+  level: string;
+  duration_minutes: number;
+  thumbnail: string;
+  videos: Video[];
+  artisan: Profile;
+}
+
+function formatDuration(minutes: number) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+export default function Courses() {
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+  
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredCourses = NEW_COURSES.filter(course => {
-    if (!searchQuery) return true;
-    return course.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const fetchCourses = async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const { data, error } = await supabase
+        .from("courses")
+        .select(`
+          *,
+          artisan:profiles (
+            id,
+            name,
+            avatar_url
+          )
+        `)
+        .order("created_at", { ascending: false });
+        
+      if (error) throw error;
+      console.log("Fetched courses:", data);
+      setCourses(data as unknown as Course[]);
+    } catch (err: any) {
+      console.error("Error fetching courses:", err.message);
+      setFetchError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = (course: Course, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCourseToDelete(course);
+  };
+
+  const confirmDelete = async () => {
+    if (!courseToDelete) return;
+    setIsDeleting(true);
+    
+    try {
+      const { error } = await supabase.from("courses").delete().eq("id", courseToDelete.id);
+      if (error) throw error;
+      setCourseToDelete(null);
+      fetchCourses();
+    } catch (err: any) {
+      console.error("Error deleting course:", err.message);
+      alert("Failed to delete course: " + err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setCurrentUserId(data.session.user.id);
+      }
+    });
+
+    fetchCourses();
+
+    const handleCourseSaved = () => {
+      fetchCourses();
+    };
+
+    window.addEventListener(COURSE_SAVED_EVENT, handleCourseSaved);
+    return () => {
+      window.removeEventListener(COURSE_SAVED_EVENT, handleCourseSaved);
+    };
+  }, []);
+
+  // Group courses by category
+  const categories = ["Pottery", "Bamboo", "Glass", "Tiles", "Handloom", "Painting"];
+  const groupedCourses = categories.map(cat => ({
+    name: cat,
+    courses: courses.filter(c => c.category === cat)
+  }));
 
   return (
     <div className={styles.page}>
-
-
+      
+      {/* Hero Section */}
+      <header className={styles.heroSection}>
+        <div className={styles.heroOverlay}></div>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Master Classes</h1>
+          <p className={styles.heroSubtitle}>Learn directly from the master artisans of India. Preserving heritage through education.</p>
+        </div>
+      </header>
+      
       <div className={styles.contentWrap}>
         
-        {/* Filters Row */}
-        <section className={styles.filtersRow}>
-          <div className={styles.filterBox}>
-            <span className={styles.filterLabel}>Craft Type:</span>
-            <select className={styles.filterSelect}>
-              <option>All Crafts</option>
-              <option>Pottery</option>
-              <option>Textiles</option>
-              <option>Jewelry</option>
-            </select>
-          </div>
-          
-          <div className={styles.filterBox}>
-            <span className={styles.filterLabel}>Level:</span>
-            <select className={styles.filterSelect}>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Master</option>
-            </select>
-          </div>
-          
-          <div className={styles.filterBox}>
-            <span className={styles.filterLabel}>Duration:</span>
-            <select className={styles.filterSelect}>
-              <option>Any length</option>
-              <option>{`< 2 Hours`}</option>
-              <option>Full Course</option>
-            </select>
-          </div>
-          
-          <div className={styles.filterBox}>
-            <span className={styles.filterLabel}>Language:</span>
-            <select className={styles.filterSelect}>
-              <option>English</option>
-              <option>Hindi</option>
-              <option>Bengali</option>
-            </select>
-          </div>
-        </section>
+        {/* Categories Grid */}
+        <div className={styles.categoriesContainer}>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "4rem", color: "var(--outline)" }}>
+              Loading courses...
+            </div>
+          ) : (
+            groupedCourses.map((category) => {
+              const matchedCourses = category.courses.filter(course => {
+                if (!searchQuery) return true;
+                return course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                       course.artisan?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+              });
 
-        {/* LIVE NOW Banner */}
-        <section className={styles.liveBanner}>
-           <div className={styles.liveBadge}>
-              <span className={styles.pulseDot}></span>
-              Live Now
-           </div>
-           
-           <div className={styles.liveContent}>
-              <h3 className={styles.liveTitle}>Terracotta Sculpting: <br/>Ancient Techniques, Modern Forms</h3>
-              <div className={styles.liveMeta}>
-                 <div className={styles.liveInstructor}>
-                    <img 
-                       src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO_TnoAUvG8N6e-yQPc_-vyszvfiwdxVPoETMiXIGHux2OnbHbUes0QjD9J5rArZBtGk7UtKmuXcTHiYNJzxn80YfOxtQqjt6RQekbUNHj2v4jHCfwvjHx_ylWNghZMUi8F7Kyj4gtNJo7E0N-z6F0jmk9s1u9fhi_iKclLnkgn2PGWR7qsInuU39TAeoc_dU9IWlUijus7On0VMC-XhqziRrjeZ4wbo2h8pLvROShoo9siVynSLhL7yJBPbP1LgHTsLb9OwOoEeU" 
-                       alt="Master Aniruddh Dev" 
-                    />
-                    <span>Master Aniruddh Dev</span>
-                 </div>
-                 <span className={styles.divider}>|</span>
-                 <div className={styles.liveViewers}>
-                    <span className="material-symbols-outlined">group</span>
-                    <span>1,240 Watching</span>
-                 </div>
-              </div>
-              <button className={styles.joinBtn} onClick={() => setActiveVideo("-YCGK33c0xs")}>Join Live Class</button>
-           </div>
-           
-           <div className={styles.liveVideoWrapper}>
-              <img 
-                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwn-DM0b00rycYS9l8hKuC1WUFZLvldRuyOXxCUvA52Ug-SVdZGasBbYJMWLBA1v2LdtYuKrVVr4XfW00-uEU5fOpQuP5aMyyJG0l_64GKZeG-g1ICi57LA2O9n_HvW93AyqeoCfrMb36nUDH__2c85kZ1dwHGY9ztzWoowaGe63JH4ysIy6ckmHRw0osjuf8nHP1y92rm0H1E9RBGebyikMJSVr5ka7-4MNNel8Mvcoy0Auyn2HzWixiVk9QYDqCkZRUlRf89dcY" 
-                 alt="Live Stream" 
-                 className={styles.liveBgImage} 
-              />
-              <div className={styles.playOverlay} onClick={() => setActiveVideo("-YCGK33c0xs")}>
-                 <span className="material-symbols-outlined">play_circle</span>
-              </div>
-           </div>
-        </section>
+              if (matchedCourses.length === 0) return null;
 
-        {/* Course Grid */}
-        <section className={styles.coursesSection}>
-           <div className={styles.sectionHeader}>
-              <h4 className={styles.sectionTitle}>Curated Collections</h4>
-              <a href="#" className={styles.viewAllLink}>View All Mastery Courses</a>
-           </div>
-           
-           {filteredCourses.length === 0 ? (
-             <p style={{ color: 'var(--outline)', fontStyle: 'italic', padding: '2rem 0' }}>No courses found.</p>
-           ) : (
-             <div className={styles.grid}>
-               {filteredCourses.map(course => (
-                 <div key={course.id} className={styles.courseCard}>
-                    <div className={styles.cardThumbWrapper}>
-                       <img src={course.thumbnail} alt={course.title} className={styles.cardThumb} />
-                       <div className={styles.cardCategory}>{course.category}</div>
-                    </div>
-                    
-                    <div className={styles.cardContent}>
-                       <h5 className={styles.cardTitle}>{course.title}</h5>
-                       
-                       <div className={styles.instructorRow}>
-                          <div className={styles.instructorInfo}>
-                             <img src={course.instructorAvatar} alt={course.instructor} className={styles.instructorAvatar} />
-                             <span>{course.instructor}</span>
+              const levels = ["Beginner", "Intermediate", "Advanced"];
+
+              return (
+                <section key={category.name} className={styles.categorySection}>
+                  <div className={styles.categoryHeader}>
+                    <h2 className={styles.categoryTitle}>{category.name}</h2>
+                    <div className={styles.categoryDivider}></div>
+                  </div>
+                  
+                  <div className={styles.levelsContainer}>
+                    {levels.map(level => {
+                      const levelCourses = matchedCourses.filter(course => course.level === level);
+                      if (levelCourses.length === 0) return null;
+                      
+                      return (
+                        <div key={level} className={styles.levelSection}>
+                          <h3 className={styles.levelTitle}>{level}</h3>
+                          <div className={styles.courseGrid}>
+                            {levelCourses.map(course => (
+                              <div 
+                                key={course.id} 
+                                className={styles.courseCard}
+                                onClick={() => {
+                                  if (course.videos && course.videos.length > 0) {
+                                    setActiveVideo(course.videos[0].youtube_id);
+                                  }
+                                }}
+                              >
+                                <div className={styles.imageWrapper}>
+                                   <img src={course.thumbnail} alt={course.title} className={styles.courseImage}/>
+                                   <div className={styles.playOverlay}>
+                                      <span className="material-symbols-outlined">play_circle</span>
+                                   </div>
+                                   {currentUserId === course.artisan?.id && (
+                                     <button 
+                                       onClick={(e) => handleDeleteRequest(course, e)}
+                                       style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(255,0,0,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                                       title="Delete Course"
+                                     >
+                                       <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>delete</span>
+                                     </button>
+                                   )}
+                                </div>
+                                
+                                <div className={styles.courseContent}>
+                                  <h3 className={styles.courseTitle}>{course.title}</h3>
+                                  <p className={styles.courseInstructor}>
+                                    <span className="material-symbols-outlined">person</span>
+                                    {course.artisan?.name || "Unknown Artisan"}
+                                  </p>
+                                  <div className={styles.courseFooter}>
+                                    <span className={styles.courseDuration}>{formatDuration(course.duration_minutes)}</span>
+                                    <button className={styles.enrollBtn}>Enroll</button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <div className={styles.ratingInfo}>
-                             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                             {course.rating.toFixed(1)}
-                          </div>
-                       </div>
-                       
-                       <div className={styles.cardFooter}>
-                          <div className={styles.courseMeta}>
-                             <span className={styles.metaInfo}>{course.lessons} Lessons • {course.duration}</span>
-                             <span className={styles.coursePrice}>{course.price}</span>
-                          </div>
-                          <button className={styles.enrollBtn} onClick={() => setActiveVideo(course.youtubeId)}>
-                            Enroll Now
-                          </button>
-                       </div>
-                    </div>
-                 </div>
-              ))}
-             </div>
-           )}
-        </section>
-
-        {/* Learning Path Roadmap */}
-        <section className={styles.roadmap}>
-           <div className={styles.roadmapHeader}>
-              <h4 className={styles.roadmapTitle}>The Curator's Roadmap</h4>
-              <p className={styles.roadmapSubtitle}>Pottery Mastery Path • Curated for Professionals</p>
-           </div>
-           
-           <div className={styles.roadmapFlow}>
-              <div className={styles.flowTrack}></div>
-              
-              <div className={styles.flowNode}>
-                 <div className={`${styles.nodeCircle} ${styles.nodeActive}`}>
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>water_drop</span>
-                 </div>
-                 <div className={styles.nodeText}>
-                    <p className={`${styles.nodeStage} ${styles.stageActive}`}>Stage 1</p>
-                    <p className={styles.nodeTitle}>Clay Preparation</p>
-                 </div>
-              </div>
-              
-              <div className={styles.flowNode}>
-                 <div className={`${styles.nodeCircle} ${styles.nodeCurrent}`}>
-                    <span className="material-symbols-outlined">architecture</span>
-                 </div>
-                 <div className={styles.nodeText}>
-                    <p className={styles.nodeStage}>Stage 2</p>
-                    <p className={styles.nodeTitleActive}>Wheel Basics</p>
-                 </div>
-              </div>
-              
-              <div className={styles.flowNode}>
-                 <div className={`${styles.nodeCircle} ${styles.nodePending}`}>
-                    <span className="material-symbols-outlined">local_fire_department</span>
-                 </div>
-                 <div className={`${styles.nodeText} ${styles.textPending}`}>
-                    <p className={styles.nodeStage}>Stage 3</p>
-                    <p className={styles.nodeTitle}>Kiln Mastery</p>
-                 </div>
-              </div>
-              
-              <div className={styles.flowNode}>
-                 <div className={`${styles.nodeCircle} ${styles.nodePending}`}>
-                    <span className="material-symbols-outlined">palette</span>
-                 </div>
-                 <div className={`${styles.nodeText} ${styles.textPending}`}>
-                    <p className={styles.nodeStage}>Stage 4</p>
-                    <p className={styles.nodeTitle}>Glazing Art</p>
-                 </div>
-              </div>
-           </div>
-           
-           <div className={styles.roadmapAction}>
-              <button className={styles.resumePathBtn}>Resume Path</button>
-           </div>
-        </section>
-
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })
+          )}
+          
+          {!loading && courses.length === 0 && (
+            <div style={{ textAlign: "center", padding: "4rem", color: "var(--outline)" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "3rem", marginBottom: "1rem" }}>{fetchError ? 'error' : 'school'}</span>
+              {fetchError ? (
+                <div style={{ color: "red", marginTop: "1rem" }}>
+                  <strong>Database Error:</strong> {fetchError}
+                  <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>Check your browser console for more details.</p>
+                </div>
+              ) : (
+                <p>No master classes available yet. Artisans can create new courses from their dashboard.</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* VIDEO OVERLAY */}
@@ -253,10 +244,12 @@ function Courses() {
           <div
             className={styles.modal}
             onClick={(e) => e.stopPropagation()}
+            style={{ position: 'relative', width: '90%', maxWidth: '900px', aspectRatio: '16/9', background: '#000' }}
           >
             <button
               className={styles.close}
               onClick={() => setActiveVideo(null)}
+              style={{ position: 'absolute', top: '-2rem', right: '-2rem', background: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', zIndex: 100 }}
             >
               ✕
             </button>
@@ -265,12 +258,40 @@ function Courses() {
               title="Course Video"
               allow="autoplay; encrypted-media"
               allowFullScreen
+              style={{ width: '100%', height: '100%', border: 'none' }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {courseToDelete && (
+        <div className={styles.popupOverlay} onClick={() => !isDeleting && setCourseToDelete(null)}>
+          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f" }}>warning</span>
+            <h3>Delete Course?</h3>
+            <p>
+              Are you sure you want to delete <strong>{courseToDelete.title}</strong>? This action cannot be undone and will permanently remove it from your offerings.
+            </p>
+            <div className={styles.popupActions}>
+              <button 
+                className={styles.cancelBtn} 
+                onClick={() => setCourseToDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className={styles.deleteConfirmBtn} 
+                onClick={confirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-export default Courses;
