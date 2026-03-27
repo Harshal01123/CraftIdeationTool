@@ -249,14 +249,21 @@
   object-fit: cover;
 }
 
-.notifDot {
+.notifBadge {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 0.5rem;
-  height: 0.5rem;
+  top: 0.125rem;
+  right: 0.125rem;
   background-color: var(--error);
-  border-radius: 50%;
+  color: white;
+  font-size: 0.6rem;
+  font-family: var(--font-label);
+  font-weight: 700;
+  padding: 0.1rem 0.25rem;
+  border-radius: 9999px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid var(--surface);
 }
 

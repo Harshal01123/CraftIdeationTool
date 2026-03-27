@@ -145,11 +145,6 @@ function Notifications() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className={styles.headingGroup}>
-          {unreadCount > 0 && (
-            <span className={styles.badge}>{unreadCount}</span>
-          )}
-        </div>
         {unreadCount > 0 && (
           <button className={styles.markAllBtn} onClick={markAllAsRead}>
             Mark all as read

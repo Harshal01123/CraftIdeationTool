@@ -93,12 +93,12 @@ function DashboardLayout() {
       if (isMounted) setProfile(profileData);
 
       // Fetch unread count
-      const { count } = await supabase
+      const { data: unreadData } = await supabase
         .from("notifications")
-        .select("*", { count: "exact", head: true })
+        .select("id")
         .eq("user_id", uid)
         .eq("is_read", false);
-      if (isMounted) setUnreadCount(count ?? 0);
+      if (isMounted) setUnreadCount(unreadData?.length ?? 0);
 
       // Real-time: new notification arrives
       channel = supabase
@@ -124,12 +124,12 @@ function DashboardLayout() {
             filter: `user_id=eq.${uid}`,
           },
           async () => {
-            const { count: fresh } = await supabase
+            const { data: freshData } = await supabase
               .from("notifications")
-              .select("*", { count: "exact", head: true })
+              .select("id")
               .eq("user_id", uid)
               .eq("is_read", false);
-            if (isMounted) setUnreadCount(fresh ?? 0);
+            if (isMounted) setUnreadCount(freshData?.length ?? 0);
           },
         )
         .subscribe();
@@ -215,17 +215,6 @@ function DashboardLayout() {
             </span>
             <span className={styles.navLinkText}>Messages</span>
           </NavLink>
-          <NavLink to="/dashboard/notifications" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>
-              notifications
-            </span>
-            <span className={styles.navLinkText}>Notifications</span>
-            {unreadCount > 0 && (
-              <span className={styles.navBadge}>
-                {unreadCount > 5 ? "5+" : unreadCount}
-              </span>
-            )}
-          </NavLink>
         </nav>
 
         <div className={styles.sidebarBottom}>
@@ -291,7 +280,11 @@ function DashboardLayout() {
                 onClick={() => navigate("/dashboard/notifications")}
               >
                 <span className="material-symbols-outlined">notifications</span>
-                {unreadCount > 0 && <span className={styles.notifDot}></span>}
+                {unreadCount > 0 && (
+                  <span className={styles.notifBadge}>
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
 
               <div className={styles.headerProfileBox}>
