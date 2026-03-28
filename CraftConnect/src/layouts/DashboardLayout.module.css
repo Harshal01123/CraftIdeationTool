@@ -103,24 +103,29 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background-color: var(--secondary);
+  justify-content: flex-start;
+  gap: 0.75rem;
+  background-color: var(--on-surface);
   color: #ffffff;
-  padding: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0.5rem;
   border-radius: 0.5rem;
   font-family: var(--font-label);
   font-size: 0.75rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  width: calc(100% - 1rem); /* Account for lateral margins */
 }
 
 .newCollectionBtn:hover {
-  opacity: 0.9;
+  background-color: var(--on-surface-variant);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transform: scale(1.02);
 }
 
 .profileNavWrapper {

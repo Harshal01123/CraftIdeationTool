@@ -10,7 +10,6 @@ interface CreateCourseModalProps {
 }
 
 interface VideoInput {
-  title: string;
   sourceType: "youtube" | "native";
   youtubeId: string;
   nativeFile?: File;
@@ -49,7 +48,7 @@ export default function CreateCourseModal({
 
   const [numVideos, setNumVideos] = useState(1);
   const [videos, setVideos] = useState<VideoInput[]>([
-    { title: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
+    { sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
   ]);
 
   const recalculateAutoThumbnail = (v: VideoInput) => {
@@ -97,7 +96,7 @@ export default function CreateCourseModal({
       const newVideos = [...prev];
       if (newVideos.length < count) {
         while (newVideos.length < count) {
-          newVideos.push({ title: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 });
+          newVideos.push({ sourceType: "youtube", youtubeId: "", durationMinutes: 0 });
         }
       } else {
         newVideos.length = count;
@@ -241,7 +240,7 @@ export default function CreateCourseModal({
 
       // Upload videos if available
       const processedVideos = await Promise.all(
-        videos.map(async (v) => {
+        videos.map(async (v, idx) => {
           let finalVidUrl = extractYouTubeID(v.youtubeId);
 
           if (v.sourceType === "native" && v.nativeFile) {
@@ -260,9 +259,9 @@ export default function CreateCourseModal({
           }
 
           return {
-            title: v.title,
             duration_minutes: Number(v.durationMinutes) || 0,
             youtube_id: finalVidUrl,
+            title: `Video ${idx + 1}`
           };
         })
       );
@@ -561,7 +560,6 @@ export default function CreateCourseModal({
 
                 {videos.map((vid, idx) => (
                   <div key={idx} className={styles.videoCard}>
-                    <div className={styles.videoIndexBadge}>{idx + 1}</div>
                     {idx > 0 && (
                       <button
                         type="button"
@@ -577,22 +575,6 @@ export default function CreateCourseModal({
                         </span>
                       </button>
                     )}
-
-                    <div className={styles.videoInputGroup}>
-                      <label className={styles.videoInputLabel}>
-                        Video Title
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className={styles.videoInput}
-                        value={vid.title}
-                        onChange={(e) =>
-                          handleVideoChange(idx, "title", e.target.value)
-                        }
-                        placeholder="Introduction to Terracotta Textures"
-                      />
-                    </div>
 
                     <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
                       <label className={styles.videoInputLabel}>Video Source Type</label>
