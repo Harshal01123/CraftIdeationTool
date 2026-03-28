@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
@@ -40,7 +40,7 @@ export default function Courses() {
   
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
@@ -167,14 +167,15 @@ export default function Courses() {
                       <div 
                         key={course.id} 
                         className={styles.courseCard}
-                        onClick={() => {
-                          if (course.videos && course.videos.length > 0) {
-                            setActiveVideo(course.videos[0].youtube_id);
-                          }
-                        }}
+                        onClick={() => navigate(`/dashboard/courses/${course.id}`)}
                       >
                         <div className={styles.imageWrapper}>
-                           <img src={course.thumbnail} alt={course.title} className={styles.courseImage}/>
+                           <img 
+                             src={course.thumbnail || (course.videos?.[0]?.youtube_id ? `https://img.youtube.com/vi/${course.videos[0].youtube_id}/hqdefault.jpg` : `https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800`)} 
+                             alt={course.title} 
+                             className={styles.courseImage}
+                             onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800'; }}
+                           />
                            <div className={styles.levelBadge}>{course.level}</div>
                            {currentUserId === course.artisan?.id && (
                              <button 
@@ -224,34 +225,7 @@ export default function Courses() {
         </div>
       </div>
 
-      {/* VIDEO OVERLAY */}
-      {activeVideo && (
-        <div
-          className={styles.overlay}
-          onClick={() => setActiveVideo(null)}
-        >
-          <div
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-            style={{ position: 'relative', width: '90%', maxWidth: '900px', aspectRatio: '16/9', background: '#000' }}
-          >
-            <button
-              className={styles.close}
-              onClick={() => setActiveVideo(null)}
-              style={{ position: 'absolute', top: '-2rem', right: '-2rem', background: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', zIndex: 100 }}
-            >
-              ✕
-            </button>
-            <iframe
-              src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1`}
-              title="Course Video"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-              style={{ width: '100%', height: '100%', border: 'none' }}
-            />
-          </div>
-        </div>
-      )}
+
 
       {/* Delete Confirmation Modal */}
       {courseToDelete && (

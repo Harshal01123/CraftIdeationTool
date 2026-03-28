@@ -12,6 +12,7 @@ import Notifications from "./pages/dashboard/Notifications";
 import Messages from "./pages/dashboard/Messages";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 import ProductPortfolio from "./pages/ProductPortfolio";
+import CoursePortfolio from "./pages/dashboard/CoursePortfolio";
 import EditProfile from "./pages/dashboard/EditProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { WishlistProvider } from "./hooks/useWishlist";
@@ -32,6 +33,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<Courses />} />
+              <Route path="courses/:id" element={<CoursePortfolio />} />
               <Route path="artisans" element={<Artisans />} />
               <Route path="artisans/:id" element={<ArtisanPortfolio />} />
               <Route path="products" element={<Products />} />

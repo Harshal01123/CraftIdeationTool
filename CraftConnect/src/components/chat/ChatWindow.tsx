@@ -39,7 +39,8 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
 
   // Auto-scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messageListRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   // Find the latest OFFER message that is "pending"
