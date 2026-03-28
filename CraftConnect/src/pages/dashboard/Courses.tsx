@@ -124,16 +124,9 @@ export default function Courses() {
 
   return (
     <div className={styles.page}>
-      
-      {/* Hero Section */}
-      <header className={styles.heroSection}>
-        <div className={styles.heroOverlay}></div>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Master Classes</h1>
-          <p className={styles.heroSubtitle}>Learn directly from the master artisans of India. Preserving heritage through education.</p>
-        </div>
-      </header>
-      
+      {/* Grain Overlay */}
+      <div className={styles.grainOverlay}></div>
+
       <div className={styles.contentWrap}>
         
         {/* Categories Grid */}
@@ -152,67 +145,63 @@ export default function Courses() {
 
               if (matchedCourses.length === 0) return null;
 
-              const levels = ["Beginner", "Intermediate", "Advanced"];
+              const hindiTranslations: Record<string, string> = {
+                "Pottery": "कुम्हार",
+                "Bamboo": "बांस",
+                "Glass": "कांच",
+                "Tiles": "टाइलें",
+                "Handloom": "हथकरघा",
+                "Painting": "चित्रकारी"
+              };
+              const hindiName = hindiTranslations[category.name] || "";
 
               return (
                 <section key={category.name} className={styles.categorySection}>
                   <div className={styles.categoryHeader}>
-                    <h2 className={styles.categoryTitle}>{category.name}</h2>
-                    <div className={styles.categoryDivider}></div>
+                    <h3 className={styles.categoryTitle}>{category.name}</h3>
+                    {hindiName && <span className={styles.hindiAccent}>{hindiName}</span>}
                   </div>
                   
-                  <div className={styles.levelsContainer}>
-                    {levels.map(level => {
-                      const levelCourses = matchedCourses.filter(course => course.level === level);
-                      if (levelCourses.length === 0) return null;
-                      
-                      return (
-                        <div key={level} className={styles.levelSection}>
-                          <h3 className={styles.levelTitle}>{level}</h3>
-                          <div className={styles.courseGrid}>
-                            {levelCourses.map(course => (
-                              <div 
-                                key={course.id} 
-                                className={styles.courseCard}
-                                onClick={() => {
-                                  if (course.videos && course.videos.length > 0) {
-                                    setActiveVideo(course.videos[0].youtube_id);
-                                  }
-                                }}
-                              >
-                                <div className={styles.imageWrapper}>
-                                   <img src={course.thumbnail} alt={course.title} className={styles.courseImage}/>
-                                   <div className={styles.playOverlay}>
-                                      <span className="material-symbols-outlined">play_circle</span>
-                                   </div>
-                                   {currentUserId === course.artisan?.id && (
-                                     <button 
-                                       onClick={(e) => handleDeleteRequest(course, e)}
-                                       style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(255,0,0,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
-                                       title="Delete Course"
-                                     >
-                                       <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>delete</span>
-                                     </button>
-                                   )}
-                                </div>
-                                
-                                <div className={styles.courseContent}>
-                                  <h3 className={styles.courseTitle}>{course.title}</h3>
-                                  <p className={styles.courseInstructor}>
-                                    <span className="material-symbols-outlined">person</span>
-                                    {course.artisan?.name || "Unknown Artisan"}
-                                  </p>
-                                  <div className={styles.courseFooter}>
-                                    <span className={styles.courseDuration}>{formatDuration(course.duration_minutes)}</span>
-                                    <button className={styles.enrollBtn}>Enroll</button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
+                  <div className={styles.courseGrid}>
+                    {matchedCourses.map(course => (
+                      <div 
+                        key={course.id} 
+                        className={styles.courseCard}
+                        onClick={() => {
+                          if (course.videos && course.videos.length > 0) {
+                            setActiveVideo(course.videos[0].youtube_id);
+                          }
+                        }}
+                      >
+                        <div className={styles.imageWrapper}>
+                           <img src={course.thumbnail} alt={course.title} className={styles.courseImage}/>
+                           <div className={styles.levelBadge}>{course.level}</div>
+                           {currentUserId === course.artisan?.id && (
+                             <button 
+                               onClick={(e) => handleDeleteRequest(course, e)}
+                               className={styles.deleteBtn}
+                               title="Delete Course"
+                             >
+                               <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>delete</span>
+                             </button>
+                           )}
+                        </div>
+                        
+                        <div className={styles.courseContent}>
+                          <h4 className={styles.courseTitle}>{course.title}</h4>
+                          <p className={styles.courseInstructor}>
+                            Instructor: {course.artisan?.name || "Unknown Artisan"}
+                          </p>
+                          <div className={styles.courseFooter}>
+                            <span className={styles.courseDuration}>
+                              <span className="material-symbols-outlined">schedule</span> 
+                              {formatDuration(course.duration_minutes)}
+                            </span>
+                            <button className={styles.viewCourseBtn}>View Course</button>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </section>
               );
