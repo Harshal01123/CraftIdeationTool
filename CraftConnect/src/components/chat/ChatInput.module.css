@@ -22,3 +22,21 @@
 .input:focus {
   border-color: var(--dark);
 }
+
+.reOfferBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--primary, #8b4513);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.reOfferBtn span { font-size: 1.1rem; }
+.reOfferBtn:hover { opacity: 0.85; transform: scale(1.05); }
+.reOfferBtn:active { transform: scale(0.95); }
