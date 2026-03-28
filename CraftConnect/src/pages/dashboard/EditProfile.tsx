@@ -215,7 +215,7 @@ export default function EditProfile() {
               <div className={styles.nameRow}>
                 <h3 className={styles.profileName}>{name || "Guest"}</h3>
                 <span className={styles.roleBadge}>
-                  {profile?.role === "artisan" ? "Artisan" : "Customer"}
+                  {profile?.role === "artisan" ? "Artisan" : "User"}
                 </span>
               </div>
               <p className={styles.memberSince}>

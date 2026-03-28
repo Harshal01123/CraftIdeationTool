@@ -5,12 +5,11 @@ import Spinner from "../components/Spinner";
 import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
 import { supabase } from "../lib/supabase";
 
-type UserType = "artisan" | "learner" | "customer";
+type UserType = "artisan" | "user";
 
 const roles: { value: UserType; label: string; icon: string }[] = [
   { value: "artisan", label: "Artisan", icon: "brush" },
-  { value: "learner", label: "Learner", icon: "school" },
-  { value: "customer", label: "Customer", icon: "shopping_bag" },
+  { value: "user", label: "User", icon: "person" },
 ];
 
 function compressImage(file: File): Promise<Blob> {

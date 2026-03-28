@@ -1,4 +1,4 @@
-export type Role = "customer" | "artisan" | "system";
+export type Role = "user" | "artisan" | "system";
 
 export type ConversationStatus = "OPEN" | "CLOSED";
 
@@ -7,7 +7,7 @@ export type MessageType = "TEXT" | "SYSTEM";
 export interface Profile {
   id: string;
   name: string;
-  role: "customer" | "artisan" | "learner";
+  role: "user" | "artisan";
   created_at: string;
   industry: string | null;
   location: string | null;

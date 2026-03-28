@@ -8,6 +8,7 @@ import ClosedChatBanner from "./ClosedChatBanner";
 import Button from "../Button";
 import Spinner from "../Spinner";
 import styles from "./ChatWindow.module.css";
+import { useMode } from "../../contexts/ModeContext";
 
 interface Props {
   conversationId: string;
@@ -22,11 +23,9 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const normalizedRole = String(currentProfile.role || "")
-    .trim()
-    .toLowerCase();
-  const isCustomer = normalizedRole === "customer";
-  const isArtisan = normalizedRole === "artisan";
+  const { activeMode } = useMode();
+  const isCustomer = activeMode === "customer" || activeMode === "learner" || currentProfile.role === "user";
+  const isArtisan = activeMode === "artisan";
 
   // Auto-scroll to bottom
   useEffect(() => {

@@ -267,6 +267,42 @@
   border: 2px solid var(--surface);
 }
 
+/* Mode Switcher */
+.modeSwitcher {
+  display: flex;
+  background-color: var(--surface-container-low);
+  border-radius: 9999px;
+  padding: 0.25rem;
+  border: 1px solid rgba(218, 193, 184, 0.2);
+  margin: 0 1rem;
+}
+
+.modeBtn {
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.modeBtn:hover {
+  color: var(--on-surface);
+}
+
+.modeBtnActive {
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .contentContainer {
   flex-grow: 1;
   display: flex;
