@@ -7,6 +7,7 @@ import AddProductModal from "../components/products/AddProductModal";
 import CreateCourseModal from "../components/courses/CreateCourseModal";
 import WishlistPopup from "../components/products/WishlistPopup";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
+import { useMode } from "../contexts/ModeContext";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 export const PRODUCT_SAVED_EVENT = "dashboard:product-saved";
@@ -15,6 +16,7 @@ export const COURSE_SAVED_EVENT = "dashboard:course-saved";
 function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { activeMode, setActiveMode, availableModes } = useMode();
 
   // Determine page title based on route
   const getPageTitles = () => {
@@ -194,18 +196,22 @@ function DashboardLayout() {
             </span>
             <span className={styles.navLinkText}>Dashboard</span>
           </NavLink>
-          <NavLink to="/dashboard/products" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>
-              storefront
-            </span>
-            <span className={styles.navLinkText}>Products</span>
-          </NavLink>
-          <NavLink to="/dashboard/courses" className={navClass}>
-            <span className={`material-symbols-outlined ${styles.navIcon}`}>
-              school
-            </span>
-            <span className={styles.navLinkText}>Courses</span>
-          </NavLink>
+          {activeMode !== "learner" && (
+            <NavLink to="/dashboard/products" className={navClass}>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                storefront
+              </span>
+              <span className={styles.navLinkText}>Products</span>
+            </NavLink>
+          )}
+          {activeMode !== "customer" && (
+            <NavLink to="/dashboard/courses" className={navClass}>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                school
+              </span>
+              <span className={styles.navLinkText}>Courses</span>
+            </NavLink>
+          )}
           <NavLink to="/dashboard/artisans" className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               brush
@@ -221,7 +227,7 @@ function DashboardLayout() {
         </nav>
 
         <div className={styles.sidebarBottom}>
-          {profile?.role === "artisan" && (
+          {activeMode === "artisan" && (
             <>
               <button
                 className={styles.newCollectionBtn}
@@ -267,6 +273,34 @@ function DashboardLayout() {
             <h2 className={styles.navPageTitle}>{titles.en}</h2>
             <span className={styles.navHindiSubtitle}>{titles.hi}</span>
           </div>
+
+          <div className={styles.modeSwitcher}>
+            {availableModes.includes("artisan") && (
+              <button 
+                className={`${styles.modeBtn} ${activeMode === "artisan" ? styles.modeBtnActive : ""}`}
+                onClick={() => setActiveMode("artisan")}
+              >
+                Artisan
+              </button>
+            )}
+            {availableModes.includes("customer") && (
+              <button 
+                className={`${styles.modeBtn} ${activeMode === "customer" ? styles.modeBtnActive : ""}`}
+                onClick={() => setActiveMode("customer")}
+              >
+                Customer
+              </button>
+            )}
+            {availableModes.includes("learner") && (
+              <button 
+                className={`${styles.modeBtn} ${activeMode === "learner" ? styles.modeBtnActive : ""}`}
+                onClick={() => setActiveMode("learner")}
+              >
+                Learner
+              </button>
+            )}
+          </div>
+
           <div className={styles.topNavRight}>
             {(location.pathname === "/dashboard/products" || 
               location.pathname === "/dashboard/courses" || 

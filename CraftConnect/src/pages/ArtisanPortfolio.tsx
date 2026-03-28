@@ -8,6 +8,7 @@ import ReviewCard from "../components/ratings/ReviewCard";
 import StarRating from "../components/ratings/StarRating";
 import { supabase } from "../lib/supabase";
 import type { Profile, Product, ArtisanRating } from "../types/chat";
+import { useMode } from "../contexts/ModeContext";
 
 function ArtisanPortfolio() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,7 +24,7 @@ function ArtisanPortfolio() {
   const [notFound, setNotFound] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const { activeMode } = useMode();
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
@@ -87,13 +88,7 @@ function ArtisanPortfolio() {
         const uid = sessionData.session.user.id;
         setCurrentUserId(uid);
 
-        // fetch role
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", uid)
-          .single();
-        if (profileData) setCurrentUserRole(profileData.role);
+        // removed fetch role since we use activeMode
 
         // fetch existing rating by this user
         const { data: myRating } = await supabase
@@ -262,7 +257,7 @@ function ArtisanPortfolio() {
                 Edit Profile
               </button>
             )}
-            {!isOwnProfile && currentUserRole === "customer" && (
+            {!isOwnProfile && activeMode === "customer" && (
               <button
                 className={styles.rateArtisanBtn}
                 onClick={() => setShowRatingModal(true)}
@@ -398,7 +393,7 @@ function ArtisanPortfolio() {
       <section className={styles.reviewsSection}>
         <div className={styles.reviewsHeader}>
           <h3 className={styles.reviewsTitle}>Reviews & Ratings</h3>
-          {!isOwnProfile && currentUserRole === "customer" && (
+          {!isOwnProfile && activeMode === "customer" && (
             <button
               className={styles.writeReviewBtn}
               onClick={() => setShowRatingModal(true)}

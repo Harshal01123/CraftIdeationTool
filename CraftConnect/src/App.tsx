@@ -15,6 +15,7 @@ import ProductPortfolio from "./pages/ProductPortfolio";
 import EditProfile from "./pages/dashboard/EditProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { WishlistProvider } from "./hooks/useWishlist";
+import { ModeProvider } from "./contexts/ModeContext";
 import { Outlet } from "react-router-dom";
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
 
         {/* All dashboard routes are protected — requires login */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<WishlistProvider><Outlet /></WishlistProvider>}>
+          <Route element={<WishlistProvider><ModeProvider><Outlet /></ModeProvider></WishlistProvider>}>
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="courses" element={<Courses />} />

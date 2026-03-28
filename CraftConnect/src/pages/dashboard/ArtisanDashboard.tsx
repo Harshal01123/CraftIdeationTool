@@ -212,7 +212,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+5%</span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
-          <p className={styles.kpiLabel}>Active Orders</p>
+          <p className={styles.kpiLabel}>Orders Generated</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
