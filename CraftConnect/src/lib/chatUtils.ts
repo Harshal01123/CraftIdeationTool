@@ -58,7 +58,7 @@ export async function startConversation({
     await supabase.from("messages").insert({
       conversation_id: conv.id,
       sender_id: customerId,
-      sender_role: "customer",
+      sender_role: "user",
       type: "TEXT",
       content: messageText.trim(),
     });

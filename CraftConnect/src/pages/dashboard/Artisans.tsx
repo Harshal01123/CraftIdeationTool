@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import type { Profile } from "../../types/chat";
 import Spinner from "../../components/Spinner";
 import { useAuth } from "../../hooks/useAuth";
+import { useMode } from "../../contexts/ModeContext";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import ContactDialog from "../../components/chat/ContactDialog";
 import { startConversation } from "../../lib/chatUtils";
@@ -18,6 +19,7 @@ interface ArtisanRatingSummary {
 
 function Artisans() {
   const { profile } = useAuth();
+  const { activeMode } = useMode();
   const navigate = useNavigate();
   const [artisans, setArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -310,7 +312,7 @@ function Artisans() {
                         >
                           View Profile
                         </button>
-                        {profile?.role === "customer" && (
+                        {activeMode === "customer" && (
                           <button
                             className={styles.rateBtn}
                             onClick={(e) => handleRateClick(artisan, e)}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useOutletContext, Link } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
