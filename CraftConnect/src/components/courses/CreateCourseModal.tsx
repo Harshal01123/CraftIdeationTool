@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import YouTube from "react-youtube";
 import { supabase } from "../../lib/supabase";
-import styles from "../products/AddProductModal.module.css";
+import styles from "./CreateCourseModal.module.css";
 
 interface CreateCourseModalProps {
   artisanId: string;
@@ -11,9 +11,25 @@ interface CreateCourseModalProps {
 
 interface VideoInput {
   title: string;
+  sourceType: "youtube" | "native";
   youtubeId: string;
+  nativeFile?: File;
+  nativeFileName?: string;
   durationMinutes: number;
 }
+
+const dataURLtoFile = (dataurl: string, filename: string) => {
+  const arr = dataurl.split(",");
+  const match = arr[0].match(/:(.*?);/);
+  const mime = match ? match[1] : "image/jpeg";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
 
 export default function CreateCourseModal({
   artisanId,
@@ -25,24 +41,63 @@ export default function CreateCourseModal({
 
   const [title, setTitle] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+  const [isAutoThumbnail, setIsAutoThumbnail] = useState<boolean>(true);
   const [category, setCategory] = useState("Pottery");
   const [level, setLevel] = useState("Beginner");
-  
-  const [numVideos, setNumVideos] = useState(1);
-  const [videos, setVideos] = useState<VideoInput[]>([{ title: "", youtubeId: "", durationMinutes: 0 }]);
 
-  // Handle change in number of videos
-  const handleNumVideosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let count = parseInt(e.target.value) || 1;
+  const [numVideos, setNumVideos] = useState(1);
+  const [videos, setVideos] = useState<VideoInput[]>([
+    { title: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
+  ]);
+
+  const recalculateAutoThumbnail = (v: VideoInput) => {
+     if (v.sourceType === "youtube" && v.youtubeId) {
+        const ytId = extractYouTubeID(v.youtubeId);
+        if (ytId && ytId.length === 11) {
+            setThumbnail(`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`);
+            setThumbnailPreview("");
+            setThumbnailFile(null);
+        } else {
+            setThumbnail("");
+            setThumbnailPreview("");
+            setThumbnailFile(null);
+        }
+     } else if (v.sourceType === "native" && v.nativeFile) {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.muted = true;
+        video.setAttribute("playsinline", "");
+        video.src = URL.createObjectURL(v.nativeFile);
+        video.onloadedmetadata = () => { video.currentTime = Math.min(1, video.duration / 2); };
+        video.onseeked = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            setThumbnailFile(dataURLtoFile(dataUrl, "auto_thumbnail.jpg"));
+            setThumbnailPreview(dataUrl);
+            setThumbnail("");
+            window.URL.revokeObjectURL(video.src);
+        };
+     } else {
+        setThumbnail("");
+        setThumbnailPreview("");
+        setThumbnailFile(null);
+     }
+  };
+
+  const updateVideoCount = (count: number) => {
     if (count < 1) count = 1;
     if (count > 20) count = 20; // safety limit
     setNumVideos(count);
-    
-    setVideos(prev => {
+
+    setVideos((prev) => {
       const newVideos = [...prev];
       if (newVideos.length < count) {
         while (newVideos.length < count) {
-          newVideos.push({ title: "", youtubeId: "", durationMinutes: 0 });
+          newVideos.push({ title: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 });
         }
       } else {
         newVideos.length = count;
@@ -51,12 +106,76 @@ export default function CreateCourseModal({
     });
   };
 
-  const handleVideoChange = (index: number, field: keyof VideoInput, value: string | number) => {
-    setVideos(prev => {
+  const handleVideoChange = (
+    index: number,
+    field: keyof VideoInput,
+    value: any,
+  ) => {
+    setVideos((prev) => {
       const newVideos = [...prev];
       newVideos[index] = { ...newVideos[index], [field]: value };
       return newVideos;
     });
+  };
+
+  const handleNativeVideoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      handleVideoChange(index, "nativeFile", file);
+      handleVideoChange(index, "nativeFileName", file.name);
+      handleVideoChange(index, "youtubeId", "");
+
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.muted = true;
+      video.setAttribute("playsinline", ""); // Required for some browsers to load natively
+      video.src = URL.createObjectURL(file);
+
+      video.onloadedmetadata = function () {
+        const durationSeconds = video.duration;
+        if (durationSeconds > 0) {
+          const mins = Math.ceil(durationSeconds / 60);
+          handleVideoChange(index, "durationMinutes", mins);
+        }
+
+        if (index === 0 && isAutoThumbnail) {
+           video.currentTime = Math.min(1, video.duration / 2);
+        } else {
+           window.URL.revokeObjectURL(video.src);
+        }
+      };
+
+      video.onseeked = function () {
+        if (!isAutoThumbnail) {
+           window.URL.revokeObjectURL(video.src);
+           return;
+        }
+        
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+        const autoThumbFile = dataURLtoFile(dataUrl, "auto_thumbnail.jpg");
+        setThumbnailFile(autoThumbFile);
+        setThumbnailPreview(dataUrl);
+        setThumbnail("");
+
+        window.URL.revokeObjectURL(video.src);
+      };
+    }
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+      setThumbnail(""); // clear string url
+      setIsAutoThumbnail(false);
+    }
   };
 
   const handleVideoReady = (index: number, durationSeconds: number) => {
@@ -64,8 +183,11 @@ export default function CreateCourseModal({
       const mins = Math.ceil(durationSeconds / 60);
       setVideos((prev) => {
         const newVideos = [...prev];
-        if (!newVideos[index].durationMinutes || newVideos[index].durationMinutes === 0) {
-           newVideos[index] = { ...newVideos[index], durationMinutes: mins };
+        if (
+          !newVideos[index].durationMinutes ||
+          newVideos[index].durationMinutes === 0
+        ) {
+          newVideos[index] = { ...newVideos[index], durationMinutes: mins };
         }
         return newVideos;
       });
@@ -91,21 +213,64 @@ export default function CreateCourseModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) {
-        setError("Course name is required.");
-        return;
+      setError("Course name is required.");
+      return;
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const totalDuration = videos.reduce((sum, v) => sum + (Number(v.durationMinutes) || 0), 0);
-      
-      const processedVideos = videos.map(v => ({
-          title: v.title,
-          duration_minutes: Number(v.durationMinutes) || 0,
-          youtube_id: extractYouTubeID(v.youtubeId)
-      }));
+      let finalThumbnailUrl = thumbnail;
+
+      // Upload thumbnail if available
+      if (thumbnailFile) {
+        const ext = thumbnailFile.name.split(".").pop();
+        const filePath = `courses/${artisanId}/thumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("products")
+          .upload(filePath, thumbnailFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("products")
+          .getPublicUrl(filePath);
+        finalThumbnailUrl = urlData.publicUrl;
+      }
+
+      // Upload videos if available
+      const processedVideos = await Promise.all(
+        videos.map(async (v) => {
+          let finalVidUrl = extractYouTubeID(v.youtubeId);
+
+          if (v.sourceType === "native" && v.nativeFile) {
+            const ext = v.nativeFile.name.split(".").pop();
+            const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+              .from("products")
+              .upload(filePath, v.nativeFile, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+              .from("products")
+              .getPublicUrl(filePath);
+            finalVidUrl = urlData.publicUrl;
+          }
+
+          return {
+            title: v.title,
+            duration_minutes: Number(v.durationMinutes) || 0,
+            youtube_id: finalVidUrl,
+          };
+        })
+      );
+
+      const totalDuration = processedVideos.reduce(
+        (sum, v) => sum + (v.duration_minutes || 0),
+        0,
+      );
 
       const { error: insertError } = await supabase.from("courses").insert({
         artisan_id: artisanId,
@@ -113,7 +278,9 @@ export default function CreateCourseModal({
         category,
         level,
         duration_minutes: totalDuration,
-        thumbnail: thumbnail || "https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800",
+        thumbnail:
+          finalThumbnailUrl ||
+          "https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800",
         videos: processedVideos,
       });
 
@@ -130,172 +297,533 @@ export default function CreateCourseModal({
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div
-        className={styles.modal}
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}
-      >
-        <div className={styles.header}>
-          <h2 className={styles.title}>Create New Course</h2>
-          <button 
-            type="button"
-            className={styles.submitBtn} 
-            onClick={onClose}
-            style={{ width: "40px", height: "40px", padding: "0", display: "flex", alignItems: "center", justifyContent: "center" }}
-            title="Close"
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.paperGrain}></div>
+
+        <div className={styles.modalContentWrap}>
+          {/* Header Section */}
+          <div className={styles.header}>
+            <div>
+              <h2 className={styles.title}>Add New Course</h2>
+              <p className={styles.hindiSubtitle}>नया पाठ्यक्रम</p>
+            </div>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              title="Close"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          {error && <div className={styles.formError}>{error}</div>}
+
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              minHeight: 0,
+            }}
           >
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
+            {/* Two-Column Form Layout */}
+            <div className={styles.formLayout}>
+              {/* Left Column: Course Details */}
+              <div className={styles.leftColumn}>
+                <h3 className={styles.sectionLabel}>Course Details</h3>
 
-        {error && <div className={styles.error}>{error}</div>}
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Course Name *</label>
-            <input
-              type="text"
-              required
-              className={styles.input}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Introduction to Terracotta"
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Course Thumbnail URL *</label>
-            <input
-              type="url"
-              required
-              className={styles.input}
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-              placeholder="e.g. https://images.unsplash.com/photo-1549..."
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <div className={styles.inputGroup} style={{ flex: 1 }}>
-              <label className={styles.label}>Industry / Category</label>
-              <select
-                className={styles.input}
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="Pottery">Pottery</option>
-                <option value="Bamboo">Bamboo</option>
-                <option value="Glass">Glass</option>
-                <option value="Tiles">Tiles</option>
-                <option value="Handloom">Handloom</option>
-                <option value="Painting">Painting</option>
-              </select>
-            </div>
-
-            <div className={styles.inputGroup} style={{ flex: 1 }}>
-              <label className={styles.label}>Difficulty Level</label>
-              <select
-                className={styles.input}
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-              >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Number of Videos</label>
-            <input
-              type="number"
-              min="1"
-              max="20"
-              required
-              className={styles.input}
-              value={numVideos}
-              onChange={handleNumVideosChange}
-            />
-          </div>
-
-          <div style={{ marginTop: "1rem", borderTop: "1px solid #eee", paddingTop: "1rem" }}>
-            <h3 style={{ fontSize: "1rem", marginBottom: "1rem", fontFamily: "var(--font-display)" }}>
-                Video Lectures
-            </h3>
-            {videos.map((vid, idx) => (
-              <div key={idx} style={{ background: "#f9f9f9", padding: "1rem", borderRadius: "8px", marginBottom: "1rem" }}>
-                <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.5rem" }}>Video {idx + 1}</p>
-                
-                <div className={styles.inputGroup}>
-                  <label className={styles.label} style={{ fontSize: "0.75rem" }}>Video Title</label>
-                  <input
-                    type="text"
-                    required
-                    className={styles.input}
-                    value={vid.title}
-                    onChange={(e) => handleVideoChange(idx, "title", e.target.value)}
-                    placeholder="e.g. Basics of Weaving"
-                  />
-                </div>
-                
-                <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-                    <div className={styles.inputGroup} style={{ flex: 2 }}>
-                    <label className={styles.label} style={{ fontSize: "0.75rem" }}>YouTube Link (or ID)</label>
+                <div className={styles.fieldsContainer}>
+                  {/* Course Name */}
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Course Name</label>
                     <input
-                        type="text"
-                        required
-                        className={styles.input}
-                        value={vid.youtubeId}
-                        onChange={(e) => handleVideoChange(idx, "youtubeId", e.target.value)}
-                        placeholder="https://youtu.be/..."
+                      type="text"
+                      required
+                      className={styles.inputElement}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g. Traditional Madhubani Fundamentals"
                     />
+                  </div>
+
+                  {/* Course Thumbnail Upload */}
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>
+                      Course Thumbnail
+                    </label>
+                    <div style={{ position: "relative", overflow: "hidden", display: "inline-block", marginBottom: "0.5rem" }}>
+                        <div
+                          style={{
+                            backgroundColor: "var(--primary)",
+                            color: "white",
+                            padding: "0.6rem 1.2rem",
+                            borderRadius: "0.5rem",
+                            fontFamily: "var(--font-label)",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {(thumbnailPreview || thumbnail) && !isAutoThumbnail ? "Replace Custom Thumbnail" : "Upload Custom Thumbnail"}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleThumbnailChange}
+                          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer" }}
+                        />
                     </div>
                     
-                    <div className={styles.inputGroup} style={{ flex: 1 }}>
-                    <label className={styles.label} style={{ fontSize: "0.75rem" }}>Duration (mins)</label>
-                    <input
-                        type="number"
-                        min="1"
-                        required
-                        className={styles.input}
-                        value={vid.durationMinutes || ""}
-                        onChange={(e) => handleVideoChange(idx, "durationMinutes", parseInt(e.target.value) || 0)}
-                        placeholder="45"
-                    />
+                    <div
+                      className={styles.thumbnailPreviewBox}
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "180px",
+                        backgroundImage: thumbnailPreview || thumbnail ? `url(${thumbnailPreview || thumbnail})` : "none",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "0.5rem",
+                        border: "1px dashed var(--outline-variant)",
+                      }}
+                    >
+                      {!(thumbnailPreview || thumbnail) && (
+                        <span className="material-symbols-outlined" style={{ color: "color-mix(in srgb, var(--outline) 40%, transparent)", fontSize: "2rem" }}>
+                          image
+                        </span>
+                      )}
+
+                      {(thumbnailPreview || thumbnail) && (
+                        <div style={{ position: "absolute", bottom: "0.5rem", right: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                           {isAutoThumbnail && (
+                             <span style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "white", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase" }}>Auto-Generated</span>
+                           )}
+                           {!isAutoThumbnail && (
+                             <button
+                               type="button"
+                               onClick={(e) => {
+                                 e.preventDefault();
+                                 setThumbnail("");
+                                 setThumbnailPreview("");
+                                 setThumbnailFile(null);
+                                 setIsAutoThumbnail(true);
+                                 if (videos[0]) {
+                                    recalculateAutoThumbnail(videos[0]);
+                                 }
+                               }}
+                               style={{ backgroundColor: "var(--error)", color: "white", border: "none", padding: "0.25rem", borderRadius: "0.25rem", cursor: "pointer", display: "flex", alignItems: "center" }}
+                               title="Remove custom thumbnail"
+                             >
+                               <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>delete</span>
+                             </button>
+                           )}
+                        </div>
+                      )}
                     </div>
+                  </div>
+
+                  {/* Industry/Category & Difficulty Row */}
+                  <div className={styles.grid2Col}>
+                    <div className={styles.inputGroup}>
+                      <label className={styles.inputLabel}>
+                        Industry / Category
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <select
+                          className={styles.inputElement}
+                          style={{
+                            appearance: "none",
+                            paddingRight: "1.5rem",
+                            width: "100%",
+                          }}
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                        >
+                          <option value="Pottery">Pottery</option>
+                          <option value="Bamboo">Bamboo</option>
+                          <option value="Glass">Glass</option>
+                          <option value="Tiles">Tiles</option>
+                          <option value="Handloom">Handloom</option>
+                          <option value="Painting">Painting</option>
+                        </select>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            position: "absolute",
+                            right: 0,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                            color: "var(--outline)",
+                          }}
+                        >
+                          arrow_drop_down
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                      <label className={styles.inputLabel}>
+                        Difficulty Level
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <select
+                          className={styles.inputElement}
+                          style={{
+                            appearance: "none",
+                            paddingRight: "1.5rem",
+                            width: "100%",
+                          }}
+                          value={level}
+                          onChange={(e) => setLevel(e.target.value)}
+                        >
+                          <option value="Beginner">Beginner</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Advanced">Master</option>
+                        </select>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            position: "absolute",
+                            right: 0,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            pointerEvents: "none",
+                            color: "var(--outline)",
+                          }}
+                        >
+                          arrow_drop_down
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Number of Videos Counter */}
+                  <div className={styles.counterSection}>
+                    <label
+                      className={styles.inputLabel}
+                      style={{ marginBottom: "0.75rem" }}
+                    >
+                      Number of Videos
+                    </label>
+                    <div className={styles.counterRow}>
+                      <div className={styles.counterBox}>
+                        <button
+                          type="button"
+                          className={styles.counterBtn}
+                          onClick={() => updateVideoCount(numVideos - 1)}
+                        >
+                          <span
+                            className="material-symbols-outlined"
+                            style={{ fontSize: "0.875rem" }}
+                          >
+                            remove
+                          </span>
+                        </button>
+                        <span className={styles.counterValue}>
+                          {numVideos.toString().padStart(2, "0")}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.counterBtn}
+                          onClick={() => updateVideoCount(numVideos + 1)}
+                        >
+                          <span
+                            className="material-symbols-outlined"
+                            style={{ fontSize: "0.875rem" }}
+                          >
+                            add
+                          </span>
+                        </button>
+                      </div>
+                      <span className={styles.counterContext}>
+                        Videos scheduled for curriculum
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                {/* INVISIBLE YOUTUBE PLAYER FOR AUTO LENGTH CALCULATION */}
-                {vid.youtubeId && extractYouTubeID(vid.youtubeId) && (
-                  <div style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: "1px", height: "1px", overflow: "hidden" }}>
-                    <YouTube 
-                       videoId={extractYouTubeID(vid.youtubeId)} 
-                       onReady={(e) => handleVideoReady(idx, e.target.getDuration())} 
-                    />
+              </div>
+
+              {/* Right Column: Video Content */}
+              <div className={styles.rightColumn}>
+                <div className={styles.videoSectionHeader}>
+                  <h3 className={styles.sectionLabel}>Video Content</h3>
+                </div>
+
+                {videos.map((vid, idx) => (
+                  <div key={idx} className={styles.videoCard}>
+                    <div className={styles.videoIndexBadge}>{idx + 1}</div>
+                    {idx > 0 && (
+                      <button
+                        type="button"
+                        className={styles.removeVideoBtn}
+                        onClick={() => updateVideoCount(numVideos - 1)}
+                        title="Remove Video"
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: "1rem" }}
+                        >
+                          delete
+                        </span>
+                      </button>
+                    )}
+
+                    <div className={styles.videoInputGroup}>
+                      <label className={styles.videoInputLabel}>
+                        Video Title
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        className={styles.videoInput}
+                        value={vid.title}
+                        onChange={(e) =>
+                          handleVideoChange(idx, "title", e.target.value)
+                        }
+                        placeholder="Introduction to Terracotta Textures"
+                      />
+                    </div>
+
+                    <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
+                      <label className={styles.videoInputLabel}>Video Source Type</label>
+                      <div style={{ display: "flex", gap: "1.5rem", marginTop: "0.25rem" }}>
+                        <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", color: vid.sourceType === "youtube" ? "var(--primary)" : "var(--outline)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>
+                          <input type="radio" checked={vid.sourceType === "youtube"} onChange={() => {
+                            handleVideoChange(idx, "sourceType", "youtube");
+                            if (idx === 0 && isAutoThumbnail) {
+                                recalculateAutoThumbnail({ ...vid, sourceType: "youtube" });
+                            }
+                          }} style={{ display: "none" }} />
+                          <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>{vid.sourceType === "youtube" ? "radio_button_checked" : "radio_button_unchecked"}</span>
+                          YouTube Link
+                        </label>
+                        <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", color: vid.sourceType === "native" ? "var(--primary)" : "var(--outline)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase" }}>
+                          <input type="radio" checked={vid.sourceType === "native"} onChange={() => {
+                            handleVideoChange(idx, "sourceType", "native");
+                            if (idx === 0 && isAutoThumbnail) {
+                                recalculateAutoThumbnail({ ...vid, sourceType: "native" });
+                            }
+                          }} style={{ display: "none" }} />
+                          <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>{vid.sourceType === "native" ? "radio_button_checked" : "radio_button_unchecked"}</span>
+                          Upload Native MP4
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className={styles.videoGridRow}>
+                      <div className={`${styles.videoInputGroup} ${styles.videoLinkCol}`}>
+                        <label className={styles.videoInputLabel}>
+                          {vid.sourceType === "youtube" ? "YouTube Link / ID" : "Local Video File"}
+                        </label>
+
+                        {vid.sourceType === "youtube" ? (
+                          <div className={styles.videoInlineInput}>
+                            <span className="material-symbols-outlined" style={{ fontSize: "0.875rem", color: "var(--outline)", marginRight: "0.5rem" }}>link</span>
+                            <input
+                              type="text"
+                              required={vid.sourceType === "youtube"}
+                              className={styles.videoInput}
+                              style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "var(--on-surface)", fontSize: "0.875rem" }}
+                              value={vid.youtubeId}
+                              onChange={(e) => {
+                                const newYtId = e.target.value;
+                                handleVideoChange(idx, "youtubeId", newYtId);
+                                handleVideoChange(idx, "durationMinutes", 0);
+                                
+                                if (idx === 0 && isAutoThumbnail) {
+                                  recalculateAutoThumbnail({ ...vid, youtubeId: newYtId });
+                                }
+                              }}
+                              placeholder="y2u.be/dQw4w9WgXcQ"
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className={styles.videoInlineInput}
+                            style={{ position: "relative", cursor: "pointer", border: "1px dashed var(--outline-variant)", backgroundColor: "var(--surface-container-low)" }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "1.1rem", color: "var(--primary)", marginRight: "0.5rem" }}>upload_file</span>
+                            <span style={{ fontSize: "0.875rem", color: vid.nativeFileName ? "var(--on-surface)" : "var(--outline)", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {vid.nativeFileName || "Browse local video file..."}
+                            </span>
+                            {vid.nativeFile && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleVideoChange(idx, "nativeFile", undefined);
+                                  handleVideoChange(idx, "nativeFileName", "");
+                                  handleVideoChange(idx, "durationMinutes", 0);
+                                  
+                                  if (idx === 0 && isAutoThumbnail) {
+                                    recalculateAutoThumbnail({ ...vid, nativeFile: undefined, nativeFileName: "" });
+                                  }
+                                }}
+                                style={{ background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0.25rem", zIndex: 10 }}
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: "1.1rem", color: "var(--error)" }}>close</span>
+                              </button>
+                            )}
+                            {!vid.nativeFile && (
+                              <input
+                                type="file"
+                                accept="video/*"
+                                required={vid.sourceType === "native" && !vid.nativeFile}
+                                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer" }}
+                                onChange={(e) => handleNativeVideoUpload(idx, e)}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={`${styles.videoInputGroup} ${styles.videoDurCol}`}>
+                        <label className={styles.videoInputLabel}>
+                          Duration
+                        </label>
+                        <div className={styles.videoInlineInput}>
+                          <input
+                            type="number"
+                            min="1"
+                            required
+                            readOnly={vid.sourceType === "youtube" || !!vid.nativeFile}
+                            className={`${styles.videoInput} ${styles.videoInputRowSm}`}
+                            style={{ 
+                                flex: 1,
+                                background: "transparent",
+                                border: "none",
+                                outline: "none",
+                                color: "var(--on-surface)",
+                                fontSize: "0.875rem",
+                                textAlign: "right",
+                                cursor: (vid.sourceType === "youtube" || !!vid.nativeFile) ? "not-allowed" : "text",
+                                opacity: (vid.sourceType === "youtube" || !!vid.nativeFile) ? 0.8 : 1
+                            }}
+                            value={vid.durationMinutes || ""}
+                            onChange={(e) =>
+                              handleVideoChange(
+                                idx,
+                                "durationMinutes",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
+                            placeholder="auto"
+                          />
+                          <span className={styles.durUnitLabel} style={{ marginLeft: "0.5rem" }}>MINS</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* INVISIBLE YOUTUBE PLAYER FOR AUTO LENGTH CALCULATION */}
+                    {vid.sourceType === "youtube" &&
+                      vid.youtubeId &&
+                      extractYouTubeID(vid.youtubeId) && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            opacity: 0,
+                            pointerEvents: "none",
+                            width: "1px",
+                            height: "1px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <YouTube
+                            key={extractYouTubeID(vid.youtubeId) || `yt-${idx}`}
+                            videoId={extractYouTubeID(vid.youtubeId)}
+                            onReady={(e) =>
+                              handleVideoReady(idx, e.target.getDuration())
+                            }
+                          />
+                        </div>
+                      )}
+                  </div>
+                ))}
+
+                {videos.length < 20 && (
+                  <div
+                    className={styles.videoCard}
+                    style={{
+                      cursor: "pointer",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minHeight: "8rem",
+                      border:
+                        "2px dashed color-mix(in srgb, var(--outline-variant) 40%, transparent)",
+                      backgroundColor:
+                        "color-mix(in srgb, var(--surface-container-high) 50%, transparent)",
+                      boxShadow: "none",
+                    }}
+                    onClick={() => updateVideoCount(numVideos + 1)}
+                  >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "2rem",
+                        color:
+                          "color-mix(in srgb, var(--outline) 40%, transparent)",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      add_task
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-label)",
+                        fontSize: "0.625rem",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        color:
+                          "color-mix(in srgb, var(--outline) 40%, transparent)",
+                      }}
+                    >
+                      Draft next video details
+                    </span>
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.cancelBtn}
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.submitBtn}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Create Course"}
-            </button>
-          </div>
-        </form>
+            {/* Footer / CTAs */}
+            <div className={styles.footer}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles.submitBtnPrimary}
+                disabled={loading}
+              >
+                {loading ? "Saving & Uploading..." : "Create Course"}
+                {!loading && (
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "0.875rem" }}
+                  >
+                    arrow_forward
+                  </span>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
