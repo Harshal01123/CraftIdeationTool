@@ -1,20 +1,8 @@
-export type Role = "customer" | "artisan" | "system";
+export type Role = "user" | "artisan" | "system";
 
 export type ConversationStatus = "OPEN" | "CLOSED";
 
-export type MessageType = "TEXT" | "SYSTEM" | "OFFER";
-
-export type OfferStatus = "pending" | "accepted" | "rejected" | "countered";
-
-export interface OfferPayload {
-  offerId: string;          // same as the message id — used to reference which offer to update
-  productId: string;
-  productName: string;
-  imageUrl: string | null;
-  listedPrice: number;      // artisan's original listed price
-  offeredPrice: number;     // the currently-proposed price
-  status: OfferStatus;
-}
+export type MessageType = "TEXT" | "SYSTEM";
 
 export interface Profile {
   id: string;

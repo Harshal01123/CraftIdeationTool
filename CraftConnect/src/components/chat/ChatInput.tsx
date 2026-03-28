@@ -4,10 +4,9 @@ import styles from "./ChatInput.module.css";
 
 interface Props {
   onSend: (content: string) => void;
-  onReOffer?: () => void;
 }
 
-function ChatInput({ onSend, onReOffer }: Props) {
+function ChatInput({ onSend }: Props) {
   const [text, setText] = useState("");
 
   function handleSend() {
@@ -31,16 +30,6 @@ function ChatInput({ onSend, onReOffer }: Props) {
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      {onReOffer && (
-        <button
-          className={styles.reOfferBtn}
-          onClick={onReOffer}
-          title="Make New Offer"
-          type="button"
-        >
-          <span className="material-symbols-outlined">local_offer</span>
-        </button>
-      )}
       <Button onClick={handleSend}>Send</Button>
     </div>
   );

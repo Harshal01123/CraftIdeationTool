@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { type Conversation, type Profile } from "../../types/chat";
-import { useMode } from "../../contexts/ModeContext";
 import styles from "./ChatSidebar.module.css";
 import NewChatDialog from "./NewChatDialog";
 
@@ -18,8 +17,6 @@ function ChatSidebar({
 }: Props) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [newChatOpen, setNewChatOpen] = useState(false);
-  const { activeMode } = useMode();
-  const isArtisan = activeMode === "artisan";
 
   useEffect(() => {
     // Fetch ALL conversations where the current user is either artisan or customer
@@ -79,16 +76,14 @@ function ChatSidebar({
   return (
     <>
       <aside className={styles.sidebar}>
-        <div className={styles.headingWrapper}>
-          <h3 className={styles.heading}>Inbox</h3>
-          {!isArtisan && (
-            <span
-              className={`material-symbols-outlined ${styles.headingIcon}`}
-              onClick={() => setNewChatOpen(true)}
-              title="New Conversation"
-            >edit_square</span>
-          )}
-        </div>
+      <div className={styles.headingWrapper}>
+        <h3 className={styles.heading}>Inbox</h3>
+        <span
+          className={`material-symbols-outlined ${styles.headingIcon}`}
+          onClick={() => setNewChatOpen(true)}
+          title="New Conversation"
+        >edit_square</span>
+      </div>
       <ul className={styles.list}>
         {conversations.map((conv) => {
           const other =
