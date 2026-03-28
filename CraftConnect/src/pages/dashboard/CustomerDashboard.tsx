@@ -51,10 +51,6 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
 
   return (
     <section className={styles.hero}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-        </div>
-      </header>
 
       {/* Welcome Banner */}
       <div className={styles.welcomeBanner} style={{backgroundColor: "var(--primary-container)"}}>
