@@ -357,7 +357,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
           ) : (
             <div className={styles.coursesList}>
               {courses.slice(0, 4).map((c) => (
-                <div key={c.id} className={styles.courseListItem} onClick={() => navigate("/dashboard/courses")}>
+                <div key={c.id} className={styles.courseListItem} onClick={() => navigate(`/dashboard/courses/${c.id}`)}>
                   <div className={styles.courseListThumb}>
                     {c.thumbnail ? (
                       <img src={c.thumbnail} alt={c.title} className={styles.courseListImg} />

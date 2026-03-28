@@ -10,11 +10,15 @@ interface CreateCourseModalProps {
 }
 
 interface VideoInput {
+  title: string;
+  description: string;
   sourceType: "youtube" | "native";
   youtubeId: string;
   nativeFile?: File;
   nativeFileName?: string;
   durationMinutes: number;
+  thumbnailFile?: File;
+  thumbnailPreview?: string;
 }
 
 const dataURLtoFile = (dataurl: string, filename: string) => {
@@ -39,6 +43,7 @@ export default function CreateCourseModal({
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
@@ -48,7 +53,7 @@ export default function CreateCourseModal({
 
   const [numVideos, setNumVideos] = useState(1);
   const [videos, setVideos] = useState<VideoInput[]>([
-    { sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
+    { title: "", description: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
   ]);
 
   const recalculateAutoThumbnail = (v: VideoInput) => {
@@ -96,7 +101,7 @@ export default function CreateCourseModal({
       const newVideos = [...prev];
       if (newVideos.length < count) {
         while (newVideos.length < count) {
-          newVideos.push({ sourceType: "youtube", youtubeId: "", durationMinutes: 0 });
+          newVideos.push({ title: "", description: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 });
         }
       } else {
         newVideos.length = count;
@@ -211,8 +216,16 @@ export default function CreateCourseModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title) {
+    if (!title.trim()) {
       setError("Course name is required.");
+      return;
+    }
+    if (!description.trim()) {
+      setError("Course description is required.");
+      return;
+    }
+    if (!artisanId) {
+      setError("Could not identify your account. Please refresh the page and try again.");
       return;
     }
 
@@ -222,20 +235,35 @@ export default function CreateCourseModal({
     try {
       let finalThumbnailUrl = thumbnail;
 
-      // Upload thumbnail if available
+      // Upload course thumbnail if user selected a file
       if (thumbnailFile) {
-        const ext = thumbnailFile.name.split(".").pop();
-        const filePath = `courses/${artisanId}/thumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("products")
-          .upload(filePath, thumbnailFile, { upsert: true });
+        // Helper: read file as data URL (fallback if storage upload fails)
+        const readAsDataUrl = (file: File): Promise<string> =>
+          new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result as string);
+            reader.onerror = rej;
+            reader.readAsDataURL(file);
+          });
 
-        if (uploadError) throw uploadError;
+        try {
+          const ext = thumbnailFile.name.split(".").pop();
+          const filePath = `courses/${artisanId}/thumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from("products")
+            .upload(filePath, thumbnailFile, { upsert: true });
 
-        const { data: urlData } = supabase.storage
-          .from("products")
-          .getPublicUrl(filePath);
-        finalThumbnailUrl = urlData.publicUrl;
+          if (uploadError) {
+            console.warn("[CreateCourse] Storage upload failed, using data URL:", uploadError.message);
+            finalThumbnailUrl = await readAsDataUrl(thumbnailFile);
+          } else {
+            const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
+            finalThumbnailUrl = urlData.publicUrl;
+          }
+        } catch (e) {
+          console.warn("[CreateCourse] Thumbnail upload exception, using data URL:", e);
+          try { finalThumbnailUrl = await readAsDataUrl(thumbnailFile); } catch (_) {}
+        }
       }
 
       // Upload videos if available
@@ -244,24 +272,58 @@ export default function CreateCourseModal({
           let finalVidUrl = extractYouTubeID(v.youtubeId);
 
           if (v.sourceType === "native" && v.nativeFile) {
-            const ext = v.nativeFile.name.split(".").pop();
-            const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-            const { error: uploadError } = await supabase.storage
-              .from("products")
-              .upload(filePath, v.nativeFile, { upsert: true });
+            try {
+              const ext = v.nativeFile.name.split(".").pop();
+              const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+              const { error: uploadError } = await supabase.storage
+                .from("products")
+                .upload(filePath, v.nativeFile, { upsert: true });
 
-            if (uploadError) throw uploadError;
+              if (uploadError) {
+                console.warn(`[CreateCourse] Video ${idx + 1} upload failed:`, uploadError.message);
+              } else {
+                const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
+                finalVidUrl = urlData.publicUrl;
+              }
+            } catch (e) {
+              console.warn(`[CreateCourse] Video ${idx + 1} upload exception:`, e);
+            }
+          }
 
-            const { data: urlData } = supabase.storage
-              .from("products")
-              .getPublicUrl(filePath);
-            finalVidUrl = urlData.publicUrl;
+          // Per-video thumbnail upload (non-fatal — falls back to YouTube auto-thumb)
+          let finalVidThumb = "";
+          if (v.thumbnailFile) {
+            const readFileAsDataUrl = (file: File): Promise<string> =>
+              new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.onerror = rej; r.readAsDataURL(file); });
+            try {
+              const ext = v.thumbnailFile.name.split(".").pop();
+              const thumbPath = `courses/${artisanId}/vidthumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+              const { error: thumbErr } = await supabase.storage
+                .from("products")
+                .upload(thumbPath, v.thumbnailFile, { upsert: true });
+              if (thumbErr) {
+                console.warn(`[CreateCourse] Video ${idx + 1} thumb storage failed, using data URL:`, thumbErr.message);
+                finalVidThumb = await readFileAsDataUrl(v.thumbnailFile);
+              } else {
+                const { data: thumbUrl } = supabase.storage.from("products").getPublicUrl(thumbPath);
+                finalVidThumb = thumbUrl.publicUrl;
+              }
+            } catch (e) {
+              console.warn(`[CreateCourse] Video ${idx + 1} thumb exception:`, e);
+              try { if (v.thumbnailFile) finalVidThumb = await (() => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload=()=>res(r.result as string); r.onerror=rej; r.readAsDataURL(v.thumbnailFile!); }))(); } catch(_) {}
+            }
+          }
+          // Auto-thumbnail from YouTube if no custom one
+          if (!finalVidThumb && v.sourceType === "youtube" && finalVidUrl) {
+            finalVidThumb = `https://img.youtube.com/vi/${finalVidUrl}/hqdefault.jpg`;
           }
 
           return {
+            title: v.title || `Video ${idx + 1}`,
+            description: v.description || "",
+            thumbnail: finalVidThumb,
             duration_minutes: Number(v.durationMinutes) || 0,
             youtube_id: finalVidUrl,
-            title: `Video ${idx + 1}`
           };
         })
       );
@@ -271,19 +333,32 @@ export default function CreateCourseModal({
         0,
       );
 
-      const { error: insertError } = await supabase.from("courses").insert({
+      // Derive best available thumbnail URL
+      const firstYtId = processedVideos[0]?.youtube_id;
+      const autoYtThumb = firstYtId ? `https://img.youtube.com/vi/${firstYtId}/hqdefault.jpg` : null;
+
+      const payload = {
         artisan_id: artisanId,
-        title,
+        title: title.trim(),
+        description: description.trim(),
         category,
         level,
-        duration_minutes: totalDuration,
+        duration_minutes: Math.round(totalDuration),
         thumbnail:
           finalThumbnailUrl ||
+          autoYtThumb ||
           "https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800",
         videos: processedVideos,
-      });
+      };
 
-      if (insertError) throw insertError;
+      console.log("[CreateCourse] Inserting payload:", JSON.stringify(payload, null, 2));
+
+      const { error: insertError } = await supabase.from("courses").insert(payload);
+
+      if (insertError) {
+        console.error("[CreateCourse] DB error:", insertError);
+        throw insertError;
+      }
 
       onSaved();
     } catch (err: any) {
@@ -344,6 +419,19 @@ export default function CreateCourseModal({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Traditional Madhubani Fundamentals"
+                    />
+                  </div>
+
+                  {/* Course Description */}
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Course Description</label>
+                    <textarea
+                      required
+                      className={styles.inputElement}
+                      style={{ minHeight: "80px", resize: "vertical" }}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Brief overview of what students will learn..."
                     />
                   </div>
 
@@ -575,6 +663,82 @@ export default function CreateCourseModal({
                         </span>
                       </button>
                     )}
+
+                    <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
+                      <label className={styles.videoInputLabel}>Video Title</label>
+                      <input
+                        type="text"
+                        required
+                        className={styles.videoInput}
+                        value={vid.title}
+                        onChange={(e) => handleVideoChange(idx, "title", e.target.value)}
+                        placeholder={`e.g. Module ${idx + 1}: Introduction`}
+                      />
+                    </div>
+
+                    <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
+                      <label className={styles.videoInputLabel}>Video Description</label>
+                      <textarea
+                        required
+                        className={styles.videoInput}
+                        style={{ minHeight: "56px", resize: "vertical" }}
+                        value={vid.description}
+                        onChange={(e) => handleVideoChange(idx, "description", e.target.value)}
+                        placeholder="Brief summary of what's covered in this video..."
+                      />
+                    </div>
+
+                    <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
+                      <label className={styles.videoInputLabel}>Custom Thumbnail (optional — auto-set from YouTube)</label>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.25rem" }}>
+                        <label style={{
+                          backgroundColor: "var(--surface-container-high)",
+                          color: "var(--primary)",
+                          padding: "0.4rem 0.9rem",
+                          borderRadius: "0.5rem",
+                          fontFamily: "var(--font-label)",
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          flexShrink: 0,
+                        }}>
+                          Choose File
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                const file = e.target.files[0];
+                                handleVideoChange(idx, "thumbnailFile", file);
+                                handleVideoChange(idx, "thumbnailPreview", URL.createObjectURL(file));
+                              }
+                            }}
+                          />
+                        </label>
+                        {vid.thumbnailPreview ? (
+                          <div style={{ position: "relative", display: "inline-flex" }}>
+                            <img src={vid.thumbnailPreview} alt="thumb" style={{ height: "44px", borderRadius: "4px", objectFit: "cover" }} />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleVideoChange(idx, "thumbnailFile", undefined);
+                                handleVideoChange(idx, "thumbnailPreview", undefined);
+                              }}
+                              style={{ position: "absolute", top: -5, right: -5, background: "var(--primary)", color: "#fff", border: "none", borderRadius: "50%", width: "16px", height: "16px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "10px" }}>close</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: "0.7rem", color: "var(--outline)", fontFamily: "var(--font-body)", fontStyle: "italic" }}>
+                            {vid.sourceType === "youtube" && vid.youtubeId ? "YouTube thumbnail will be used automatically" : "No file selected"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
                     <div className={styles.videoInputGroup} style={{ marginBottom: "1rem" }}>
                       <label className={styles.videoInputLabel}>Video Source Type</label>
