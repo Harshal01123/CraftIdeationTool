@@ -22,14 +22,15 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
   const { activeMode } = useMode();
   const isCustomer = activeMode === "customer" || activeMode === "learner" || currentProfile.role === "user";
   const isArtisan = activeMode === "artisan";
 
-  // Auto-scroll to bottom
+  // Scroll to bottom of message list without triggering page scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messageListRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   // Fetch purchase details
@@ -293,7 +294,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
         </div>
       )}
 
-      <div className={styles.messageList}>
+      <div className={styles.messageList} ref={messageListRef}>
         {messages.length === 0 ? (
           <p className={styles.noMessages}>No messages yet.</p>
         ) : (
@@ -305,7 +306,6 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
             />
           ))
         )}
-        <div ref={bottomRef} />
       </div>
 
       {conversation.status === "OPEN" ? (
