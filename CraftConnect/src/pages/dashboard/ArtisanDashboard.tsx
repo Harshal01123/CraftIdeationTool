@@ -181,10 +181,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
           <p className={styles.welcomeText}>
             Your curation has seen increased interest this week. Launch your new collections today.
           </p>
-          <button className={styles.viewAnalyticsBtn} onClick={() => navigate("/dashboard/courses")}>
-            View Analytics
-            <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>arrow_forward</span>
-          </button>
         </div>
         <div className={styles.welcomePattern}></div>
         <div className={styles.welcomeIcon}>
@@ -199,7 +195,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>account_balance_wallet</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+12%</span>
           </div>
           <p className={styles.kpiValue}>{formatRevenue(totalRevenue)}</p>
           <p className={styles.kpiLabel}>Total Revenue</p>
@@ -209,17 +204,15 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>assignment</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+5%</span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
-          <p className={styles.kpiLabel}>Orders Generated</p>
+          <p className={styles.kpiLabel}>Orders Accepted</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>school</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+{totalStudents}</span>
           </div>
           <p className={styles.kpiValue}>{courses.length}</p>
           <p className={styles.kpiLabel}>My Courses</p>
@@ -229,9 +222,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>star</span>
             </div>
-            <span className={`${styles.kpiBadge} ${storeRating !== "—" ? styles.kpiBadgeSuccess : styles.kpiBadgeNeutral}`}>
-              {storeRating !== "—" ? "Top 1%" : "—"}
-            </span>
           </div>
           <p className={styles.kpiValue}>{storeRating}{storeRating !== "—" && <span className={styles.kpiValueSub}>/5</span>}</p>
           <p className={styles.kpiLabel}>Store Rating</p>
@@ -257,7 +247,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                   <th>Product</th>
                   <th>Customer</th>
                   <th>Date</th>
-                  <th>Status</th>
                   <th className={styles.amountHeader}>Amount</th>
                 </tr>
               </thead>
@@ -279,9 +268,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                     </td>
                     <td className={styles.customerName}>{sale.customer?.name || "Unknown"}</td>
                     <td className={styles.orderDate}>{new Date(sale.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                    <td>
-                      <span className={getStatusClass(sale.status)}>{getStatusLabel(sale.status)}</span>
-                    </td>
                     <td className={styles.amount}>₹{sale.total_price}</td>
                   </tr>
                 ))}
