@@ -297,7 +297,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>My Products</h3>
-            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/products")}>View All</button>
+            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/my-products")}>View All</button>
           </div>
           {loading ? (
             <Spinner label="Loading products..." />
@@ -348,7 +348,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>My Courses</h3>
-            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/courses")}>View All</button>
+            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/my-courses")}>View All</button>
           </div>
           {coursesLoading ? (
             <Spinner label="Loading courses..." />

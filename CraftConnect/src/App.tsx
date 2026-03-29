@@ -7,6 +7,8 @@ import Signup from "./pages/Signup";
 import Courses from "./pages/dashboard/Courses";
 import Artisans from "./pages/dashboard/Artisans";
 import Products from "./pages/dashboard/Products";
+import MyProducts from "./pages/dashboard/MyProducts";
+import MyCourses from "./pages/dashboard/MyCourses";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Notifications from "./pages/dashboard/Notifications";
 import Messages from "./pages/dashboard/Messages";
@@ -38,6 +40,8 @@ function App() {
               <Route path="artisans/:id" element={<ArtisanPortfolio />} />
               <Route path="products" element={<Products />} />
               <Route path="products/:id" element={<ProductPortfolio />} />
+              <Route path="my-products" element={<MyProducts />} />
+              <Route path="my-courses" element={<MyCourses />} />
               <Route path="profile" element={<EditProfile />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="messages" element={<Messages />} />

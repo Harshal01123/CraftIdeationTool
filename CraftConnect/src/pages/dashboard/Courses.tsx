@@ -3,6 +3,9 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
+import Spinner from "../../components/Spinner";
+import { useAuth } from "../../hooks/useAuth";
+import { useMode } from "../../contexts/ModeContext";
 
 interface Profile {
   id: string;
@@ -37,6 +40,8 @@ function formatDuration(minutes: number) {
 
 export default function Courses() {
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+  const { profile } = useAuth();
+  const { activeMode } = useMode();
   
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,11 +127,14 @@ export default function Courses() {
     };
   }, []);
 
-  // Group courses by category
+  // Group courses by category, filtering out artisan's own in learner mode
   const categories = ["Pottery", "Bamboo", "Glass", "Tiles", "Handloom", "Painting"];
+  const visibleAllCourses = (activeMode === "learner" && profile?.role === "artisan")
+    ? courses.filter((c) => c.artisan?.id !== profile.id)
+    : courses;
   const groupedCourses = categories.map(cat => ({
     name: cat,
-    courses: courses.filter(c => c.category === cat)
+    courses: visibleAllCourses.filter(c => c.category === cat)
   }));
 
   return (
@@ -139,9 +147,7 @@ export default function Courses() {
         {/* Categories Grid */}
         <div className={styles.categoriesContainer}>
           {loading ? (
-            <div style={{ textAlign: "center", padding: "4rem", color: "var(--outline)" }}>
-              Loading courses...
-            </div>
+            <Spinner size="lg" label="Loading courses..." />
           ) : (
             groupedCourses.map((category) => {
               const matchedCourses = category.courses.filter(course => {

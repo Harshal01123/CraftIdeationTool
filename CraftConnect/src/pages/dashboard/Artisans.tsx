@@ -295,7 +295,7 @@ function Artisans() {
                         >
                           View Profile
                         </button>
-                        {activeMode === "customer" && (
+                        {activeMode === "customer" && artisan.id !== profile?.id && (
                           <button
                             className={styles.rateBtn}
                             onClick={(e) => handleRateClick(artisan, e)}
@@ -304,12 +304,14 @@ function Artisans() {
                             Rate
                           </button>
                         )}
-                        <button
-                          className={styles.mailBtn}
-                          onClick={() => handleMessageClick(artisan)}
-                        >
-                          <span className="material-symbols-outlined">mail</span>
-                        </button>
+                        {artisan.id !== profile?.id && (
+                          <button
+                            className={styles.mailBtn}
+                            onClick={() => handleMessageClick(artisan)}
+                          >
+                            <span className="material-symbols-outlined">mail</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

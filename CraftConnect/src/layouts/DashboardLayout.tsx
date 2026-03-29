@@ -21,6 +21,8 @@ function DashboardLayout() {
   // Determine page title based on route
   const getPageTitles = () => {
     const path = location.pathname;
+    if (path.includes("/my-products")) return { en: "My Products", hi: "मेरे उत्पाद" };
+    if (path.includes("/my-courses")) return { en: "My Courses", hi: "मेरी शिक्षा" };
     if (path.includes("/products")) return { en: "Products", hi: "उत्पाद" };
     if (path.includes("/courses")) return { en: "Courses", hi: "शिक्षा" };
     if (path.includes("/artisans")) return { en: "Artisans", hi: "शिल्पी" };
@@ -220,19 +222,29 @@ function DashboardLayout() {
             <span className={styles.navLinkText}>Dashboard</span>
           </NavLink>
           {activeMode !== "learner" && (
-            <NavLink to="/dashboard/products" className={navClass}>
+            <NavLink
+              to={activeMode === "artisan" ? "/dashboard/my-products" : "/dashboard/products"}
+              className={navClass}
+            >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>
                 storefront
               </span>
-              <span className={styles.navLinkText}>Products</span>
+              <span className={styles.navLinkText}>
+                {activeMode === "artisan" ? "My Products" : "Products"}
+              </span>
             </NavLink>
           )}
           {activeMode !== "customer" && (
-            <NavLink to="/dashboard/courses" className={navClass}>
+            <NavLink
+              to={activeMode === "artisan" ? "/dashboard/my-courses" : "/dashboard/courses"}
+              className={navClass}
+            >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>
                 school
               </span>
-              <span className={styles.navLinkText}>Courses</span>
+              <span className={styles.navLinkText}>
+                {activeMode === "artisan" ? "My Courses" : "Courses"}
+              </span>
             </NavLink>
           )}
           <NavLink to="/dashboard/artisans" className={navClass}>

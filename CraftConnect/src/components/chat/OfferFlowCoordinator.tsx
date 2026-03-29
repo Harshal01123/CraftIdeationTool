@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { Profile, Product } from "../../types/chat";
 import ArtisanProductPicker from "./ArtisanProductPicker";
 import PriceSetDialog from "./PriceSetDialog";
-import { startProductConversation } from "../../lib/chatUtils";
+import { startProductConversation, startConversation } from "../../lib/chatUtils";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./ContactDialog.module.css";
 
@@ -130,6 +130,37 @@ export default function OfferFlowCoordinator({
           onClick={(e) => e.stopPropagation()}
           style={{ padding: "1.5rem", maxWidth: "480px" }}
         >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>About a Product?</h3>
+            <button
+              onClick={async () => {
+                if (!currentProfile || !artisan) return;
+                setProcessing(true);
+                const result = await startConversation({
+                  customerId: currentProfile.id,
+                  artisanId: artisan.id,
+                  title: title.trim() || 'General Inquiry',
+                });
+                setProcessing(false);
+                if (result.error) {
+                  alert(result.error);
+                  return;
+                }
+                onConversationStarted(result.conversationId!);
+                onClose();
+              }}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--outline)',
+                padding: '0.4rem 0.8rem',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+              disabled={processing}
+            >
+              Skip, just chat
+            </button>
+          </div>
           <ArtisanProductPicker
             artisan={artisan}
             onOfferConfirmed={handleProductPickerSubmit}
