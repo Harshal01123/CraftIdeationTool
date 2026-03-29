@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,7 +15,7 @@
   position: relative;
   width: 100%;
   max-width: 64rem; /* max-w-5xl ~ 1024px */
-  background-color: #F5EFE0;
+  background-color: #f5efe0;
   border-radius: 0.75rem; /* rounded-xl */
   overflow: hidden;
   box-shadow: 0 32px 64px -12px rgba(43, 32, 23, 0.3);
@@ -53,7 +53,8 @@
 /* Header Section */
 .header {
   padding: 2rem 2.5rem; /* py-8 px-10 */
-  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--outline-variant) 20%, transparent);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -112,8 +113,8 @@
   overflow-y: auto;
   min-height: 0;
   overscroll-behavior: contain;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 .formLayout::-webkit-scrollbar {
   display: none;
@@ -133,7 +134,8 @@
   display: flex;
   flex-direction: column;
   gap: 2rem; /* space-y-8 */
-  border-right: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  border-right: 1px solid
+    color-mix(in srgb, var(--outline-variant) 20%, transparent);
 }
 
 @media (min-width: 1024px) {
@@ -189,7 +191,8 @@
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 2px solid color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  border-bottom: 2px solid
+    color-mix(in srgb, var(--outline-variant) 40%, transparent);
   font-family: var(--font-body);
   font-size: 1.125rem; /* text-lg */
   padding: 0.5rem 0;
@@ -296,14 +299,17 @@
   font-family: var(--font-body);
 }
 
-
 /* Right Column: Video Content */
 .rightColumn {
   padding: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  background-color: color-mix(in srgb, var(--surface-container-low) 30%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--surface-container-low) 30%,
+    transparent
+  );
 }
 
 @media (min-width: 1024px) {
@@ -350,7 +356,7 @@
 
 /* Video Card */
 .videoCard {
-  background-color: #EDE5D0;
+  background-color: #ede5d0;
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
@@ -423,7 +429,8 @@
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--outline-variant) 40%, transparent);
   font-family: var(--font-body);
   font-size: 1rem;
   padding: 0.25rem 0;
@@ -464,8 +471,13 @@
 /* Footer CTAs */
 .footer {
   padding: 2rem 2.5rem;
-  background-color: color-mix(in srgb, var(--surface-container-high) 50%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--surface-container-high) 50%,
+    transparent
+  );
+  border-top: 1px solid
+    color-mix(in srgb, var(--outline-variant) 20%, transparent);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;

@@ -14,7 +14,7 @@
   flex-direction: column;
   padding: 1.5rem 0;
   box-shadow: 12px 0 32px -4px rgba(43, 32, 23, 0.08);
-  z-index: 50;
+  z-index: 60;
 }
 
 .brand {
@@ -305,7 +305,7 @@
   background-color: var(--primary);
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .contentContainer {
@@ -382,8 +382,13 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.bugReportBtn span { font-size: 1rem; }
-.bugReportBtn:hover { border-color: var(--secondary); color: var(--secondary); }
+.bugReportBtn span {
+  font-size: 1rem;
+}
+.bugReportBtn:hover {
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
 
 /* ── Bug Report Modal ── */
 .bugOverlay {
@@ -408,7 +413,7 @@
   color: var(--on-surface);
   padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  box-shadow: 0 12px 32px rgba(43,32,23,0.15);
+  box-shadow: 0 12px 32px rgba(43, 32, 23, 0.15);
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -427,8 +432,14 @@
 }
 
 @keyframes slideDownToast {
-  0% { transform: translate(-50%, -150%); opacity: 0; }
-  100% { transform: translate(-50%, 0); opacity: 1; }
+  0% {
+    transform: translate(-50%, -150%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
 }
 
 .bugModal {
@@ -473,9 +484,15 @@
   border-radius: 50%;
   transition: background 0.2s;
 }
-.bugCloseBtn:hover { background: rgba(43, 32, 23, 0.08); }
+.bugCloseBtn:hover {
+  background: rgba(43, 32, 23, 0.08);
+}
 
-.bugField { display: flex; flex-direction: column; gap: 0.4rem; }
+.bugField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
 .bugLabel {
   font-family: var(--font-label);
   font-size: 0.7rem;
@@ -499,12 +516,19 @@
   transition: border-color 0.2s;
   box-sizing: border-box;
 }
-.bugInput:focus, .bugTextarea:focus {
+.bugInput:focus,
+.bugTextarea:focus {
   border-color: var(--primary);
   background: white;
 }
-.bugInput:disabled, .bugTextarea:disabled { opacity: 0.6; }
-.bugTextarea { resize: vertical; line-height: 1.5; }
+.bugInput:disabled,
+.bugTextarea:disabled {
+  opacity: 0.6;
+}
+.bugTextarea {
+  resize: vertical;
+  line-height: 1.5;
+}
 
 .bugError {
   font-family: var(--font-label);
@@ -526,9 +550,15 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.bugSuccess span { font-size: 1.75rem; }
+.bugSuccess span {
+  font-size: 1.75rem;
+}
 
-.bugActions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+.bugActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
 
 .bugCancelBtn {
   background: transparent;
@@ -543,7 +573,9 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.bugCancelBtn:hover { background: var(--surface-container-low); }
+.bugCancelBtn:hover {
+  background: var(--surface-container-low);
+}
 
 .bugSubmitBtn {
   display: flex;
@@ -561,11 +593,22 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.bugSubmitBtn span { font-size: 1rem; }
-.bugSubmitBtn:hover:not(:disabled) { opacity: 0.85; }
-.bugSubmitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bugSubmitBtn span {
+  font-size: 1rem;
+}
+.bugSubmitBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.bugSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

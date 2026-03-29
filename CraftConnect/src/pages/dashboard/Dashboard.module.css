@@ -443,10 +443,9 @@
   right: 0.5rem;
   display: flex;
   gap: 0.25rem;
-  opacity: 0;
+  opacity: 1; /* Always visible */
   transition: opacity 0.2s;
 }
-.productMiniCard:hover .productMiniActions { opacity: 1; }
 
 .productMiniEdit,
 .productMiniDelete {
