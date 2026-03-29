@@ -5,10 +5,6 @@ function LearnerDashboard() {
   const { profile } = useAuth();
   return (
     <section className={styles.hero}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-        </div>
-      </header>
       <div className={styles.welcomeBanner} style={{ backgroundColor: "var(--tertiary)" }}>
         <div className={styles.welcomeContent}>
           <span className={styles.workspaceTag}>Learner Workspace</span>
