@@ -11,6 +11,16 @@ export function useChat(
   const [loading, setLoading] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
+  async function markAsRead() {
+    if (!conversationId || !currentProfile) return;
+    await supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", currentProfile.id)
+      .or("is_read.eq.false,is_read.is.null");
+  }
+
   useEffect(() => {
     if (!conversationId) return;
 
@@ -55,6 +65,11 @@ export function useChat(
             if (prev.find((m) => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
+          
+          // Instantly mark read since we are actively in the chat window
+          if (newMsg.sender_id !== currentProfile?.id) {
+            markAsRead();
+          }
         },
       )
       .on(
@@ -125,5 +140,5 @@ export function useChat(
     setConversation((prev) => (prev ? { ...prev, status: "CLOSED" } : prev));
   }
 
-  return { messages, conversation, loading, sendMessage, closeConversation };
+  return { messages, conversation, loading, sendMessage, closeConversation, markAsRead };
 }
