@@ -6,8 +6,7 @@ import Spinner from "../components/Spinner";
 import StarRating from "../components/ratings/StarRating";
 import RatingModal from "../components/ratings/RatingModal";
 import ReviewCard from "../components/ratings/ReviewCard";
-import ContactDialog from "../components/chat/ContactDialog";
-import { startConversation } from "../lib/chatUtils";
+import OfferFlowCoordinator from "../components/chat/OfferFlowCoordinator";
 import styles from "./ProductPortfolio.module.css";
 
 function ProductPortfolio() {
@@ -30,7 +29,6 @@ function ProductPortfolio() {
   const [existingComment, setExistingComment] = useState("");
 
   const [showContactDialog, setShowContactDialog] = useState(false);
-  const [orderProcessing, setOrderProcessing] = useState(false);
 
   async function fetchReviews() {
     if (!id) return;
@@ -104,24 +102,9 @@ function ProductPortfolio() {
 
   const isOwner = currentUserId === product.artisan_id;
 
-  async function handleBuyNow(messageText: string) {
-    if (!product || !currentUserId || !product.artisan_id) return;
-    setOrderProcessing(true);
-    const result = await startConversation({
-      customerId: currentUserId,
-      artisanId: product.artisan_id,
-      title: `Order Request: ${product.name}`,
-      messageText,
-      productId: product.id,
-      isOrder: true,
-    });
-    setOrderProcessing(false);
-    if (result.error) {
-      alert("Failed to send order request: " + result.error);
-      return;
-    }
+  function handleConversationStarted(conversationId: string) {
     setShowContactDialog(false);
-    navigate(`/dashboard/messages?conversation=${result.conversationId}`);
+    navigate(`/dashboard/messages?conversation=${conversationId}`);
   }
 
   return (
@@ -335,14 +318,12 @@ function ProductPortfolio() {
         )}
       </section>
 
-      <ContactDialog
+      <OfferFlowCoordinator
         isOpen={showContactDialog}
         onClose={() => setShowContactDialog(false)}
-        artisanName={artisan?.name}
-        productName={product.name}
-        isProcessing={orderProcessing}
-        onSubmit={handleBuyNow}
-        mode="order"
+        artisan={artisan}
+        product={product}
+        onConversationStarted={handleConversationStarted}
       />
 
       {/* Rating Modal */}

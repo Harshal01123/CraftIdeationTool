@@ -28,7 +28,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   const [showNewOfferPicker, setShowNewOfferPicker] = useState(false);
   // Track which offer message IDs have already been acted on (prevents double-click)
   const [actedOfferIds, setActedOfferIds] = useState<Set<string>>(new Set());
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const { activeMode } = useMode();
 
   const isArtisan = activeMode === "artisan";
@@ -39,7 +39,12 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
 
   // Auto-scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (listRef.current) {
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [messages]);
 
   // Find the latest OFFER message that is "pending"
@@ -206,7 +211,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
         </div>
 
         {/* Messages */}
-        <div className={styles.messageList}>
+        <div className={styles.messageList} ref={listRef}>
           {messages.length === 0 ? (
             <p className={styles.noMessages}>No messages yet.</p>
           ) : (
@@ -242,7 +247,6 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
               );
             })
           )}
-          <div ref={bottomRef} />
         </div>
 
         {conversation.status === "OPEN" ? (

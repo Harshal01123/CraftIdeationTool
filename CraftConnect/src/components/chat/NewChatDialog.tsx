@@ -1,32 +1,26 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { startProductConversation } from "../../lib/chatUtils";
-import type { Profile, Product } from "../../types/chat";
+import type { Profile } from "../../types/chat";
 import Spinner from "../Spinner";
-import ArtisanProductPicker from "./ArtisanProductPicker";
 import styles from "./NewChatDialog.module.css";
 
 interface Props {
   currentProfile: Profile;
   onClose: () => void;
-  onConversationStarted: (conversationId: string) => void;
+  onArtisanSelected: (artisan: Profile) => void;
 }
 
 type SearchMode = "name" | "industry";
-type Step = "search" | "products";
 
 async function fetchArtisans(): Promise<Profile[]> {
   const { data } = await supabase.from("profiles").select("*").eq("role", "artisan");
   return (data as Profile[]) ?? [];
 }
 
-export default function NewChatDialog({ currentProfile, onClose, onConversationStarted }: Props) {
+export default function NewChatDialog({ currentProfile, onClose, onArtisanSelected }: Props) {
   const [mode, setMode] = useState<SearchMode>("name");
-  const [step, setStep] = useState<Step>("search");
   const [allArtisans, setAllArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
-  const [selectedArtisan, setSelectedArtisan] = useState<Profile | null>(null);
 
   // Name search state
   const [nameQuery, setNameQuery] = useState("");
@@ -54,36 +48,12 @@ export default function NewChatDialog({ currentProfile, onClose, onConversationS
     : [];
 
   function selectArtisan(artisan: Profile) {
-    setSelectedArtisan(artisan);
-    setNameQuery(artisan.name);
-    setShowSuggestions(false);
-    setStep("products");
+    onArtisanSelected(artisan);
+    onClose();
   }
 
   function handleOkFromIndustry() {
     if (selectedArtisanFromIndustry) selectArtisan(selectedArtisanFromIndustry);
-  }
-
-  async function handleOfferConfirmed(product: Product, price: number) {
-    if (!selectedArtisan) return;
-    setProcessing(true);
-
-    const result = await startProductConversation({
-      customerId: currentProfile.id,
-      artisanId: selectedArtisan.id,
-      payload: {
-        productId: product.id,
-        productName: product.name,
-        imageUrl: product.image_url,
-        listedPrice: product.price,
-        offeredPrice: price,
-      },
-    });
-
-    setProcessing(false);
-    if (result.error) { alert(result.error); return; }
-    onConversationStarted(result.conversationId!);
-    onClose();
   }
 
   // ── Render ──
@@ -91,24 +61,11 @@ export default function NewChatDialog({ currentProfile, onClose, onConversationS
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>
-            {step === "products" && selectedArtisan ? "Choose a Product" : "New Conversation"}
-          </h3>
+          <h3 className={styles.title}>New Conversation</h3>
           <button className={styles.closeBtn} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-
-        {/* Step 2: Product Picker */}
-        {step === "products" && selectedArtisan ? (
-          <ArtisanProductPicker
-            artisan={selectedArtisan}
-            onOfferConfirmed={handleOfferConfirmed}
-            onBack={() => { setStep("search"); setSelectedArtisan(null); }}
-            isProcessing={processing}
-          />
-        ) : (
-          <>
             {/* Mode toggle */}
             <div className={styles.modeRow}>
               <button
@@ -201,8 +158,6 @@ export default function NewChatDialog({ currentProfile, onClose, onConversationS
                 )}
               </div>
             )}
-          </>
-        )}
       </div>
     </div>
   );

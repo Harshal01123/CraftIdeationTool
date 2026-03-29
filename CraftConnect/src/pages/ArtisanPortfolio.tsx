@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ArtisanPortfolio.module.css";
 import Spinner from "../components/Spinner";
-import ContactDialog from "../components/chat/ContactDialog";
+import OfferFlowCoordinator from "../components/chat/OfferFlowCoordinator";
 import RatingModal from "../components/ratings/RatingModal";
 import ReviewCard from "../components/ratings/ReviewCard";
 import StarRating from "../components/ratings/StarRating";
@@ -22,13 +22,11 @@ function ArtisanPortfolio() {
   const [artisan, setArtisan] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [chatLoading, setChatLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { activeMode } = useMode();
 
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
-  const [dialogError, setDialogError] = useState("");
 
   // Rating modal state
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -118,7 +116,6 @@ function ArtisanPortfolio() {
       alert("You cannot start a chat with yourself.");
       return;
     }
-    setDialogError("");
     setShowDialog(true);
   }
 
@@ -136,36 +133,9 @@ function ArtisanPortfolio() {
     await fetchReviews();
   }
 
-  // Called when user confirms title in dialog
-  async function handleCreateConversation(title: string) {
-    if (!title.trim()) {
-      setDialogError("Please enter a title.");
-      return;
-    }
-    if (!artisan || !currentUserId) return;
-
-    setChatLoading(true);
-
-    const { data: newConv, error } = await supabase
-      .from("conversations")
-      .insert({
-        artisan_id: artisan.id,
-        customer_id: currentUserId,
-        title: title.trim(),
-        status: "OPEN",
-      })
-      .select("id")
-      .single();
-
-    setChatLoading(false);
-
-    if (error || !newConv) {
-      setDialogError("Failed to start conversation. Please try again.");
-      return;
-    }
-
+  function handleConversationStarted(conversationId: string) {
     setShowDialog(false);
-    navigate(`/dashboard/messages?conversation=${newConv.id}`);
+    navigate(`/dashboard/messages?conversation=${conversationId}`);
   }
 
   if (loading)
@@ -238,7 +208,6 @@ function ArtisanPortfolio() {
               <button
                 className={styles.chatBtn}
                 onClick={handleChatClick}
-                disabled={chatLoading}
               >
                 <span
                   className="material-symbols-outlined"
@@ -422,15 +391,12 @@ function ArtisanPortfolio() {
         )}
       </section>
 
-      {/* Contact Dialog */}
-      <ContactDialog
+      {/* Offer Flow Coordinator */}
+      <OfferFlowCoordinator
         isOpen={showDialog}
-        onClose={() => { setShowDialog(false); setDialogError(""); }}
-        artisanName={artisan.name}
-        isProcessing={chatLoading}
-        error={dialogError}
-        mode="new_conversation"
-        onSubmit={handleCreateConversation}
+        onClose={() => setShowDialog(false)}
+        artisan={artisan}
+        onConversationStarted={handleConversationStarted}
       />
 
       {/* Rating Modal */}

@@ -4,8 +4,7 @@ import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import ProductCard from "../../components/products/ProductCard";
 import Spinner from "../../components/Spinner";
-import ContactDialog from "../../components/chat/ContactDialog";
-import { startConversation } from "../../lib/chatUtils";
+import OfferFlowCoordinator from "../../components/chat/OfferFlowCoordinator";
 import styles from "./Products.module.css";
 import { useAuth } from "../../hooks/useAuth";
 import { INDUSTRY_OPTIONS } from "../../constants/industryOptions";
@@ -34,7 +33,6 @@ function Products() {
   // Dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -113,29 +111,9 @@ function Products() {
     setShowDialog(true);
   }
 
-  async function handleConfirmOrder(messageText: string) {
-    if (!selectedProduct || !profile) return;
-    setProcessing(true);
-
-    const result = await startConversation({
-      customerId: profile.id,
-      artisanId: selectedProduct.artisan_id,
-      title: `Order: ${selectedProduct.name}`,
-      productId: selectedProduct.id,
-      productPrice: selectedProduct.price,
-      messageText,
-      isOrder: true,
-    });
-
-    setProcessing(false);
-
-    if (result.error) {
-      alert(result.error);
-      return;
-    }
-
+  function handleConversationStarted(conversationId: string) {
     setShowDialog(false);
-    navigate(`/dashboard/messages?conversation=${result.conversationId}`);
+    navigate(`/dashboard/messages?conversation=${conversationId}`);
   }
 
   return (
@@ -288,14 +266,12 @@ function Products() {
         </div>
       </div>
 
-      <ContactDialog
+      <OfferFlowCoordinator
         isOpen={showDialog && selectedProduct !== null}
         onClose={() => setShowDialog(false)}
-        artisanName={selectedProduct?.artisan?.name}
-        productName={selectedProduct?.name}
-        isProcessing={processing}
-        onSubmit={handleConfirmOrder}
-        mode="order"
+        artisan={selectedProduct?.artisan as any}
+        product={selectedProduct}
+        onConversationStarted={handleConversationStarted}
       />
     </div>
   );

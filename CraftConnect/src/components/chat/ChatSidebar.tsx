@@ -4,6 +4,7 @@ import { type Conversation, type Profile } from "../../types/chat";
 import { useMode } from "../../contexts/ModeContext";
 import styles from "./ChatSidebar.module.css";
 import NewChatDialog from "./NewChatDialog";
+import OfferFlowCoordinator from "./OfferFlowCoordinator";
 
 interface Props {
   currentProfile: Profile;
@@ -18,6 +19,7 @@ function ChatSidebar({
 }: Props) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [newChatOpen, setNewChatOpen] = useState(false);
+  const [offerArtisan, setOfferArtisan] = useState<Profile | null>(null);
   const { activeMode } = useMode();
   const isArtisan = activeMode === "artisan";
 
@@ -136,12 +138,24 @@ function ChatSidebar({
       </ul>
       </aside>
 
-      {newChatOpen && (
+      {newChatOpen && !offerArtisan && (
         <NewChatDialog
           currentProfile={currentProfile}
           onClose={() => setNewChatOpen(false)}
-          onConversationStarted={(id) => {
+          onArtisanSelected={(artisan) => {
+            setOfferArtisan(artisan);
             setNewChatOpen(false);
+          }}
+        />
+      )}
+
+      {offerArtisan && (
+        <OfferFlowCoordinator
+          isOpen={true}
+          onClose={() => setOfferArtisan(null)}
+          artisan={offerArtisan}
+          onConversationStarted={(id) => {
+            setOfferArtisan(null);
             onSelect(id);
           }}
         />

@@ -94,18 +94,20 @@ export async function startConversation({
 export async function startProductConversation({
   customerId,
   artisanId,
+  title,
   payload,
 }: {
   customerId: string;
   artisanId: string;
+  title?: string;
   payload: Omit<OfferPayload, "offerId" | "status">;
 }): Promise<{ conversationId?: string; error?: string }> {
-  const title = `Offer for ${payload.productName}`;
+  const finalTitle = title || `Offer for ${payload.productName}`;
 
   // 1. Create conversation
   const { data: conv, error: convError } = await supabase
     .from("conversations")
-    .insert({ artisan_id: artisanId, customer_id: customerId, title, status: "OPEN" })
+    .insert({ artisan_id: artisanId, customer_id: customerId, title: finalTitle, status: "OPEN" })
     .select("id")
     .single();
 

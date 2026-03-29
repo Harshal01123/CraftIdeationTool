@@ -6,8 +6,7 @@ import Spinner from "../../components/Spinner";
 import { useAuth } from "../../hooks/useAuth";
 import { useMode } from "../../contexts/ModeContext";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import ContactDialog from "../../components/chat/ContactDialog";
-import { startConversation } from "../../lib/chatUtils";
+import OfferFlowCoordinator from "../../components/chat/OfferFlowCoordinator";
 import RatingModal from "../../components/ratings/RatingModal";
 import StarRating from "../../components/ratings/StarRating";
 
@@ -33,7 +32,6 @@ function Artisans() {
   // Dialog State (chat)
   const [showDialog, setShowDialog] = useState(false);
   const [selectedArtisan, setSelectedArtisan] = useState<Profile | null>(null);
-  const [processing, setProcessing] = useState(false);
 
   // Rating modal state
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -75,24 +73,9 @@ function Artisans() {
     setShowRatingModal(true);
   }
 
-  async function handleStartChat(messageText: string) {
-    if (!selectedArtisan || !profile) return;
-    setProcessing(true);
-
-    const result = await startConversation({
-      customerId: profile.id,
-      artisanId: selectedArtisan.id,
-      title: `Chat with ${selectedArtisan.name}`,
-      messageText,
-      isOrder: false,
-    });
-
-    setProcessing(false);
-
-    if (result.error) { alert(result.error); return; }
-
+  function handleConversationStarted(conversationId: string) {
     setShowDialog(false);
-    navigate(`/dashboard/messages?conversation=${result.conversationId}`);
+    navigate(`/dashboard/messages?conversation=${conversationId}`);
   }
 
   async function handleSubmitRating(rating: number, comment: string) {
@@ -337,13 +320,11 @@ function Artisans() {
         )}
       </div>
 
-      <ContactDialog
+      <OfferFlowCoordinator
         isOpen={showDialog && selectedArtisan !== null}
         onClose={() => setShowDialog(false)}
-        artisanName={selectedArtisan?.name}
-        isProcessing={processing}
-        onSubmit={handleStartChat}
-        mode="chat"
+        artisan={selectedArtisan}
+        onConversationStarted={handleConversationStarted}
       />
 
       <RatingModal
