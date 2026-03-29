@@ -104,7 +104,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
     await updateOfferStatus(messageId, "accepted");
 
     // Create purchase record
-    await supabase.from("purchases").insert({
+    const { error: purchaseError } = await supabase.from("purchases").insert({
       customer_id: conversation!.customer_id,
       artisan_id: conversation!.artisan_id,
       product_id: payload.productId,
@@ -114,6 +114,13 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
       confirmed_by_customer: false,
       confirmed_by_artisan: false,
     });
+
+    if (purchaseError) {
+      console.error("Purchase insert error:", purchaseError);
+      alert(`Could not create order: ${purchaseError.message}`);
+      setIsActing(false);
+      return;
+    }
 
     await sendMessage(
       `✅ Offer accepted! ₹${payload.offeredPrice.toLocaleString()} agreed for “${payload.productName}”. Order has been placed.`,
