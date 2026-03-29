@@ -59,33 +59,43 @@ export default function CreateCourseModal({
   ]);
 
   React.useEffect(() => {
-    if (existingCourse) {
-      setTitle(existingCourse.title || "");
-      setDescription(existingCourse.description || "");
-      if (existingCourse.thumbnail) {
-        setThumbnail(existingCourse.thumbnail);
-        setThumbnailPreview(existingCourse.thumbnail);
-        setIsAutoThumbnail(false);
-      }
-      setCategory(existingCourse.category || "Pottery");
-      setLevel(existingCourse.level || "Beginner");
+    if (!existingCourse) return;
 
-      if (existingCourse.videos && existingCourse.videos.length > 0) {
-        setNumVideos(existingCourse.videos.length);
-        const mappedVideos: VideoInput[] = existingCourse.videos.map((v: any) => {
-          const isYoutube = !v.youtube_id?.includes("supabase.co");
-          return {
-            title: v.title || "",
-            description: v.description || "",
-            sourceType: isYoutube ? "youtube" : "native",
-            youtubeId: isYoutube ? v.youtube_id : "",
-            nativeFileName: isYoutube ? "" : "Existing Video File",
-            durationMinutes: v.duration_minutes || 0,
-            thumbnailPreview: v.thumbnail || "",
-          };
-        });
-        setVideos(mappedVideos);
-      }
+    setTitle(existingCourse.title || "");
+    setDescription(existingCourse.description || "");
+
+    if (existingCourse.thumbnail) {
+      setThumbnail(existingCourse.thumbnail);
+      setThumbnailPreview(existingCourse.thumbnail);
+      setIsAutoThumbnail(false);
+    }
+
+    setCategory(existingCourse.category || "Pottery");
+    setLevel(existingCourse.level || "Beginner");
+
+    if (existingCourse.videos && existingCourse.videos.length > 0) {
+      const count = existingCourse.videos.length;
+
+      // Build the mapped videos list
+      const mappedVideos: VideoInput[] = existingCourse.videos.map((v: any) => {
+        const isYoutube = !v.youtube_id?.startsWith("http") || v.youtube_id?.includes("youtu");
+        const youtubeId = isYoutube ? (v.youtube_id || "") : "";
+        return {
+          title: v.title || "",
+          description: v.description || "",
+          sourceType: isYoutube ? "youtube" : "native",
+          youtubeId,
+          nativeFile: undefined,
+          nativeFileName: isYoutube ? "" : "Previously uploaded file",
+          durationMinutes: Number(v.duration_minutes) || 0,
+          thumbnailFile: undefined,
+          thumbnailPreview: v.thumbnail || (youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : ""),
+        };
+      });
+
+      // Size the array to match, then fill it with the real data
+      setNumVideos(count);
+      setVideos(mappedVideos);
     }
   }, [existingCourse]);
 
@@ -302,25 +312,34 @@ export default function CreateCourseModal({
       // Upload videos if available
       const processedVideos = await Promise.all(
         videos.map(async (v, idx) => {
-          let finalVidUrl = extractYouTubeID(v.youtubeId);
+          let finalVidUrl = "";
 
-          if (v.sourceType === "native" && v.nativeFile) {
-            try {
-              const ext = v.nativeFile.name.split(".").pop();
-              const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-              const { error: uploadError } = await supabase.storage
-                .from("products")
-                .upload(filePath, v.nativeFile, { upsert: true });
+          if (v.sourceType === "native") {
+            if (v.nativeFile) {
+              // New file selected — upload it
+              try {
+                const ext = v.nativeFile.name.split(".").pop();
+                const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await supabase.storage
+                  .from("products")
+                  .upload(filePath, v.nativeFile, { upsert: true });
 
-              if (uploadError) {
-                console.warn(`[CreateCourse] Video ${idx + 1} upload failed:`, uploadError.message);
-              } else {
-                const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
-                finalVidUrl = urlData.publicUrl;
+                if (uploadError) {
+                  console.warn(`[CreateCourse] Video ${idx + 1} upload failed:`, uploadError.message);
+                } else {
+                  const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
+                  finalVidUrl = urlData.publicUrl;
+                }
+              } catch (e) {
+                console.warn(`[CreateCourse] Video ${idx + 1} upload exception:`, e);
               }
-            } catch (e) {
-              console.warn(`[CreateCourse] Video ${idx + 1} upload exception:`, e);
+            } else if (v.nativeFileName && v.nativeFileName.startsWith("http")) {
+              // Existing native video — preserve its URL
+              finalVidUrl = v.nativeFileName;
             }
+          } else {
+            // YouTube video — extract bare ID
+            finalVidUrl = extractYouTubeID(v.youtubeId);
           }
 
           // Per-video thumbnail upload (non-fatal — falls back to YouTube auto-thumb)
@@ -346,9 +365,14 @@ export default function CreateCourseModal({
               try { if (v.thumbnailFile) finalVidThumb = await (() => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload=()=>res(r.result as string); r.onerror=rej; r.readAsDataURL(v.thumbnailFile!); }))(); } catch(_) {}
             }
           }
-          // Auto-thumbnail from YouTube if no custom one
-          if (!finalVidThumb && v.sourceType === "youtube" && finalVidUrl) {
-            finalVidThumb = `https://img.youtube.com/vi/${finalVidUrl}/hqdefault.jpg`;
+
+          // Fall back to existing preview URL or YouTube auto-thumb
+          if (!finalVidThumb) {
+            if (v.thumbnailPreview && v.thumbnailPreview.startsWith("http")) {
+              finalVidThumb = v.thumbnailPreview;
+            } else if (v.sourceType === "youtube" && finalVidUrl) {
+              finalVidThumb = `https://img.youtube.com/vi/${finalVidUrl}/hqdefault.jpg`;
+            }
           }
 
           return {
@@ -385,10 +409,20 @@ export default function CreateCourseModal({
       };
 
       if (existingCourse?.id) {
-        console.log("[CreateCourse] Updating payload:", JSON.stringify(payload, null, 2));
+        // Update: exclude artisan_id (RLS policy; artisan owns the row already)
+        const updatePayload = {
+          title: payload.title,
+          description: payload.description,
+          category: payload.category,
+          level: payload.level,
+          duration_minutes: payload.duration_minutes,
+          thumbnail: payload.thumbnail,
+          videos: payload.videos,
+        };
+        console.log("[CreateCourse] Updating payload:", JSON.stringify(updatePayload, null, 2));
         const { error: updateError } = await supabase
           .from("courses")
-          .update(payload)
+          .update(updatePayload)
           .eq("id", existingCourse.id);
 
         if (updateError) {
