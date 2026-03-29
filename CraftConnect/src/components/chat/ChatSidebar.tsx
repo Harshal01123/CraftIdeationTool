@@ -20,19 +20,41 @@ function ChatSidebar({
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [offerArtisan, setOfferArtisan] = useState<Profile | null>(null);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const { activeMode } = useMode();
   const isArtisan = activeMode === "artisan";
 
   useEffect(() => {
-    // Fetch ALL conversations where the current user is either artisan or customer
-    supabase
-      .from("conversations")
-      .select("*, artisan:artisan_id(*), customer:customer_id(*)")
-      .or(
-        `artisan_id.eq.${currentProfile.id},customer_id.eq.${currentProfile.id}`,
-      )
-      .order("updated_at", { ascending: false })
-      .then(({ data }) => setConversations(data ?? []));
+    async function loadData() {
+      const { data: convs } = await supabase
+        .from("conversations")
+        .select("*, artisan:artisan_id(*), customer:customer_id(*)")
+        .or(`artisan_id.eq.${currentProfile.id},customer_id.eq.${currentProfile.id}`)
+        .order("updated_at", { ascending: false });
+        
+      if (!convs) return;
+      setConversations(convs);
+
+      const ids = convs.map(c => c.id);
+      if (ids.length > 0) {
+        const { data: unreadMsgs } = await supabase
+          .from("messages")
+          .select("conversation_id")
+          .in("conversation_id", ids)
+          .neq("sender_id", currentProfile.id)
+          .or("is_read.eq.false,is_read.is.null");
+          
+        if (unreadMsgs) {
+          const counts: Record<string, number> = {};
+          unreadMsgs.forEach(m => {
+            counts[m.conversation_id] = (counts[m.conversation_id] || 0) + 1;
+          });
+          setUnreadCounts(counts);
+        }
+      }
+    }
+    
+    loadData();
 
     const channel = supabase
       .channel("conversations-list")
@@ -73,8 +95,39 @@ function ChatSidebar({
       )
       .subscribe();
 
+    const messagesChannel = supabase
+      .channel("sidebar-messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const newMsg = payload.new;
+          if (newMsg.sender_id !== currentProfile.id) {
+            setUnreadCounts(prev => ({
+              ...prev,
+              [newMsg.conversation_id]: (prev[newMsg.conversation_id] || 0) + 1
+            }));
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => {
+          const updated = payload.new;
+          if (updated.is_read) {
+            setUnreadCounts(prev => ({
+              ...prev,
+              [updated.conversation_id]: 0
+            }));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
     };
   }, [currentProfile]);
 
@@ -123,12 +176,17 @@ function ChatSidebar({
                     {new Date(conv.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
-                <p className={styles.itemSub}>
+                <p className={`${styles.itemSub} ${unreadCounts[conv.id] > 0 && activeConversationId !== conv.id ? styles.itemSubUnread : ""}`}>
                   {conv.status === "CLOSED" ? "🔒 Archived" : "View conversation..."}
                 </p>
               </div>
 
-              {isActive && <div className={styles.activeDot}></div>}
+              <div className={styles.itemRight}>
+                {unreadCounts[conv.id] > 0 && activeConversationId !== conv.id && (
+                  <span className={styles.unreadBadge}>{unreadCounts[conv.id]}</span>
+                )}
+                {isActive && <div className={styles.activeDot}></div>}
+              </div>
             </li>
           );
         })}

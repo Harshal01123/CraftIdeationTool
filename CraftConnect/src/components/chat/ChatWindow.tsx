@@ -19,7 +19,7 @@ interface Props {
 }
 
 function ChatWindow({ conversationId, currentProfile }: Props) {
-  const { messages, conversation, loading, sendMessage, closeConversation } =
+  const { messages, conversation, loading, sendMessage, closeConversation, markAsRead } =
     useChat(conversationId, currentProfile);
 
   const [showConfirm, setShowConfirm] = useState(false);
@@ -46,6 +46,13 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
       });
     }
   }, [messages]);
+
+  // Mark all existing messages as read when we open the window
+  useEffect(() => {
+    if (messages.length > 0) {
+      markAsRead();
+    }
+  }, [messages.length, markAsRead]);
 
   // Find the latest OFFER message that is "pending"
   const latestPendingOffer = useMemo(() => {

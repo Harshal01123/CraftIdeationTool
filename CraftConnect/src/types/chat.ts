@@ -49,6 +49,7 @@ export interface Message {
   sender_role: Role;
   type: MessageType;
   content: string;
+  is_read?: boolean;
   created_at: string;
   // Populated by Supabase join query
   sender?: Profile;

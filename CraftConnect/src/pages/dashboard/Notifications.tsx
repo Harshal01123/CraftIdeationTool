@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import { type Notification } from "../../types/chat";
+import { type Notification, type Message, type Conversation } from "../../types/chat";
 import styles from "./Notifications.module.css";
-
-const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 
 function isToday(dateStr: string) {
   const d = new Date(dateStr);
@@ -27,11 +25,24 @@ function isYesterday(dateStr: string) {
   );
 }
 
-function groupByDate(notifications: Notification[]) {
-  const groups: { label: string; items: Notification[] }[] = [];
-  const today: Notification[] = [];
-  const yesterday: Notification[] = [];
-  const older: Notification[] = [];
+// A generic UI Notification interface that merges both System Notifications and Chat Notifications
+interface UINotification {
+  id: string; // the physical ID for system, or the conversationId for chat
+  type: "system" | "chat";
+  conversation_id: string | null;
+  title: string;
+  body: string | null;
+  created_at: string;
+  is_read: boolean;
+  unread_count?: number; // Only for chat
+  system_icon?: string; // Icon for system notification (e.g., shopping_bag, school)
+}
+
+function groupByDate(notifications: UINotification[]) {
+  const groups: { label: string; items: UINotification[] }[] = [];
+  const today: UINotification[] = [];
+  const yesterday: UINotification[] = [];
+  const older: UINotification[] = [];
 
   for (const n of notifications) {
     if (isToday(n.created_at)) today.push(n);
@@ -45,168 +56,354 @@ function groupByDate(notifications: Notification[]) {
   return groups;
 }
 
+function formatTime(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+  
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes || 1}m ago`;
+  }
+  if (diffInMinutes < 1440 && isToday(dateStr)) {
+    const hours = Math.floor(diffInMinutes / 60);
+    return `${hours}h ago`;
+  }
+  
+  return date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function Notifications() {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [sysNotifs, setSysNotifs] = useState<Notification[]>([]);
+  const [unreadChatMsgs, setUnreadChatMsgs] = useState<(Message & { conversation?: Conversation })[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
-  function emitUnreadCount(unreadCount: number) {
-    window.dispatchEvent(
-      new CustomEvent<{ unreadCount: number }>(UNREAD_COUNT_EVENT, {
-        detail: { unreadCount },
-      }),
+  // Derive consolidated Virtual Notifications from unread messages
+  const virtualChatNotifs = useMemo(() => {
+    if (!userId) return [];
+    
+    // Group by conversation
+    const grouped = new Map<string, (Message & { conversation?: Conversation })[]>();
+    for (const msg of unreadChatMsgs) {
+      if (!grouped.has(msg.conversation_id)) grouped.set(msg.conversation_id, []);
+      grouped.get(msg.conversation_id)!.push(msg);
+    }
+
+    const chats: UINotification[] = [];
+    grouped.forEach((msgs, convId) => {
+      // Sort messages ascending by time to find the newest easily
+      msgs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      const latestMsg = msgs[0];
+      const conv = latestMsg.conversation;
+      
+      const otherPerson = conv ? (conv.artisan_id === userId ? conv.customer : conv.artisan) : null;
+      const title = otherPerson?.name || "Someone";
+      
+      // If the latest unread is an OFFER, it is an Order notification
+      if (latestMsg.type === "OFFER") {
+         let productName = "a product";
+         try {
+           const payload = JSON.parse(latestMsg.content);
+           productName = payload.productName || productName;
+         } catch {}
+
+         chats.push({
+           id: latestMsg.id, // unique per message so it stays separate
+           type: "system", // Map OFFER to system so it enters Orders tab
+           conversation_id: convId,
+           title: "New Order Detail",
+           body: `${title} updated the offer for ${productName}.`,
+           created_at: latestMsg.created_at,
+           is_read: false,
+           system_icon: "shopping_bag"
+         });
+      } else {
+         // It's a TEXT message
+         const textContent = latestMsg.type === "SYSTEM" ? "System Message" : latestMsg.content;
+         
+         // If there are multiple unread texts, show preview + count
+         let preview = textContent;
+         if (msgs.length > 1) {
+             preview = `${msgs.length} messages: ${textContent.substring(0, 30)}...`;
+         }
+
+         chats.push({
+           id: convId, // group by chat
+           type: "chat",
+           conversation_id: convId,
+           title: title,
+           body: preview,
+           created_at: latestMsg.created_at,
+           is_read: false,
+           unread_count: msgs.length,
+         });
+      }
+    });
+    return chats;
+  }, [unreadChatMsgs, userId]);
+
+  const allNotifications = useMemo(() => {
+    const wrappedSys: UINotification[] = sysNotifs
+      // Filter out raw JSON payloads generated from legacy DB triggers
+      .filter(n => !(n.body && n.body.includes('"offerId":')))
+      .map(n => {
+        // Guess the icon based on the title or body
+        let icon = "notifications";
+        const t = n.title.toLowerCase();
+        if (t.includes("order") || t.includes("shipp") || t.includes("purchase")) icon = "shopping_bag";
+        if (t.includes("course") || t.includes("lesson") || t.includes("learn")) icon = "school";
+
+        return {
+          id: n.id,
+          type: "system",
+          conversation_id: n.conversation_id,
+          title: n.title,
+          body: n.body,
+          created_at: n.created_at,
+          is_read: n.is_read,
+          system_icon: icon
+        };
+      });
+
+    let merged = [...wrappedSys, ...virtualChatNotifs].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }
+
+    return merged;
+  }, [sysNotifs, virtualChatNotifs]);
 
   useEffect(() => {
     let isMounted = true;
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let sysChannel: ReturnType<typeof supabase.channel> | null = null;
+    let msgChannel: ReturnType<typeof supabase.channel> | null = null;
 
-    async function init() {
+    async function loadData() {
       const { data } = await supabase.auth.getSession();
       if (!data.session || !isMounted) return;
       const uid = data.session.user.id;
       setUserId(uid);
 
+      // 1. Fetch System Notifications
       const { data: rows } = await supabase
         .from("notifications")
         .select("*")
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
 
-      if (!isMounted) return;
-      setNotifications(rows ?? []);
-      emitUnreadCount((rows ?? []).filter((n) => !n.is_read).length);
+      if (isMounted) setSysNotifs(rows ?? []);
 
-      channel = supabase
-        .channel(`notifications-page-${uid}`)
+      // 2. Fetch Unread Messages directly
+      const { data: convs } = await supabase
+        .from("conversations")
+        .select("id, artisan_id, customer_id, artisan:artisan_id(*), customer:customer_id(*)")
+        .or(`artisan_id.eq.${uid},customer_id.eq.${uid}`);
+
+      if (convs && convs.length > 0) {
+        const convIds = convs.map(c => c.id);
+        const { data: msgs } = await supabase
+          .from("messages")
+          .select("*")
+          .in("conversation_id", convIds)
+          .neq("sender_id", uid)
+          .or("is_read.eq.false,is_read.is.null");
+
+        if (msgs && isMounted) {
+          const enriched = msgs.map(m => ({
+            ...m,
+            conversation: convs.find(c => c.id === m.conversation_id)
+          }));
+          setUnreadChatMsgs(enriched);
+        }
+      }
+
+      // 3. Realtime listening
+      sysChannel = supabase
+        .channel(`notifications-page-sys-${uid}`)
         .on(
           "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${uid}`,
-          },
-          (payload) => {
-            setNotifications((prev) => {
-              const incoming = payload.new as Notification;
-              if (prev.some((n) => n.id === incoming.id)) return prev;
-              const next = [incoming, ...prev];
-              emitUnreadCount(next.filter((n) => !n.is_read).length);
-              return next;
-            });
-          },
+          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
+          async () => {
+             // Refetch sys notifications
+             const { data: refresh } = await supabase
+               .from("notifications")
+               .select("*")
+               .eq("user_id", uid)
+               .order("created_at", { ascending: false });
+             if (isMounted) setSysNotifs(refresh ?? []);
+          }
+        )
+        .subscribe();
+
+      msgChannel = supabase
+        .channel(`notifications-page-msg-inbox-${uid}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "messages" },
+          async () => {
+            // Simple refresh for now
+            if (!convs || convs.length === 0) return;
+            const convIds = convs.map(c => c.id);
+            const { data: refetchedMsgs } = await supabase
+              .from("messages")
+              .select("*")
+              .in("conversation_id", convIds)
+              .neq("sender_id", uid)
+              .or("is_read.eq.false,is_read.is.null");
+            
+            if (refetchedMsgs && isMounted) {
+              const enriched = refetchedMsgs.map(m => ({
+                ...m,
+                conversation: convs.find(c => c.id === m.conversation_id)
+              }));
+              setUnreadChatMsgs(enriched);
+            } else if (isMounted) {
+              setUnreadChatMsgs([]);
+            }
+          }
         )
         .subscribe();
     }
 
-    init();
+    loadData();
 
     return () => {
       isMounted = false;
-      if (channel) supabase.removeChannel(channel);
+      if (sysChannel) supabase.removeChannel(sysChannel);
+      if (msgChannel) supabase.removeChannel(msgChannel);
     };
   }, []);
 
-  async function markAsRead(id: string) {
-    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
-    setNotifications((prev) => {
-      const next = prev.map((n) => (n.id === id ? { ...n, is_read: true } : n));
-      emitUnreadCount(next.filter((n) => !n.is_read).length);
-      return next;
-    });
+  async function markAsRead(n: UINotification) {
+    if (n.type === "system") {
+      if (n.id.includes("-")) { // if it's an actual SYSTEM notification UUID row
+        await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+        setSysNotifs(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));
+      } else { // It's an mapped OFFER msg bypassing standard system
+        await supabase.from("messages").update({ is_read: true }).eq("id", n.id);
+        setUnreadChatMsgs(prev => prev.filter(x => x.id !== n.id));
+      }
+    } else {
+      // Mark all messages in this conversation as read
+      await supabase.from("messages").update({ is_read: true }).eq("conversation_id", n.id).neq("sender_id", userId).or("is_read.eq.false,is_read.is.null");
+      setUnreadChatMsgs(prev => prev.filter(x => x.conversation_id !== n.id));
+    }
+    window.dispatchEvent(new Event("notifications:unread-count-changed")); // Force global bell sync
   }
 
   async function markAllAsRead() {
     if (!userId) return;
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("user_id", userId)
-      .eq("is_read", false);
-    setNotifications((prev) => {
-      const next = prev.map((n) => ({ ...n, is_read: true }));
-      emitUnreadCount(0);
-      return next;
-    });
+    
+    // Mark system (allowing null bypass identically to chat if legacy bug)
+    await supabase.from("notifications").update({ is_read: true }).eq("user_id", userId).or("is_read.eq.false,is_read.is.null");
+    setSysNotifs(prev => prev.map(x => ({ ...x, is_read: true })));
+
+    // Mark chat
+    if (unreadChatMsgs.length > 0) {
+      const convIds = Array.from(new Set(unreadChatMsgs.map(m => m.conversation_id)));
+      await supabase.from("messages").update({ is_read: true }).in("conversation_id", convIds).neq("sender_id", userId).or("is_read.eq.false,is_read.is.null");
+      setUnreadChatMsgs([]);
+    }
+    window.dispatchEvent(new Event("notifications:unread-count-changed")); // Force global bell sync
   }
 
-  async function handleClick(n: Notification) {
-    if (!n.is_read) await markAsRead(n.id);
+  async function handleClick(n: UINotification) {
+    if (!n.is_read) await markAsRead(n);
     if (n.conversation_id) {
       navigate(`/dashboard/messages?conversation=${n.conversation_id}`);
     }
   }
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
-  const groups = groupByDate(notifications);
+  const groups = groupByDate(allNotifications);
 
   return (
     <div className={styles.page}>
+      
       <div className={styles.header}>
-        {unreadCount > 0 && (
-          <button className={styles.markAllBtn} onClick={markAllAsRead}>
-            Mark all as read
-          </button>
-        )}
+        <button className={styles.markAllBtn} onClick={markAllAsRead}>
+          Mark all as read
+        </button>
       </div>
 
-      {notifications.length === 0 ? (
+      {allNotifications.length === 0 ? (
         <div className={styles.empty}>
-          <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
-            notifications_none
-          </span>
-          <p>You&apos;re all caught up!</p>
-          <span className={styles.emptySubtext}>
-            No notifications at this time.
-          </span>
+          <div className={styles.emptyIcon}>
+            <span className="material-symbols-outlined">check_circle</span>
+          </div>
+          <h4 className={styles.emptyTitle}>You're all caught up</h4>
+          <p className={styles.emptyBody}>
+            Your curatorial dashboard is pristine. Check back later for new heritage updates.
+          </p>
         </div>
       ) : (
         <div className={styles.groups}>
           {groups.map((group) => (
             <div key={group.label} className={styles.group}>
-              <div className={styles.groupLabel}>{group.label}</div>
+              <h3 className={styles.groupLabel}>{group.label}</h3>
               <ul className={styles.list}>
-                {group.items.map((n) => (
-                  <li
-                    key={n.id}
-                    className={`${styles.item} ${n.is_read ? styles.read : styles.unread}`}
-                    onClick={() => handleClick(n)}
-                  >
-                    <div className={styles.iconWrap}>
-                      <span className={`material-symbols-outlined ${styles.icon}`}>
-                        {n.conversation_id ? "mail" : "notifications"}
-                      </span>
-                      {!n.is_read && <div className={styles.unreadDot} />}
-                    </div>
-                    <div className={styles.content}>
-                      <p className={styles.title}>{n.title}</p>
-                      {n.body && <p className={styles.body}>{n.body}</p>}
-                      <p className={styles.time}>
-                        {new Date(n.created_at).toLocaleTimeString(undefined, {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                    {!n.is_read ? (
-                      <button
-                        className={styles.readBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markAsRead(n.id);
-                        }}
+                {group.items.map((n) => {
+                  
+                  if (n.type === "system") {
+                    return (
+                      <li
+                        key={n.id}
+                        className={`${styles.itemSystem} ${n.is_read ? styles.itemChatRead : ""}`}
+                        onClick={() => handleClick(n)}
                       >
-                        Mark read
-                      </button>
-                    ) : (
-                      <span className={styles.readCheck} title="Read">
-                        <span className="material-symbols-outlined">check_circle</span>
-                      </span>
-                    )}
-                  </li>
-                ))}
+                        {!n.is_read && <div className={styles.unreadDot} />}
+                        <div className={styles.iconWrapSystem}>
+                          <span className="material-symbols-outlined" style={!n.is_read ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                            {n.system_icon}
+                          </span>
+                        </div>
+                        <div className={styles.content}>
+                          <div className={styles.topRow}>
+                             <h4 className={styles.title}>{n.title}</h4>
+                             <span className={styles.time}>{formatTime(n.created_at)}</span>
+                          </div>
+                          {n.body && <p className={styles.body}>{n.body}</p>}
+                        </div>
+                      </li>
+                    );
+                  }
+
+                  // Chat Message Node
+                  return (
+                    <li
+                      key={n.id}
+                      className={`${styles.itemChat} ${n.is_read ? styles.itemChatRead : ""}`}
+                      onClick={() => handleClick(n)}
+                    >
+                      <div className={styles.iconWrapChat}>
+                        <span className="material-symbols-outlined">mail</span>
+                      </div>
+                      <div className={styles.content}>
+                        <div className={styles.topRow}>
+                          <div className={styles.chatInfo}>
+                            <h4 className={styles.chatTitle}>{n.title}</h4>
+                            <p className={styles.chatBody}>{n.body}</p>
+                            <span className={styles.chatTime}>{new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          </div>
+                          {!n.is_read && (
+                            <button
+                              className={styles.markReadChatBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(n);
+                              }}
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+
+                })}
               </ul>
             </div>
           ))}

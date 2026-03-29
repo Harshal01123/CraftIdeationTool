@@ -156,6 +156,15 @@ export async function startProductConversation({
     .update({ content: JSON.stringify(finalPayload) })
     .eq("id", msgData.id);
 
+  // 5. Add Notification for Artisan
+  await supabase.from("notifications").insert({
+    user_id: artisanId,
+    title: "New Order Offer",
+    body: `You received an offer of ₹${payload.offeredPrice} for ${payload.productName}.`,
+    is_read: false,
+    conversation_id: conv.id
+  });
+
   return { conversationId: conv.id };
 }
 
@@ -202,6 +211,19 @@ export async function sendOffer({
     .update({ updated_at: new Date().toISOString() })
     .eq("id", conversationId);
 
+  // Send Notification to the other participant
+  const { data: conv } = await supabase.from("conversations").select("artisan_id, customer_id").eq("id", conversationId).single();
+  if (conv) {
+    const receiverId = senderId === conv.artisan_id ? conv.customer_id : conv.artisan_id;
+    await supabase.from("notifications").insert({
+      user_id: receiverId,
+      title: "New Counter Offer",
+      body: `You received a counter-offer of ₹${payload.offeredPrice} for ${payload.productName}.`,
+      is_read: false,
+      conversation_id: conversationId,
+    });
+  }
+
   return { messageId: data.id };
 }
 
@@ -213,10 +235,10 @@ export async function updateOfferStatus(
   status: OfferStatus,
   newPrice?: number
 ): Promise<{ error?: string }> {
-  // Fetch current content
+  // Fetch current content and sender ID to notify the original sender
   const { data, error: fetchError } = await supabase
     .from("messages")
-    .select("content")
+    .select("content, sender_id, conversation_id")
     .eq("id", messageId)
     .single();
 
@@ -229,11 +251,29 @@ export async function updateOfferStatus(
       status,
       offeredPrice: newPrice !== undefined ? newPrice : current.offeredPrice,
     };
+    
     const { error } = await supabase
       .from("messages")
       .update({ content: JSON.stringify(updated) })
       .eq("id", messageId);
+      
     if (error) return { error: error.message };
+
+    // Emit Notification back to the original sender of the Offer
+    const actionMap: Record<string, string> = {
+       "accepted": "accepted",
+       "rejected": "declined",
+       "bargain": "countered" // technically handled by sendOffer above, but safe fallback
+    };
+    
+    await supabase.from("notifications").insert({
+      user_id: data.sender_id, // Original offer sender
+      title: `Order Offer ${status.toUpperCase()}`,
+      body: `Your offer for ${current.productName} was ${actionMap[status] || status}.`,
+      is_read: false,
+      conversation_id: data.conversation_id
+    });
+    
   } catch {
     return { error: "Failed to parse offer payload." };
   }

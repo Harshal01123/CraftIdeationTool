@@ -43,14 +43,20 @@ function DashboardLayout() {
   const [bugStatus, setBugStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [wishlistOpen, setWishlistOpen] = useState(false);
 
+  // WhatsApp-style dynamic toast
+  const [toastVisible, setToastVisible] = useState(false);
+  const [chatOnlyCount, setChatOnlyCount] = useState(0);
+
+  // Trigger for manual refresh
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   useEffect(() => {
     setSearchQuery("");
   }, [location.pathname]);
 
   useEffect(() => {
-    function handleUnreadCountChange(event: Event) {
-      const customEvent = event as CustomEvent<{ unreadCount: number }>;
-      setUnreadCount(customEvent.detail?.unreadCount ?? 0);
+    function handleUnreadCountChange() {
+      setRefreshTrigger(prev => prev + 1);
     }
 
     function handleOpenEditModal(event: Event) {
@@ -60,22 +66,22 @@ function DashboardLayout() {
     }
 
     window.addEventListener(
-      UNREAD_COUNT_EVENT,
-      handleUnreadCountChange as EventListener,
-    );
-    window.addEventListener(
       OPEN_EDIT_PRODUCT_MODAL_EVENT,
       handleOpenEditModal as EventListener,
+    );
+    window.addEventListener(
+      UNREAD_COUNT_EVENT,
+      handleUnreadCountChange
     );
 
     return () => {
       window.removeEventListener(
-        UNREAD_COUNT_EVENT,
-        handleUnreadCountChange as EventListener,
-      );
-      window.removeEventListener(
         OPEN_EDIT_PRODUCT_MODAL_EVENT,
         handleOpenEditModal as EventListener,
+      );
+      window.removeEventListener(
+        UNREAD_COUNT_EVENT,
+        handleUnreadCountChange
       );
     };
   }, []);
@@ -97,45 +103,62 @@ function DashboardLayout() {
         .single();
       if (isMounted) setProfile(profileData);
 
-      // Fetch unread count
-      const { data: unreadData } = await supabase
-        .from("notifications")
-        .select("id")
-        .eq("user_id", uid)
-        .eq("is_read", false);
-      if (isMounted) setUnreadCount(unreadData?.length ?? 0);
+      async function fetchUnreadCount() {
+        if (!isMounted) return;
+        
+        // 1. System Notifications
+        const { count: sysCount } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", uid)
+          .eq("is_read", false);
 
-      // Real-time: new notification arrives
+        // 2. Chat Notifications
+        let chatCount = 0;
+        const { data: convs } = await supabase
+          .from("conversations")
+          .select("id")
+          .or(`artisan_id.eq.${uid},customer_id.eq.${uid}`);
+
+        if (convs && convs.length > 0) {
+          const ids = convs.map((c) => c.id);
+          const { count: msgCount } = await supabase
+            .from("messages")
+            .select("id", { count: "exact", head: true })
+            .in("conversation_id", ids)
+            .neq("sender_id", uid)
+            .or("is_read.eq.false,is_read.is.null");
+          chatCount = msgCount ?? 0;
+        }
+        
+        if (isMounted) {
+          setUnreadCount((sysCount ?? 0) + chatCount);
+          setChatOnlyCount(chatCount);
+        }
+      }
+
+      await fetchUnreadCount();
+
+      await fetchUnreadCount();
+
+      // Real-time: new message or notification arrives
       channel = supabase
-        .channel(`notifications-badge-${uid}`)
+        .channel(`global-badges-${uid}`)
         .on(
           "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${uid}`,
-          },
-          () => {
-            if (isMounted) setUnreadCount((prev) => prev + 1);
-          },
+          { event: "*", schema: "public", table: "messages" },
+          (payload) => {
+            fetchUnreadCount();
+            if (payload.eventType === "INSERT" && payload.new.sender_id !== uid) {
+               setToastVisible(true);
+               setTimeout(() => setToastVisible(false), 4500);
+            }
+          }
         )
         .on(
           "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${uid}`,
-          },
-          async () => {
-            const { data: freshData } = await supabase
-              .from("notifications")
-              .select("id")
-              .eq("user_id", uid)
-              .eq("is_read", false);
-            if (isMounted) setUnreadCount(freshData?.length ?? 0);
-          },
+          { event: "*", schema: "public", table: "notifications" },
+          () => fetchUnreadCount()
         )
         .subscribe();
     }
@@ -146,7 +169,7 @@ function DashboardLayout() {
       isMounted = false;
       if (channel) supabase.removeChannel(channel);
     };
-  }, []);
+  }, [refreshTrigger]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -386,6 +409,14 @@ function DashboardLayout() {
           </button>
         </footer>
       </main>
+
+      {/* Dynamic WhatsApp-style Toast */}
+      {toastVisible && chatOnlyCount > 0 && (
+        <div className={styles.dynamicToast}>
+           <span className="material-symbols-outlined">chat</span>
+           <span>You have {chatOnlyCount} new message{chatOnlyCount !== 1 ? "s" : ""}!</span>
+        </div>
+      )}
 
       {isModalOpen && profile?.role === "artisan" && (
         <AddProductModal
