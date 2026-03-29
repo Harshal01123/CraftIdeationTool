@@ -181,10 +181,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
           <p className={styles.welcomeText}>
             Your curation has seen increased interest this week. Launch your new collections today.
           </p>
-          <button className={styles.viewAnalyticsBtn} onClick={() => navigate("/dashboard/courses")}>
-            View Analytics
-            <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>arrow_forward</span>
-          </button>
         </div>
         <div className={styles.welcomePattern}></div>
         <div className={styles.welcomeIcon}>
@@ -251,7 +247,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                   <th>Product</th>
                   <th>Customer</th>
                   <th>Date</th>
-                  <th>Status</th>
                   <th className={styles.amountHeader}>Amount</th>
                 </tr>
               </thead>
@@ -273,9 +268,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                     </td>
                     <td className={styles.customerName}>{sale.customer?.name || "Unknown"}</td>
                     <td className={styles.orderDate}>{new Date(sale.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                    <td>
-                      <span className={getStatusClass(sale.status)}>{getStatusLabel(sale.status)}</span>
-                    </td>
                     <td className={styles.amount}>₹{sale.total_price}</td>
                   </tr>
                 ))}
