@@ -33,11 +33,8 @@ function formatDuration(minutes: number) {
 
 function MyCourses() {
   const navigate = useNavigate();
-  const [artisanId, setArtisanId] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   async function fetchCourses(uid: string) {
     setLoading(true);
@@ -54,7 +51,6 @@ function MyCourses() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        setArtisanId(data.session.user.id);
         fetchCourses(data.session.user.id);
       }
     });
@@ -67,15 +63,6 @@ function MyCourses() {
     window.addEventListener(COURSE_SAVED_EVENT, handleCourseSaved);
     return () => window.removeEventListener(COURSE_SAVED_EVENT, handleCourseSaved);
   }, []);
-
-  async function confirmDelete() {
-    if (!courseToDelete) return;
-    setIsDeleting(true);
-    await supabase.from("courses").delete().eq("id", courseToDelete.id);
-    setCourseToDelete(null);
-    setIsDeleting(false);
-    if (artisanId) fetchCourses(artisanId);
-  }
 
   const hindiTranslations: Record<string, string> = {
     Pottery: "कुम्हार", Bamboo: "बांस", Glass: "कांच",
@@ -134,25 +121,6 @@ function MyCourses() {
                           }}
                         />
                         <div className={styles.levelBadge}>{course.level}</div>
-                        {/* Edit button */}
-                        <button
-                          className={styles.editBtn}
-                          onClick={(e) => {
-                             e.stopPropagation();
-                             window.dispatchEvent(new CustomEvent(OPEN_EDIT_COURSE_MODAL_EVENT, { detail: { course } }));
-                          }}
-                          title="Edit Course"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", color: "var(--primary)" }}>edit</span>
-                        </button>
-                        {/* Delete button */}
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={(e) => { e.stopPropagation(); setCourseToDelete(course); }}
-                          title="Delete Course"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "1.2rem" }}>delete</span>
-                        </button>
                       </div>
                       <div className={styles.courseContent}>
                         <h4 className={styles.courseTitle}>{course.title}</h4>
@@ -172,26 +140,6 @@ function MyCourses() {
           </div>
         )}
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {courseToDelete && (
-        <div className={styles.popupOverlay} onClick={() => !isDeleting && setCourseToDelete(null)}>
-          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
-            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f" }}>warning</span>
-            <h3>Delete Course?</h3>
-            <p>
-              Are you sure you want to delete <strong>{courseToDelete.title}</strong>?
-              This cannot be undone.
-            </p>
-            <div className={styles.popupActions}>
-              <button className={styles.cancelBtn} onClick={() => setCourseToDelete(null)} disabled={isDeleting}>Cancel</button>
-              <button className={styles.deleteConfirmBtn} onClick={confirmDelete} disabled={isDeleting}>
-                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

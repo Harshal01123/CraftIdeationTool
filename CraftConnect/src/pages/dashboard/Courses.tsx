@@ -47,10 +47,7 @@ export default function Courses() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
-  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const COURSES_PER_ROW = 6;
@@ -86,32 +83,10 @@ export default function Courses() {
     }
   };
 
-  const handleDeleteRequest = (course: Course, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCourseToDelete(course);
-  };
-
-  const confirmDelete = async () => {
-    if (!courseToDelete) return;
-    setIsDeleting(true);
-    
-    try {
-      const { error } = await supabase.from("courses").delete().eq("id", courseToDelete.id);
-      if (error) throw error;
-      setCourseToDelete(null);
-      fetchCourses();
-    } catch (err: any) {
-      console.error("Error deleting course:", err.message);
-      alert("Failed to delete course: " + err.message);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        setCurrentUserId(data.session.user.id);
+        // User is logged in
       }
     });
 
@@ -208,15 +183,6 @@ export default function Courses() {
                              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549445100-d66ffb7e4f1a?auto=format&fit=crop&q=80&w=800'; }}
                            />
                            <div className={styles.levelBadge}>{course.level}</div>
-                           {currentUserId === course.artisan?.id && (
-                             <button 
-                               onClick={(e) => handleDeleteRequest(course, e)}
-                               className={styles.deleteBtn}
-                               title="Delete Course"
-                             >
-                               <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>delete</span>
-                             </button>
-                           )}
                         </div>
                         
                         <div className={styles.courseContent}>
@@ -255,37 +221,6 @@ export default function Courses() {
           )}
         </div>
       </div>
-
-
-
-      {/* Delete Confirmation Modal */}
-      {courseToDelete && (
-        <div className={styles.popupOverlay} onClick={() => !isDeleting && setCourseToDelete(null)}>
-          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
-            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f" }}>warning</span>
-            <h3>Delete Course?</h3>
-            <p>
-              Are you sure you want to delete <strong>{courseToDelete.title}</strong>? This action cannot be undone and will permanently remove it from your offerings.
-            </p>
-            <div className={styles.popupActions}>
-              <button 
-                className={styles.cancelBtn} 
-                onClick={() => setCourseToDelete(null)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button 
-                className={styles.deleteConfirmBtn} 
-                onClick={confirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

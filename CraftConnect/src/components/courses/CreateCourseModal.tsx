@@ -317,25 +317,23 @@ export default function CreateCourseModal({
           if (v.sourceType === "native") {
             if (v.nativeFile) {
               // New file selected — upload it
-              try {
-                const ext = v.nativeFile.name.split(".").pop();
-                const filePath = `courses/${artisanId}/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-                const { error: uploadError } = await supabase.storage
-                  .from("products")
-                  .upload(filePath, v.nativeFile, { upsert: true });
+              const ext = v.nativeFile.name.split(".").pop();
+              const filePath = `${artisanId}/courses/vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+              const { error: uploadError } = await supabase.storage
+                .from("products")
+                .upload(filePath, v.nativeFile, { upsert: true });
 
-                if (uploadError) {
-                  console.warn(`[CreateCourse] Video ${idx + 1} upload failed:`, uploadError.message);
-                } else {
-                  const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
-                  finalVidUrl = urlData.publicUrl;
-                }
-              } catch (e) {
-                console.warn(`[CreateCourse] Video ${idx + 1} upload exception:`, e);
+              if (uploadError) {
+                console.error(`[CreateCourse] Video ${idx + 1} upload failed:`, uploadError);
+                throw new Error(`Failed to upload ${v.nativeFile.name}: ${uploadError.message}`);
               }
+              const { data: urlData } = supabase.storage.from("products").getPublicUrl(filePath);
+              finalVidUrl = urlData.publicUrl;
             } else if (v.nativeFileName && v.nativeFileName.startsWith("http")) {
               // Existing native video — preserve its URL
               finalVidUrl = v.nativeFileName;
+            } else {
+              throw new Error(`Video ${idx + 1} is missing a file.`);
             }
           } else {
             // YouTube video — extract bare ID
@@ -349,7 +347,7 @@ export default function CreateCourseModal({
               new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.onerror = rej; r.readAsDataURL(file); });
             try {
               const ext = v.thumbnailFile.name.split(".").pop();
-              const thumbPath = `courses/${artisanId}/vidthumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+              const thumbPath = `${artisanId}/courses/vidthumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
               const { error: thumbErr } = await supabase.storage
                 .from("products")
                 .upload(thumbPath, v.thumbnailFile, { upsert: true });

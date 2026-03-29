@@ -76,6 +76,16 @@ export default function CoursePortfolio() {
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState<ActiveVideo | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  async function confirmDelete() {
+    if (!course?.id) return;
+    setIsDeleting(true);
+    await supabase.from("courses").delete().eq("id", course.id);
+    setIsDeleting(false);
+    navigate("/dashboard/courses");
+  }
 
   function openVideo(youtubeIdOrUrl: string) {
     if (!youtubeIdOrUrl) return;
@@ -235,9 +245,16 @@ export default function CoursePortfolio() {
               <button className={styles.enrollBtn}>Enroll Now</button>
             )}
             {isOwner && (
-              <button className={styles.manageBtn} onClick={handleManageCourse}>
-                Manage Course
-              </button>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <button className={styles.editBtn} onClick={handleManageCourse}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", marginRight: "0.5rem" }}>edit</span>
+                  Edit Course
+                </button>
+                <button className={styles.deleteBtn} onClick={() => setShowDeleteConfirm(true)}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", marginRight: "0.5rem" }}>delete</span>
+                  Delete Course
+                </button>
+              </div>
             )}
           </div>
         </section>
@@ -345,6 +362,42 @@ export default function CoursePortfolio() {
                 style={{ width: "100%", height: "100%", borderRadius: "8px", background: "#000" }}
               />
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div 
+          onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{ backgroundColor: "var(--surface)", borderRadius: "16px", padding: "2.5rem", width: "90%", maxWidth: "420px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 24px 48px rgba(0,0,0,0.2)" }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f", marginBottom: "1rem" }}>warning</span>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", color: "var(--on-surface)", marginBottom: "0.5rem" }}>Delete Course?</h3>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "var(--outline)", marginBottom: "2rem", lineHeight: 1.5 }}>
+              Are you sure you want to delete <strong>{course?.title}</strong>?
+              This cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)} 
+                disabled={isDeleting}
+                style={{ flex: 1, padding: "0.8rem", borderRadius: "8px", border: "1px solid var(--outline-variant)", backgroundColor: "transparent", color: "var(--on-surface)", fontFamily: "var(--font-label)", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete} 
+                disabled={isDeleting}
+                style={{ flex: 1, padding: "0.8rem", borderRadius: "8px", border: "none", backgroundColor: "#d32f2f", color: "#fff", fontFamily: "var(--font-label)", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", justifyContent: "center", alignItems: "center" }}
+              >
+                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

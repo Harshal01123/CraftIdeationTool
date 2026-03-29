@@ -310,23 +310,52 @@
   box-shadow: 0 8px 20px rgba(130, 59, 24, 0.25);
 }
 
-.manageBtn {
+.editBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.85rem 2rem;
-  background: var(--surface-container-high, #f9e4d6);
-  color: var(--primary);
+  background: linear-gradient(135deg, var(--primary, #823b18), var(--primary-container, #a0522d));
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-family: var(--font-label);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
 }
 
-.manageBtn:hover {
-  background: var(--surface-container-highest, #f3dfd0);
+.editBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(130, 59, 24, 0.25);
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, #e53935, #c62828);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+}
+
+.deleteBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(198, 40, 40, 0.3);
 }
 
 /* ---------- Curriculum Section ---------- */
