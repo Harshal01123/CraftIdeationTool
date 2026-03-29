@@ -7,6 +7,7 @@ import AddProductModal from "../components/products/AddProductModal";
 import CreateCourseModal from "../components/courses/CreateCourseModal";
 import WishlistPopup from "../components/products/WishlistPopup";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
+import { OPEN_EDIT_COURSE_MODAL_EVENT } from "../pages/dashboard/MyCourses";
 import { useMode } from "../contexts/ModeContext";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
@@ -38,6 +39,7 @@ function DashboardLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [bugReportOpen, setBugReportOpen] = useState(false);
   const [bugSubject, setBugSubject] = useState("");
@@ -67,9 +69,19 @@ function DashboardLayout() {
       setIsModalOpen(true);
     }
 
+    function handleOpenEditCourseModal(event: Event) {
+      const customEvent = event as CustomEvent<{ course: any }>;
+      setEditingCourse(customEvent.detail.course);
+      setIsCourseModalOpen(true);
+    }
+
     window.addEventListener(
       OPEN_EDIT_PRODUCT_MODAL_EVENT,
       handleOpenEditModal as EventListener,
+    );
+    window.addEventListener(
+      OPEN_EDIT_COURSE_MODAL_EVENT,
+      handleOpenEditCourseModal as EventListener,
     );
     window.addEventListener(
       UNREAD_COUNT_EVENT,
@@ -80,6 +92,10 @@ function DashboardLayout() {
       window.removeEventListener(
         OPEN_EDIT_PRODUCT_MODAL_EVENT,
         handleOpenEditModal as EventListener,
+      );
+      window.removeEventListener(
+        OPEN_EDIT_COURSE_MODAL_EVENT,
+        handleOpenEditCourseModal as EventListener,
       );
       window.removeEventListener(
         UNREAD_COUNT_EVENT,
@@ -313,7 +329,10 @@ function DashboardLayout() {
             {availableModes.includes("artisan") && (
               <button 
                 className={`${styles.modeBtn} ${activeMode === "artisan" ? styles.modeBtnActive : ""}`}
-                onClick={() => setActiveMode("artisan")}
+                onClick={() => {
+                  setActiveMode("artisan");
+                  navigate("/dashboard");
+                }}
               >
                 Artisan
               </button>
@@ -321,7 +340,10 @@ function DashboardLayout() {
             {availableModes.includes("customer") && (
               <button 
                 className={`${styles.modeBtn} ${activeMode === "customer" ? styles.modeBtnActive : ""}`}
-                onClick={() => setActiveMode("customer")}
+                onClick={() => {
+                  setActiveMode("customer");
+                  navigate("/dashboard");
+                }}
               >
                 Customer
               </button>
@@ -329,7 +351,10 @@ function DashboardLayout() {
             {availableModes.includes("learner") && (
               <button 
                 className={`${styles.modeBtn} ${activeMode === "learner" ? styles.modeBtnActive : ""}`}
-                onClick={() => setActiveMode("learner")}
+                onClick={() => {
+                  setActiveMode("learner");
+                  navigate("/dashboard");
+                }}
               >
                 Learner
               </button>
@@ -449,9 +474,14 @@ function DashboardLayout() {
       {isCourseModalOpen && profile?.role === "artisan" && (
         <CreateCourseModal
           artisanId={profile.id}
-          onClose={() => setIsCourseModalOpen(false)}
+          existingCourse={editingCourse}
+          onClose={() => {
+            setIsCourseModalOpen(false);
+            setEditingCourse(null);
+          }}
           onSaved={() => {
             setIsCourseModalOpen(false);
+            setEditingCourse(null);
             window.dispatchEvent(new Event(COURSE_SAVED_EVENT));
           }}
         />

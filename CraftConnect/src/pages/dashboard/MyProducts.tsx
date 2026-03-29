@@ -83,22 +83,6 @@ function MyProducts() {
     <div className={pageStyles.page}>
       <div className={pageStyles.grainOverlay}></div>
       <div className={pageStyles.contentWrap} style={{ gap: "2rem" }}>
-        <div>
-          <h2 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "3rem",
-            fontWeight: 300,
-            fontStyle: "italic",
-            color: "var(--on-surface)",
-            margin: 0
-          }}>My Products</h2>
-          <p style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "0.95rem",
-            color: "var(--on-surface-variant)",
-            marginTop: "0.5rem"
-          }}>All products in your collection — edit, manage availability, or remove.</p>
-        </div>
 
         {loading ? (
           <Spinner size="lg" label="Loading your products..." />
@@ -116,7 +100,7 @@ function MyProducts() {
                   className={styles.productMiniCard}
                   onClick={() => navigate(`/dashboard/products/${p.id}`)}
                 >
-                  <div className={styles.productMiniThumb}>
+                  <div className={styles.productMiniThumb} style={{ height: "220px" }}>
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className={styles.productMiniImg} />
                     ) : (

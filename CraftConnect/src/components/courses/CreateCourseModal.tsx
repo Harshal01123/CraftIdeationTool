@@ -5,6 +5,7 @@ import styles from "./CreateCourseModal.module.css";
 
 interface CreateCourseModalProps {
   artisanId: string;
+  existingCourse?: any;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -36,6 +37,7 @@ const dataURLtoFile = (dataurl: string, filename: string) => {
 
 export default function CreateCourseModal({
   artisanId,
+  existingCourse,
   onClose,
   onSaved,
 }: CreateCourseModalProps) {
@@ -55,6 +57,37 @@ export default function CreateCourseModal({
   const [videos, setVideos] = useState<VideoInput[]>([
     { title: "", description: "", sourceType: "youtube", youtubeId: "", durationMinutes: 0 },
   ]);
+
+  React.useEffect(() => {
+    if (existingCourse) {
+      setTitle(existingCourse.title || "");
+      setDescription(existingCourse.description || "");
+      if (existingCourse.thumbnail) {
+        setThumbnail(existingCourse.thumbnail);
+        setThumbnailPreview(existingCourse.thumbnail);
+        setIsAutoThumbnail(false);
+      }
+      setCategory(existingCourse.category || "Pottery");
+      setLevel(existingCourse.level || "Beginner");
+
+      if (existingCourse.videos && existingCourse.videos.length > 0) {
+        setNumVideos(existingCourse.videos.length);
+        const mappedVideos: VideoInput[] = existingCourse.videos.map((v: any) => {
+          const isYoutube = !v.youtube_id?.includes("supabase.co");
+          return {
+            title: v.title || "",
+            description: v.description || "",
+            sourceType: isYoutube ? "youtube" : "native",
+            youtubeId: isYoutube ? v.youtube_id : "",
+            nativeFileName: isYoutube ? "" : "Existing Video File",
+            durationMinutes: v.duration_minutes || 0,
+            thumbnailPreview: v.thumbnail || "",
+          };
+        });
+        setVideos(mappedVideos);
+      }
+    }
+  }, [existingCourse]);
 
   const recalculateAutoThumbnail = (v: VideoInput) => {
      if (v.sourceType === "youtube" && v.youtubeId) {
@@ -351,13 +384,25 @@ export default function CreateCourseModal({
         videos: processedVideos,
       };
 
-      console.log("[CreateCourse] Inserting payload:", JSON.stringify(payload, null, 2));
+      if (existingCourse?.id) {
+        console.log("[CreateCourse] Updating payload:", JSON.stringify(payload, null, 2));
+        const { error: updateError } = await supabase
+          .from("courses")
+          .update(payload)
+          .eq("id", existingCourse.id);
 
-      const { error: insertError } = await supabase.from("courses").insert(payload);
+        if (updateError) {
+          console.error("[CreateCourse] DB update error:", updateError);
+          throw updateError;
+        }
+      } else {
+        console.log("[CreateCourse] Inserting payload:", JSON.stringify(payload, null, 2));
+        const { error: insertError } = await supabase.from("courses").insert(payload);
 
-      if (insertError) {
-        console.error("[CreateCourse] DB error:", insertError);
-        throw insertError;
+        if (insertError) {
+          console.error("[CreateCourse] DB insert error:", insertError);
+          throw insertError;
+        }
       }
 
       onSaved();
@@ -378,8 +423,8 @@ export default function CreateCourseModal({
           {/* Header Section */}
           <div className={styles.header}>
             <div>
-              <h2 className={styles.title}>Add New Course</h2>
-              <p className={styles.hindiSubtitle}>नया पाठ्यक्रम</p>
+              <h2 className={styles.title}>{existingCourse ? "Edit Course" : "Add New Course"}</h2>
+              <p className={styles.hindiSubtitle}>{existingCourse ? "पाठ्यक्रम संपादित करें" : "नया पाठ्यक्रम"}</p>
             </div>
             <button
               type="button"
@@ -957,13 +1002,13 @@ export default function CreateCourseModal({
                 className={styles.submitBtnPrimary}
                 disabled={loading}
               >
-                {loading ? "Saving & Uploading..." : "Create Course"}
+                {loading ? "Saving & Uploading..." : (existingCourse ? "Update Course" : "Create Course")}
                 {!loading && (
                   <span
                     className="material-symbols-outlined"
                     style={{ fontSize: "0.875rem" }}
                   >
-                    arrow_forward
+                    {existingCourse ? "check" : "arrow_forward"}
                   </span>
                 )}
               </button>

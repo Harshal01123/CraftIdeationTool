@@ -240,7 +240,7 @@ export default function Courses() {
             })
           )}
           
-          {!loading && courses.length === 0 && (
+          {!loading && visibleAllCourses.length === 0 && (
             <div style={{ textAlign: "center", padding: "4rem", color: "var(--outline)" }}>
               <span className="material-symbols-outlined" style={{ fontSize: "3rem", marginBottom: "1rem" }}>{fetchError ? 'error' : 'school'}</span>
               {fetchError ? (
@@ -249,7 +249,7 @@ export default function Courses() {
                   <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>Check your browser console for more details.</p>
                 </div>
               ) : (
-                <p>No master classes available yet. Artisans can create new courses from their dashboard.</p>
+                <p>No master classes available to enroll in yet. Check back soon for new artisan courses!</p>
               )}
             </div>
           )}

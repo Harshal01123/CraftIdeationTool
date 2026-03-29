@@ -21,6 +21,8 @@ interface Course {
   videos: Video[];
 }
 
+export const OPEN_EDIT_COURSE_MODAL_EVENT = "dashboard:open-edit-course-modal";
+
 function formatDuration(minutes: number) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -41,7 +43,7 @@ function MyCourses() {
     setLoading(true);
     const { data, error } = await supabase
       .from("courses")
-      .select("id, title, category, level, thumbnail, duration_minutes, videos")
+      .select("id, title, category, description, level, thumbnail, duration_minutes, videos")
       .eq("artisan_id", uid)
       .order("created_at", { ascending: false });
     if (error) console.error("Error fetching courses:", error);
@@ -90,23 +92,6 @@ function MyCourses() {
       <div className={styles.grainOverlay}></div>
       <div className={styles.contentWrap}>
 
-        <div>
-          <h2 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "3rem",
-            fontWeight: 300,
-            fontStyle: "italic",
-            color: "var(--on-surface)",
-            margin: 0
-          }}>My Courses</h2>
-          <p style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "0.95rem",
-            color: "var(--on-surface-variant)",
-            marginTop: "0.5rem"
-          }}>All the master classes you have created — click any to manage.</p>
-        </div>
-
         {loading ? (
           <Spinner size="lg" label="Loading your courses..." />
         ) : courses.length === 0 ? (
@@ -149,6 +134,17 @@ function MyCourses() {
                           }}
                         />
                         <div className={styles.levelBadge}>{course.level}</div>
+                        {/* Edit button */}
+                        <button
+                          className={styles.editBtn}
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             window.dispatchEvent(new CustomEvent(OPEN_EDIT_COURSE_MODAL_EVENT, { detail: { course } }));
+                          }}
+                          title="Edit Course"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", color: "var(--primary)" }}>edit</span>
+                        </button>
                         {/* Delete button */}
                         <button
                           className={styles.deleteBtn}

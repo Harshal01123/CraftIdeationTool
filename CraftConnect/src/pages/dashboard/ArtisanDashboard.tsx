@@ -5,7 +5,10 @@ import { supabase } from "../../lib/supabase";
 import type { Product, Purchase } from "../../types/chat";
 import Spinner from "../../components/Spinner";
 import styles from "./Dashboard.module.css";
-import { PRODUCT_SAVED_EVENT, COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
+import {
+  PRODUCT_SAVED_EVENT,
+  COURSE_SAVED_EVENT,
+} from "../../layouts/DashboardLayout";
 
 interface ProductRatingSummary {
   product_id: string;
@@ -39,10 +42,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
   const [ratingsMap, setRatingsMap] = useState<
     Record<string, ProductRatingSummary>
   >({});
-
-  // Deletion modal state
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   async function fetchProducts() {
     const [{ data }, { data: ratingsData }] = await Promise.all([
@@ -100,17 +99,28 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
       .channel(`artisan-sales-dashboard-${artisanId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "purchases", filter: `artisan_id=eq.${artisanId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "purchases",
+          filter: `artisan_id=eq.${artisanId}`,
+        },
         () => fetchSales(),
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [artisanId]);
 
   useEffect(() => {
-    function handleProductSaved() { fetchProducts(); }
-    function handleCourseSaved() { fetchCourses(); }
+    function handleProductSaved() {
+      fetchProducts();
+    }
+    function handleCourseSaved() {
+      fetchCourses();
+    }
     window.addEventListener(PRODUCT_SAVED_EVENT, handleProductSaved);
     window.addEventListener(COURSE_SAVED_EVENT, handleCourseSaved);
     return () => {
@@ -119,35 +129,23 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
     };
   }, []);
 
-  function handleDeleteRequest(product: Product) { setProductToDelete(product); }
-
-  async function confirmDelete() {
-    if (!productToDelete) return;
-    setIsDeleting(true);
-    if (productToDelete.image_url) {
-      const path = productToDelete.image_url.split("/products/")[1];
-      if (path) await supabase.storage.from("products").remove([path]);
-    }
-    await supabase.from("products").delete().eq("id", productToDelete.id);
-    setProductToDelete(null);
-    setIsDeleting(false);
-    fetchProducts();
-  }
-
-  function handleEdit(product: Product) {
-    window.dispatchEvent(
-      new CustomEvent(OPEN_EDIT_PRODUCT_MODAL_EVENT, { detail: { product } }),
-    );
-  }
-
   // Computed KPIs
   const activeOrders = sales.filter((s) => s.status !== "completed").length;
   const totalRevenue = sales.reduce((sum, s) => sum + (s.total_price || 0), 0);
-  const totalStudents = courses.reduce((sum, c) => sum + (c.videos?.length || 0), 0);
-  const artisanRatings = products.map((p) => ratingsMap[p.id]).filter(Boolean).filter((r) => r.total_ratings > 0);
+  const totalStudents = courses.reduce(
+    (sum, c) => sum + (c.videos?.length || 0),
+    0,
+  );
+  const artisanRatings = products
+    .map((p) => ratingsMap[p.id])
+    .filter(Boolean)
+    .filter((r) => r.total_ratings > 0);
   const storeRating =
     artisanRatings.length > 0
-      ? (artisanRatings.reduce((s, r) => s + Number(r.avg_rating), 0) / artisanRatings.length).toFixed(1)
+      ? (
+          artisanRatings.reduce((s, r) => s + Number(r.avg_rating), 0) /
+          artisanRatings.length
+        ).toFixed(1)
       : "—";
 
   const formatRevenue = (n: number) => {
@@ -170,7 +168,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
 
   return (
     <section className={styles.hero}>
-
       {/* Welcome Banner */}
       <div className={styles.welcomeBanner}>
         <div className={styles.welcomeContent}>
@@ -179,16 +176,30 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             Namaste, {profile?.name?.split(" ")[0] || "Artisan"}
           </h2>
           <p className={styles.welcomeText}>
-            Your curation has seen increased interest this week. Launch your new collections today.
+            Your curation has seen increased interest this week. Launch your new
+            collections today.
           </p>
-          <button className={styles.viewAnalyticsBtn} onClick={() => navigate("/dashboard/courses")}>
+          <button
+            className={styles.viewAnalyticsBtn}
+            onClick={() => navigate("/dashboard/courses")}
+          >
             View Analytics
-            <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>arrow_forward</span>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: "1rem" }}
+            >
+              arrow_forward
+            </span>
           </button>
         </div>
         <div className={styles.welcomePattern}></div>
         <div className={styles.welcomeIcon}>
-          <span className="material-symbols-outlined" style={{ fontSize: "inherit" }}>brush</span>
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: "inherit" }}
+          >
+            brush
+          </span>
         </div>
       </div>
 
@@ -197,9 +208,13 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
-              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>account_balance_wallet</span>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>
+                account_balance_wallet
+              </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+12%</span>
+            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
+              +12%
+            </span>
           </div>
           <p className={styles.kpiValue}>{formatRevenue(totalRevenue)}</p>
           <p className={styles.kpiLabel}>Total Revenue</p>
@@ -207,9 +222,13 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
-              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>assignment</span>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>
+                assignment
+              </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+5%</span>
+            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
+              +5%
+            </span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
           <p className={styles.kpiLabel}>Orders Generated</p>
@@ -217,9 +236,13 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
-              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>school</span>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>
+                school
+              </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+{totalStudents}</span>
+            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
+              +{totalStudents}
+            </span>
           </div>
           <p className={styles.kpiValue}>{courses.length}</p>
           <p className={styles.kpiLabel}>My Courses</p>
@@ -227,13 +250,22 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
-              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>star</span>
+              <span className={`material-symbols-outlined ${styles.kpiIcon}`}>
+                star
+              </span>
             </div>
-            <span className={`${styles.kpiBadge} ${storeRating !== "—" ? styles.kpiBadgeSuccess : styles.kpiBadgeNeutral}`}>
+            <span
+              className={`${styles.kpiBadge} ${storeRating !== "—" ? styles.kpiBadgeSuccess : styles.kpiBadgeNeutral}`}
+            >
               {storeRating !== "—" ? "Top 1%" : "—"}
             </span>
           </div>
-          <p className={styles.kpiValue}>{storeRating}{storeRating !== "—" && <span className={styles.kpiValueSub}>/5</span>}</p>
+          <p className={styles.kpiValue}>
+            {storeRating}
+            {storeRating !== "—" && (
+              <span className={styles.kpiValueSub}>/5</span>
+            )}
+          </p>
           <p className={styles.kpiLabel}>Store Rating</p>
         </div>
       </div>
@@ -242,7 +274,9 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
       <div>
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>Recent Orders</h3>
-          <Link to="/dashboard/messages" className={styles.viewAllBtn}>View All Orders</Link>
+          <Link to="/dashboard/messages" className={styles.viewAllBtn}>
+            View All Orders
+          </Link>
         </div>
         {salesLoading ? (
           <Spinner label="Loading orders..." />
@@ -264,23 +298,48 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
               <tbody>
                 {sales.slice(0, 5).map((sale) => (
                   <tr key={sale.id}>
-                    <td className={styles.orderId}>#{sale.id.slice(0, 8).toUpperCase()}</td>
+                    <td className={styles.orderId}>
+                      #{sale.id.slice(0, 8).toUpperCase()}
+                    </td>
                     <td>
                       <div className={styles.tableProductInfo}>
                         <div className={styles.tableProductImgBox}>
                           {sale.product?.image_url ? (
-                            <img src={sale.product.image_url} alt="" className={styles.tableProductImg} />
+                            <img
+                              src={sale.product.image_url}
+                              alt=""
+                              className={styles.tableProductImg}
+                            />
                           ) : (
-                            <div style={{ background: "var(--surface-container-high)", width: "100%", height: "100%", borderRadius: "4px" }}></div>
+                            <div
+                              style={{
+                                background: "var(--surface-container-high)",
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "4px",
+                              }}
+                            ></div>
                           )}
                         </div>
-                        <span className={styles.productName}>{sale.product?.name || "Unknown Product"}</span>
+                        <span className={styles.productName}>
+                          {sale.product?.name || "Unknown Product"}
+                        </span>
                       </div>
                     </td>
-                    <td className={styles.customerName}>{sale.customer?.name || "Unknown"}</td>
-                    <td className={styles.orderDate}>{new Date(sale.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
+                    <td className={styles.customerName}>
+                      {sale.customer?.name || "Unknown"}
+                    </td>
+                    <td className={styles.orderDate}>
+                      {new Date(sale.created_at).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
                     <td>
-                      <span className={getStatusClass(sale.status)}>{getStatusLabel(sale.status)}</span>
+                      <span className={getStatusClass(sale.status)}>
+                        {getStatusLabel(sale.status)}
+                      </span>
                     </td>
                     <td className={styles.amount}>₹{sale.total_price}</td>
                   </tr>
@@ -297,23 +356,46 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>My Products</h3>
-            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/my-products")}>View All</button>
+            <button
+              className={styles.viewAllBtn}
+              onClick={() => navigate("/dashboard/my-products")}
+            >
+              View All
+            </button>
           </div>
           {loading ? (
             <Spinner label="Loading products..." />
           ) : products.length === 0 ? (
-            <p className={styles.empty}>No products yet. Use "New Collection" to add one.</p>
+            <p className={styles.empty}>
+              No products yet. Use "New Collection" to add one.
+            </p>
           ) : (
             <div className={styles.productsGrid}>
               {products.slice(0, 4).map((p) => {
                 const rating = ratingsMap[p.id];
                 return (
-                  <div key={p.id} className={styles.productMiniCard} onClick={() => navigate(`/dashboard/products/${p.id}`)}>
+                  <div
+                    key={p.id}
+                    className={styles.productMiniCard}
+                    onClick={() => navigate(`/dashboard/products/${p.id}`)}
+                  >
                     <div className={styles.productMiniThumb}>
                       {p.image_url ? (
-                        <img src={p.image_url} alt={p.name} className={styles.productMiniImg} />
+                        <img
+                          src={p.image_url}
+                          alt={p.name}
+                          className={styles.productMiniImg}
+                        />
                       ) : (
-                        <span className="material-symbols-outlined" style={{ fontSize: "2rem", color: "var(--outline-variant)" }}>image</span>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: "2rem",
+                            color: "var(--outline-variant)",
+                          }}
+                        >
+                          image
+                        </span>
                       )}
                     </div>
                     <div className={styles.productMiniBody}>
@@ -324,18 +406,18 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                       <p className={styles.productMiniPrice}>₹{p.price}</p>
                       {rating && rating.total_ratings > 0 && (
                         <div className={styles.productMiniRating}>
-                          <span className="material-symbols-outlined" style={{ fontSize: "0.85rem", color: "var(--secondary)" }}>star</span>
+                          <span
+                            className="material-symbols-outlined"
+                            style={{
+                              fontSize: "0.85rem",
+                              color: "var(--secondary)",
+                            }}
+                          >
+                            star
+                          </span>
                           <span>{Number(rating.avg_rating).toFixed(1)}</span>
                         </div>
                       )}
-                    </div>
-                    <div className={styles.productMiniActions}>
-                      <button className={styles.productMiniEdit} onClick={(e) => { e.stopPropagation(); handleEdit(p); }} title="Edit">
-                        <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>edit</span>
-                      </button>
-                      <button className={styles.productMiniDelete} onClick={(e) => { e.stopPropagation(); handleDeleteRequest(p); }} title="Delete">
-                        <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>delete</span>
-                      </button>
                     </div>
                   </div>
                 );
@@ -348,30 +430,58 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         <div>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>My Courses</h3>
-            <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/my-courses")}>View All</button>
+            <button
+              className={styles.viewAllBtn}
+              onClick={() => navigate("/dashboard/my-courses")}
+            >
+              View All
+            </button>
           </div>
           {coursesLoading ? (
             <Spinner label="Loading courses..." />
           ) : courses.length === 0 ? (
-            <p className={styles.empty}>No courses yet. Use "New Course" to create one.</p>
+            <p className={styles.empty}>
+              No courses yet. Use "New Course" to create one.
+            </p>
           ) : (
             <div className={styles.coursesList}>
               {courses.slice(0, 4).map((c) => (
-                <div key={c.id} className={styles.courseListItem} onClick={() => navigate(`/dashboard/courses/${c.id}`)}>
+                <div
+                  key={c.id}
+                  className={styles.courseListItem}
+                  onClick={() => navigate(`/dashboard/courses/${c.id}`)}
+                >
                   <div className={styles.courseListThumb}>
                     {c.thumbnail ? (
-                      <img src={c.thumbnail} alt={c.title} className={styles.courseListImg} />
+                      <img
+                        src={c.thumbnail}
+                        alt={c.title}
+                        className={styles.courseListImg}
+                      />
                     ) : (
-                      <span className="material-symbols-outlined" style={{ fontSize: "1.5rem", color: "var(--outline-variant)" }}>play_circle</span>
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: "1.5rem",
+                          color: "var(--outline-variant)",
+                        }}
+                      >
+                        play_circle
+                      </span>
                     )}
                   </div>
                   <div className={styles.courseListBody}>
                     <p className={styles.courseListTitle}>{c.title}</p>
-                    {c.description && <p className={styles.courseListDesc}>{c.description}</p>}
+                    {c.description && (
+                      <p className={styles.courseListDesc}>{c.description}</p>
+                    )}
                     <div className={styles.courseListMeta}>
                       <span className={styles.courseListLevel}>{c.level}</span>
                       {c.videos && c.videos.length > 0 && (
-                        <span className={styles.courseListVideos}>{c.videos.length} video{c.videos.length !== 1 ? "s" : ""}</span>
+                        <span className={styles.courseListVideos}>
+                          {c.videos.length} video
+                          {c.videos.length !== 1 ? "s" : ""}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -381,26 +491,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
           )}
         </div>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {productToDelete && (
-        <div className={styles.popupOverlay} onClick={() => !isDeleting && setProductToDelete(null)}>
-          <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
-            <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f" }}>warning</span>
-            <h3>Delete Product?</h3>
-            <p>
-              Are you sure you want to delete <strong>{productToDelete.name}</strong>?
-              This action cannot be undone.
-            </p>
-            <div className={styles.popupActions}>
-              <button className={styles.cancelBtn} onClick={() => setProductToDelete(null)} disabled={isDeleting}>Cancel</button>
-              <button className={styles.deleteConfirmBtn} onClick={confirmDelete} disabled={isDeleting}>
-                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
