@@ -199,7 +199,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>account_balance_wallet</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+12%</span>
           </div>
           <p className={styles.kpiValue}>{formatRevenue(totalRevenue)}</p>
           <p className={styles.kpiLabel}>Total Revenue</p>
@@ -209,17 +208,15 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>assignment</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+5%</span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
-          <p className={styles.kpiLabel}>Orders Generated</p>
+          <p className={styles.kpiLabel}>Orders Accepted</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>school</span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>+{totalStudents}</span>
           </div>
           <p className={styles.kpiValue}>{courses.length}</p>
           <p className={styles.kpiLabel}>My Courses</p>
@@ -229,9 +226,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             <div className={styles.kpiIconBox}>
               <span className={`material-symbols-outlined ${styles.kpiIcon}`}>star</span>
             </div>
-            <span className={`${styles.kpiBadge} ${storeRating !== "—" ? styles.kpiBadgeSuccess : styles.kpiBadgeNeutral}`}>
-              {storeRating !== "—" ? "Top 1%" : "—"}
-            </span>
           </div>
           <p className={styles.kpiValue}>{storeRating}{storeRating !== "—" && <span className={styles.kpiValueSub}>/5</span>}</p>
           <p className={styles.kpiLabel}>Store Rating</p>
