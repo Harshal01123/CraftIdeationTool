@@ -46,6 +46,13 @@ export default function Courses() {
   
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  const COURSES_PER_ROW = 6;
+
+  const toggleCategory = (categoryName: string) => {
+    setExpandedCategories(prev => ({ ...prev, [categoryName]: !prev[categoryName] }));
+  };
 
   const fetchCourses = async () => {
     setLoading(true);
@@ -155,15 +162,33 @@ export default function Courses() {
               };
               const hindiName = hindiTranslations[category.name] || "";
 
+              const isExpanded = expandedCategories[category.name] || false;
+              const visibleCourses = isExpanded ? matchedCourses : matchedCourses.slice(0, COURSES_PER_ROW);
+              const hasMore = matchedCourses.length > COURSES_PER_ROW;
+
               return (
                 <section key={category.name} className={styles.categorySection}>
                   <div className={styles.categoryHeader}>
-                    <h3 className={styles.categoryTitle}>{category.name}</h3>
-                    {hindiName && <span className={styles.hindiAccent}>{hindiName}</span>}
+                    <div className={styles.categoryTitleGroup}>
+                      <h3 className={styles.categoryTitle}>{category.name}</h3>
+                      {hindiName && <span className={styles.hindiAccent}>{hindiName}</span>}
+                    </div>
+                    {hasMore && (
+                      <button
+                        className={styles.viewAllBtn}
+                        onClick={() => toggleCategory(category.name)}
+                      >
+                        {isExpanded ? (
+                          <><span className="material-symbols-outlined">expand_less</span> Show Less</>
+                        ) : (
+                          <><span className="material-symbols-outlined">expand_more</span> View All ({matchedCourses.length})</>
+                        )}
+                      </button>
+                    )}
                   </div>
                   
                   <div className={styles.courseGrid}>
-                    {matchedCourses.map(course => (
+                    {visibleCourses.map(course => (
                       <div 
                         key={course.id} 
                         className={styles.courseCard}

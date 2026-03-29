@@ -39,9 +39,46 @@
 
 .categoryHeader {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 1.5rem;
   margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.categoryTitleGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.viewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--primary);
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius: 2rem;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.viewAllBtn:hover {
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: var(--primary);
+}
+
+.viewAllBtn .material-symbols-outlined {
+  font-size: 1rem;
 }
 
 .categoryTitle {
