@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import type { Profile, Purchase } from "../../types/chat";
+import { sendOffer, updateOfferStatus } from "../../lib/chatUtils";
+import type { Profile, OfferPayload, Product } from "../../types/chat";
 import { useChat } from "../../hooks/useChat";
+import { useMode } from "../../contexts/ModeContext";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import ClosedChatBanner from "./ClosedChatBanner";
+import PriceSetDialog from "./PriceSetDialog";
+import ArtisanProductPicker from "./ArtisanProductPicker";
 import Button from "../Button";
 import Spinner from "../Spinner";
 import styles from "./ChatWindow.module.css";
-import { useMode } from "../../contexts/ModeContext";
 
 interface Props {
   conversationId: string;
@@ -19,153 +22,139 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   const { messages, conversation, loading, sendMessage, closeConversation } =
     useChat(conversationId, currentProfile);
 
-  const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const messageListRef = useRef<HTMLDivElement>(null);
+  const [isActing, setIsActing] = useState(false);
+  const [bargainTarget, setBargainTarget] = useState<OfferPayload | null>(null);
+  const [showNewOfferPicker, setShowNewOfferPicker] = useState(false);
+  // Track which offer message IDs have already been acted on (prevents double-click)
+  const [actedOfferIds, setActedOfferIds] = useState<Set<string>>(new Set());
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { activeMode } = useMode();
-  const isCustomer = activeMode === "customer" || activeMode === "learner" || currentProfile.role === "user";
+
   const isArtisan = activeMode === "artisan";
 
-  // Scroll to bottom of message list without triggering page scroll
+  function markActed(id: string) {
+    setActedOfferIds((prev) => new Set([...prev, id]));
+  }
+
+  // Auto-scroll
   useEffect(() => {
-    const el = messageListRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch purchase details
-  useEffect(() => {
-    async function fetchPurchase() {
-      const { data } = await supabase
-        .from("purchases")
-        .select("*, product:products(name, price)")
-        .eq("conversation_id", conversationId)
-        .maybeSingle();
-
-      setPurchase(data as Purchase);
+  // Find the latest OFFER message that is "pending"
+  const latestPendingOffer = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.type !== "OFFER") continue;
+      try {
+        const p = JSON.parse(m.content) as OfferPayload;
+        if (p.status === "pending") return { message: m, payload: p };
+      } catch { /* skip */ }
     }
-    fetchPurchase();
-  }, [conversationId]);
+    return null;
+  }, [messages]);
 
-  // Real-time purchase updates
-  useEffect(() => {
-    if (!purchase?.id) return;
+  // Last offer payload regardless of status (for "New Offer" re-use)
+  const lastOfferPayload = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.type !== "OFFER") continue;
+      try { return JSON.parse(m.content) as OfferPayload; } catch { /* skip */ }
+    }
+    return null;
+  }, [messages]);
 
-    const channel = supabase
-      .channel(`purchase-${purchase.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "purchases",
-          filter: `id=eq.${purchase.id}`,
-        },
-        (payload) => {
-          setPurchase((prev) => (prev ? { ...prev, ...payload.new } : null));
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [purchase?.id]);
+  // Synthetic Product built from last offer for PriceSetDialog
+  const lastOfferProduct: Product | null = (lastOfferPayload && conversation)
+    ? {
+        id: lastOfferPayload.productId,
+        artisan_id: conversation.artisan_id,
+        name: lastOfferPayload.productName,
+        description: null,
+        price: lastOfferPayload.listedPrice,
+        category: null,
+        image_url: lastOfferPayload.imageUrl,
+        is_available: true,
+        created_at: "",
+      }
+    : null;
 
   async function handleClose() {
     await closeConversation();
     setShowConfirm(false);
   }
 
-  async function handleOrderConfirmation(side: "customer" | "artisan") {
-    if (!purchase || isUpdating) return;
+  // ── Accept offer ──
+  async function handleAccept(messageId: string, payload: OfferPayload) {
+    markActed(messageId); // prevent re-click immediately
+    setIsActing(true);
+    await updateOfferStatus(messageId, "accepted");
 
-    const actsAsCustomer =
-      purchase.customer_id === currentProfile.id || isCustomer;
-    const actsAsArtisan =
-      purchase.artisan_id === currentProfile.id || isArtisan;
+    // Create purchase record
+    await supabase.from("purchases").insert({
+      customer_id: conversation!.customer_id,
+      artisan_id: conversation!.artisan_id,
+      product_id: payload.productId,
+      total_price: payload.offeredPrice,
+      status: "pending",
+      conversation_id: conversationId,
+      confirmed_by_customer: false,
+      confirmed_by_artisan: false,
+    });
 
-    if (side === "customer" && !actsAsCustomer) return;
-    if (side === "artisan" && !actsAsArtisan) return;
+    await sendMessage(
+      `✅ Offer accepted! ₹${payload.offeredPrice.toLocaleString()} agreed for “${payload.productName}”. Order has been placed.`,
+      "SYSTEM"
+    );
+    setIsActing(false);
+  }
 
-    if (actsAsCustomer && purchase.confirmed_by_customer) return;
-    if (actsAsArtisan && purchase.confirmed_by_artisan) return;
-    if (!actsAsCustomer && !actsAsArtisan) return;
+  // ── Reject offer — sends role-aware messages, keeps chat open ──
+  async function handleReject(messageId: string, payload: OfferPayload) {
+    markActed(messageId); // prevent re-click immediately
+    setIsActing(true);
+    await updateOfferStatus(messageId, "rejected");
 
-    setIsUpdating(true);
+    const rejectorLabel = isArtisan ? "Artisan" : "Customer";
+    const otherLabel    = isArtisan ? "customer" : "artisan";
 
-    const updates: Partial<Purchase> = {};
-    if (side === "customer") {
-      updates.confirmed_by_customer = true;
-    } else {
-      updates.confirmed_by_artisan = true;
-    }
+    // Message seen by BOTH (stored once, rendered for all)
+    // Encode rejector role in the content so each side can contextualise it
+    await sendMessage(
+      `REJECTED_BY:${currentProfile.id}|${rejectorLabel} declined the offer for “${payload.productName}” (₹${payload.offeredPrice.toLocaleString()}).${
+        !isArtisan ? " You can make a new offer below." : " The " + otherLabel + " may make a new offer."
+      }`,
+      "SYSTEM"
+    );
+    setIsActing(false);
+  }
 
-    // Optimistic update
-    setPurchase((prev) => (prev ? { ...prev, ...updates } : null));
+  // ── Send counter-offer ──
+  async function handleBargain(originalPayload: OfferPayload, newPrice: number, messageId: string) {
+    markActed(messageId); // prevent re-click immediately
+    setIsActing(true);
+    await updateOfferStatus(messageId, "countered");
 
-    let confirmQuery = supabase
-      .from("purchases")
-      .update(updates)
-      .eq("id", purchase.id);
-    if (side === "customer") {
-      confirmQuery = confirmQuery.eq("confirmed_by_customer", false);
-    } else {
-      confirmQuery = confirmQuery.eq("confirmed_by_artisan", false);
-    }
+    await sendOffer({
+      conversationId,
+      senderId: currentProfile.id,
+      senderRole: isArtisan ? "artisan" : "customer",
+      payload: {
+        productId: originalPayload.productId,
+        productName: originalPayload.productName,
+        imageUrl: originalPayload.imageUrl,
+        listedPrice: originalPayload.listedPrice,
+        offeredPrice: newPrice,
+      },
+    });
 
-    const { error } = await confirmQuery;
-
-    if (error) {
-      console.error("Error updating purchase:", error);
-      setIsUpdating(false);
-      return;
-    }
-
-    const { data: freshPurchase } = await supabase
-      .from("purchases")
-      .select("*")
-      .eq("id", purchase.id)
-      .maybeSingle();
-
-    const latest = freshPurchase as Purchase | null;
-    if (latest) setPurchase(latest);
-
-    const bothConfirmed =
-      Boolean(latest?.confirmed_by_customer) &&
-      Boolean(latest?.confirmed_by_artisan);
-
-    if (bothConfirmed) {
-      const { error: completeError } = await supabase
-        .from("purchases")
-        .update({ status: "completed" })
-        .eq("id", purchase.id)
-        .neq("status", "completed");
-
-      if (!completeError) {
-        await sendMessage(
-          "Order confirmed by both parties! Transaction completed.",
-          "SYSTEM",
-        );
-        setPurchase((prev) => (prev ? { ...prev, status: "completed" } : prev));
-      }
-    } else {
-      await sendMessage(
-        side === "customer"
-          ? "Customer confirmed receipt. Waiting for artisan payment confirmation."
-          : "Artisan confirmed payment received. Waiting for customer receipt confirmation.",
-        "SYSTEM",
-      );
-    }
-    setIsUpdating(false);
+    setBargainTarget(null);
+    setIsActing(false);
   }
 
   if (loading) {
-    return (
-      <div className={styles.status}>
-        <Spinner label="Loading messages..." />
-      </div>
-    );
+    return <div className={styles.status}><Spinner label="Loading messages..." /></div>;
   }
 
   if (!conversation) {
@@ -174,146 +163,188 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
 
   const other = isArtisan ? conversation.customer : conversation.artisan;
 
+  // Build a synthetic Product object from the bargainTarget payload for PriceSetDialog
+  const bargainProduct: Product | null = bargainTarget
+    ? {
+        id: bargainTarget.productId,
+        artisan_id: conversation.artisan_id,
+        name: bargainTarget.productName,
+        description: null,
+        price: bargainTarget.listedPrice,
+        category: null,
+        image_url: bargainTarget.imageUrl,
+        is_available: true,
+        created_at: "",
+      }
+    : null;
+
   return (
-    <div className={styles.window}>
-      <div className={styles.header}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span className={styles.title}>{other?.name || "Chat"}</span>
-          {conversation.title && (
-            <span className={styles.subtitle}>{conversation.title}</span>
+    <>
+      <div className={styles.window}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span className={styles.title}>{other?.name || "Chat"}</span>
+            {conversation.title && (
+              <span className={styles.subtitle}>{conversation.title}</span>
+            )}
+          </div>
+
+          {conversation.status === "OPEN" ? (
+            !showConfirm ? (
+              <Button variant="secondary" onClick={() => setShowConfirm(true)}>End Chat</Button>
+            ) : (
+              <div className={styles.confirmRow}>
+                <span className={styles.confirmText}>Are you sure?</span>
+                <Button variant="secondary" onClick={handleClose}>Yes</Button>
+                <Button variant="secondary" onClick={() => setShowConfirm(false)}>No</Button>
+              </div>
+            )
+          ) : (
+            <span className={styles.closedBadge}>Archived</span>
           )}
         </div>
 
-        {conversation.status === "OPEN" ? (
-          !showConfirm ? (
-            <Button variant="secondary" onClick={() => setShowConfirm(true)}>
-              End Chat
-            </Button>
+        {/* Messages */}
+        <div className={styles.messageList}>
+          {messages.length === 0 ? (
+            <p className={styles.noMessages}>No messages yet.</p>
           ) : (
-            <div className={styles.confirmRow}>
-              <span className={styles.confirmText}>Are you sure?</span>
-              <Button variant="secondary" onClick={handleClose}>
-                Yes
-              </Button>
-              <Button variant="secondary" onClick={() => setShowConfirm(false)}>
-                No
-              </Button>
-            </div>
-          )
-        ) : (
-          <span className={styles.closedBadge}>Archived</span>
-        )}
-      </div>
+            messages.map((msg) => {
+              const payload = msg.type === "OFFER"
+                ? (() => { try { return JSON.parse(msg.content) as OfferPayload; } catch { return null; } })()
+                : null;
+              
+              const isThisLatestPending =
+                latestPendingOffer?.message.id === msg.id &&
+                !actedOfferIds.has(msg.id) &&
+                payload?.status === "pending";
 
-      {/* Order Action Panel */}
-      {purchase && (
-        <div className={styles.orderPanel}>
-          <div className={styles.orderInfo}>
-            <span>
-              Order: <strong>{purchase.product?.name}</strong>
-            </span>
-            <span>₹{purchase.total_price}</span>
-          </div>
-
-          <div className={styles.orderStatus}>
-            <div
-              className={
-                purchase.confirmed_by_customer
-                  ? styles.stepDone
-                  : styles.stepPending
-              }
-            >
-              CUST: {purchase.confirmed_by_customer ? "Received" : "Pending"}
-            </div>
-            <div
-              className={
-                purchase.confirmed_by_artisan
-                  ? styles.stepDone
-                  : styles.stepPending
-              }
-            >
-              ART:{" "}
-              {purchase.confirmed_by_artisan ? "Payment Confirmed" : "Pending"}
-            </div>
-          </div>
-
-          <div className={styles.orderAction}>
-            {purchase.status === "completed" ? (
-              <span className={styles.completedBanner}>Order Completed</span>
-            ) : (
-              <>
-                {(purchase.customer_id === currentProfile.id || isCustomer) &&
-                  !purchase.confirmed_by_customer && (
-                    <button
-                      className={styles.actionBtn}
-                      onClick={() => handleOrderConfirmation("customer")}
-                      disabled={isUpdating}
-                    >
-                      {isUpdating ? (
-                        <>
-                          <Spinner size="sm" inline />
-                          Confirming...
-                        </>
-                      ) : (
-                        "Confirm Item Received"
-                      )}
-                    </button>
-                  )}
-                {(purchase.artisan_id === currentProfile.id || isArtisan) &&
-                  !purchase.confirmed_by_artisan && (
-                    <button
-                      className={styles.actionBtn}
-                      onClick={() => handleOrderConfirmation("artisan")}
-                      disabled={isUpdating}
-                    >
-                      {isUpdating ? (
-                        <>
-                          <Spinner size="sm" inline />
-                          Confirming...
-                        </>
-                      ) : (
-                        "Confirm Payment Received"
-                      )}
-                    </button>
-                  )}
-
-                {/* Wait Logic */}
-                {(((purchase.customer_id === currentProfile.id || isCustomer) &&
-                  purchase.confirmed_by_customer &&
-                  !purchase.confirmed_by_artisan) ||
-                  ((purchase.artisan_id === currentProfile.id || isArtisan) &&
-                    purchase.confirmed_by_artisan &&
-                    !purchase.confirmed_by_customer)) && (
-                  <span className={styles.waitingText}>
-                    Waiting for other party confirmation...
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+              return (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  currentUserId={currentProfile.id}
+                  isArtisan={isArtisan}
+                  isLatestPendingOffer={isThisLatestPending}
+                  onAccept={isThisLatestPending && payload
+                    ? () => handleAccept(msg.id, payload)
+                    : undefined}
+                  onReject={isThisLatestPending && payload
+                    ? () => handleReject(msg.id, payload)
+                    : undefined}
+                  onBargain={isThisLatestPending && payload
+                    ? () => setBargainTarget(payload)
+                    : undefined}
+                  onMakeNewOffer={!isArtisan ? () => setShowNewOfferPicker(true) : undefined}
+                  disabled={isActing}
+                />
+              );
+            })
+          )}
+          <div ref={bottomRef} />
         </div>
-      )}
 
-      <div className={styles.messageList} ref={messageListRef}>
-        {messages.length === 0 ? (
-          <p className={styles.noMessages}>No messages yet.</p>
+        {conversation.status === "OPEN" ? (
+          <ChatInput
+            onSend={(text) => sendMessage(text)}
+            onReOffer={
+              !isArtisan && lastOfferPayload?.status === "rejected"
+                ? () => setShowNewOfferPicker(true)
+                : undefined
+            }
+          />
         ) : (
-          messages.map((msg) => (
-            <MessageBubble
-              key={msg.id}
-              message={msg}
-              currentUserId={currentProfile.id}
-            />
-          ))
+          <ClosedChatBanner />
         )}
       </div>
 
-      {conversation.status === "OPEN" ? (
-        <ChatInput onSend={(text) => sendMessage(text)} />
-      ) : (
-        <ClosedChatBanner />
+      {/* Bargain / Counter-offer dialog */}
+      {bargainProduct && bargainTarget && (
+        <PriceSetDialog
+          product={bargainProduct}
+          initialPrice={bargainTarget.offeredPrice}
+          title={isArtisan ? "Send Counter Offer" : "Counter Their Offer"}
+          onConfirm={(price) => {
+            const msg = latestPendingOffer?.message;
+            if (!msg) return;
+            handleBargain(bargainTarget, price, msg.id);
+          }}
+          onClose={() => setBargainTarget(null)}
+          isProcessing={isActing}
+        />
       )}
-    </div>
+
+      {/* New Offer flow — customer picks product from this artisan again */}
+      {showNewOfferPicker && conversation && !isArtisan && (
+        lastOfferProduct ? (
+          // Re-offer on the same product via PriceSetDialog
+          <PriceSetDialog
+            product={lastOfferProduct}
+            initialPrice={lastOfferPayload?.offeredPrice}
+            title="Make New Offer"
+            onConfirm={async (price) => {
+              setIsActing(true);
+              await sendOffer({
+                conversationId,
+                senderId: currentProfile.id,
+                senderRole: "customer",
+                payload: {
+                  productId: lastOfferPayload!.productId,
+                  productName: lastOfferPayload!.productName,
+                  imageUrl: lastOfferPayload!.imageUrl,
+                  listedPrice: lastOfferPayload!.listedPrice,
+                  offeredPrice: price,
+                },
+              });
+              setShowNewOfferPicker(false);
+              setIsActing(false);
+            }}
+            onClose={() => setShowNewOfferPicker(false)}
+            isProcessing={isActing}
+          />
+        ) : (
+          // No previous product — show full product picker
+          <div style={{
+            position: "fixed", inset: 0,
+            background: "rgba(43,32,23,0.55)",
+            backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 2000, padding: "1rem",
+          }} onClick={() => setShowNewOfferPicker(false)}>
+            <div style={{
+              background: "var(--surface-container-lowest,#fff)",
+              borderRadius: "1rem", padding: "1.5rem",
+              width: "100%", maxWidth: "480px",
+              boxShadow: "0 24px 60px rgba(43,32,23,0.2)",
+            }} onClick={(e) => e.stopPropagation()}>
+              <ArtisanProductPicker
+                artisan={conversation.artisan!}
+                onOfferConfirmed={async (product, price) => {
+                  setIsActing(true);
+                  await sendOffer({
+                    conversationId,
+                    senderId: currentProfile.id,
+                    senderRole: "customer",
+                    payload: {
+                      productId: product.id,
+                      productName: product.name,
+                      imageUrl: product.image_url,
+                      listedPrice: product.price,
+                      offeredPrice: price,
+                    },
+                  });
+                  setShowNewOfferPicker(false);
+                  setIsActing(false);
+                }}
+                onBack={() => setShowNewOfferPicker(false)}
+                isProcessing={isActing}
+              />
+            </div>
+          </div>
+        )
+      )}
+    </>
   );
 }
 

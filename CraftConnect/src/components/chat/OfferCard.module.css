@@ -1,0 +1,117 @@
+.card {
+  max-width: 320px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -4px rgba(43, 32, 23, 0.15);
+  font-family: var(--font-body, sans-serif);
+  transition: box-shadow 0.2s;
+}
+.card.mine {
+  background: linear-gradient(135deg, #f5efe0 0%, #ede5d0 100%);
+  border: 1px solid rgba(201, 150, 42, 0.3);
+}
+.card.theirs {
+  background: #ffffff;
+  border: 1px solid rgba(43, 32, 23, 0.1);
+}
+
+.inner {
+  display: flex;
+  gap: 0.875rem;
+  padding: 0.875rem;
+}
+
+.thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #ede4d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumbImg { width: 100%; height: 100%; object-fit: cover; }
+.thumbPlaceholder span { font-size: 2rem; opacity: 0.4; }
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.productName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--on-surface, #2b2017);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.listed {
+  font-size: 0.7rem;
+  color: rgba(43, 32, 23, 0.45);
+  text-decoration: line-through;
+  margin: 0;
+}
+
+.offered {
+  font-size: 0.85rem;
+  color: var(--on-surface, #2b2017);
+  margin: 0;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+.pending  { background: rgba(201, 150, 42, 0.12); color: #9a7a00; }
+.accepted { background: #d1fae5; color: #065f46; }
+.rejected { background: #fee2e2; color: #991b1b; }
+.countered { background: #dbeafe; color: #1e40af; }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem 0.875rem;
+  border-top: 1px solid rgba(43, 32, 23, 0.08);
+}
+.actions button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  font-family: var(--font-label, sans-serif);
+}
+.actions button span { font-size: 0.9rem; }
+.actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.actions button:active:not(:disabled) { transform: scale(0.97); }
+
+.btnAccept  { background: #15803d; color: white; }
+.btnAccept:hover:not(:disabled) { opacity: 0.88; }
+.btnBargain { background: #1e40af; color: white; }
+.btnBargain:hover:not(:disabled) { opacity: 0.88; }
+.btnReject  { background: #dc2626; color: white; }
+.btnReject:hover:not(:disabled) { opacity: 0.88; }

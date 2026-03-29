@@ -39,7 +39,7 @@ export function useChat(
       supabase.removeChannel(channelRef.current);
     }
 
-    const channel = supabase
+    const messagesChannel = supabase
       .channel(`messages-${conversationId}`)
       .on(
         "postgres_changes",
@@ -57,12 +57,26 @@ export function useChat(
           });
         },
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `id=eq.${conversationId}`,
+        },
+        (payload) => {
+          setConversation((prev) => 
+            prev ? { ...prev, ...(payload.new as Conversation) } : prev
+          );
+        }
+      )
       .subscribe();
 
-    channelRef.current = channel;
+    channelRef.current = messagesChannel;
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
     };
   }, [conversationId]);
 
@@ -99,12 +113,13 @@ export function useChat(
       })
       .eq("id", conversationId);
 
+    // Encode who closed the chat
     await supabase.from("messages").insert({
       conversation_id: conversationId,
       sender_id: null,
       sender_role: "system",
       type: "SYSTEM",
-      content: `Conversation closed by ${currentProfile.name}.`,
+      content: `CLOSED_BY:${currentProfile.id}|closed the chat.`,
     });
 
     setConversation((prev) => (prev ? { ...prev, status: "CLOSED" } : prev));

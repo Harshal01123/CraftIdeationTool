@@ -1,28 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import type { Purchase } from "../../types/chat";
 import Spinner from "../../components/Spinner";
 import styles from "./Dashboard.module.css";
+import RatingModal from "../../components/ratings/RatingModal";
 
 function CustomerDashboard({ customerId }: { customerId: string }) {
   const { profile } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [ratedArtisans, setRatedArtisans] = useState<Set<string>>(new Set());
+  const [ratedProducts, setRatedProducts] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  async function fetchPurchases() {
-    const { data } = await supabase
-      .from("purchases")
-      .select("*, product:products(*)")
-      .eq("customer_id", customerId)
-      .order("created_at", { ascending: false });
+  // Rating Modal State
+  const [ratingTarget, setRatingTarget] = useState<{
+    type: "artisan" | "product";
+    id: string;
+    name: string;
+    image?: string;
+  } | null>(null);
+  const [ratingProcessing, setRatingProcessing] = useState(false);
 
-    setPurchases((data as Purchase[]) ?? []);
+  async function fetchPurchasesAndRatings() {
+    const [purchasesRes, artisanRatingsRes, productRatingsRes] = await Promise.all([
+      supabase
+        .from("purchases")
+        .select("*, product:products(*), artisan:profiles!artisan_id(*)")
+        .eq("customer_id", customerId)
+        .order("created_at", { ascending: false }),
+      supabase.from("artisan_ratings").select("artisan_id").eq("reviewer_id", customerId),
+      supabase.from("product_ratings").select("product_id").eq("reviewer_id", customerId),
+    ]);
+
+    setPurchases((purchasesRes.data as Purchase[]) ?? []);
+    if (artisanRatingsRes.data) {
+      setRatedArtisans(new Set(artisanRatingsRes.data.map((r) => r.artisan_id)));
+    }
+    if (productRatingsRes.data) {
+      setRatedProducts(new Set(productRatingsRes.data.map((r) => r.product_id)));
+    }
     setLoading(false);
   }
 
   useEffect(() => {
-    fetchPurchases();
+    fetchPurchasesAndRatings();
 
     const channel = supabase
       .channel(`customer-purchases-${customerId}`)
@@ -34,7 +56,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
           table: "purchases",
           filter: `customer_id=eq.${customerId}`,
         },
-        () => fetchPurchases(),
+        () => fetchPurchasesAndRatings(),
       )
       .subscribe();
 
@@ -48,6 +70,56 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
     (sum, p) => sum + Number(p.total_price),
     0,
   );
+
+  const pendingReviews = useMemo(() => {
+    const pending: Array<{ type: "artisan" | "product"; id: string; name: string; image?: string }> = [];
+    const seenArtisans = new Set<string>();
+    const seenProducts = new Set<string>();
+
+    purchases.forEach((p) => {
+      // Artisan Review
+      if (p.artisan_id && !ratedArtisans.has(p.artisan_id) && !seenArtisans.has(p.artisan_id)) {
+        seenArtisans.add(p.artisan_id);
+        const artisanData = (p as any).artisan;
+        const artisanName = artisanData?.name || "Artisan";
+        pending.push({ type: "artisan", id: p.artisan_id, name: artisanName, image: artisanData?.avatar_url });
+      }
+
+      // Product Review
+      if (p.product_id && !ratedProducts.has(p.product_id) && !seenProducts.has(p.product_id) && p.product) {
+        seenProducts.add(p.product_id);
+        pending.push({ type: "product", id: p.product_id, name: p.product.name, image: p.product.image_url ?? undefined });
+      }
+    });
+
+    return pending;
+  }, [purchases, ratedArtisans, ratedProducts]);
+
+  async function handleSubmitRating(rating: number, comment: string) {
+    if (!ratingTarget || !profile) return;
+    setRatingProcessing(true);
+
+    if (ratingTarget.type === "artisan") {
+      await supabase.from("artisan_ratings").upsert({
+        artisan_id: ratingTarget.id,
+        reviewer_id: profile.id,
+        rating,
+        comment: comment || null,
+      }, { onConflict: "artisan_id,reviewer_id" });
+      setRatedArtisans((prev) => new Set([...prev, ratingTarget.id]));
+    } else {
+      await supabase.from("product_ratings").upsert({
+        product_id: ratingTarget.id,
+        reviewer_id: profile.id,
+        rating,
+        comment: comment || null,
+      }, { onConflict: "product_id,reviewer_id" });
+      setRatedProducts((prev) => new Set([...prev, ratingTarget.id]));
+    }
+
+    setRatingProcessing(false);
+    setRatingTarget(null);
+  }
 
   return (
     <section className={styles.hero}>
@@ -88,7 +160,50 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
 
       <div className={styles.middleSection}>
         <div style={{gridColumn: "1 / -1"}}>
-          {/* Order History Section matched with Stitch Layout */}
+          
+          {/* Pending Reviews Section */}
+          {pendingReviews.length > 0 && (
+            <div style={{ marginBottom: "2rem" }}>
+              <div className={styles.sectionHeader}>
+                <h4 className={styles.sectionTitle} style={{ color: "var(--primary)" }}>Pending Reviews</h4>
+              </div>
+              <div style={{ display: "flex", gap: "1rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
+                {pendingReviews.map((r) => (
+                  <div key={`${r.type}-${r.id}`} style={{ 
+                    minWidth: "260px", border: "1px solid var(--outline-variant)", 
+                    borderRadius: "0.5rem", padding: "1rem", display: "flex", alignItems: "center", gap: "1rem",
+                    backgroundColor: "white", boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
+                  }}>
+                    <div style={{ width: "45px", height: "45px", borderRadius: r.type === "artisan" ? "50%" : "0.35rem", overflow: "hidden", backgroundColor: "var(--surface-container-high)", flexShrink: 0 }}>
+                      {r.image ? <img src={r.image} alt={r.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : (
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <span className="material-symbols-outlined" style={{ color: "gray", fontSize: "1.5rem" }}>{r.type === "artisan" ? "person" : "category"}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 600, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</p>
+                      <p style={{ margin: 0, fontSize: "0.75rem", color: "gray", textTransform: "capitalize" }}>Rate {r.type}</p>
+                    </div>
+                    <button 
+                      onClick={() => setRatingTarget(r)}
+                      style={{ 
+                        background: "var(--primary-container)", color: "var(--on-primary-container)", border: "none", 
+                        borderRadius: "2rem", padding: "0.35rem 1rem", fontSize: "0.75rem", cursor: "pointer", fontWeight: 700,
+                        transition: "background 0.2s"
+                      }}
+                       onMouseOver={(e) => (e.currentTarget.style.background = "var(--primary)", e.currentTarget.style.color = "white")}
+                       onMouseOut={(e) => (e.currentTarget.style.background = "var(--primary-container)", e.currentTarget.style.color = "var(--on-primary-container)")}
+                    >
+                      Rate
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Order History Section */}
           <div className={styles.sectionHeader}>
             <h4 className={styles.sectionTitle}>Order History</h4>
           </div>
@@ -113,7 +228,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
                       <td style={{color: "gray", fontSize: "12px"}}>{new Date(p.created_at).toLocaleDateString()}</td>
                       <td>
                         <div className={styles.tableProductInfo}>
-                          <div className={styles.tableProductImgBox}>
+                           <div className={styles.tableProductImgBox}>
                             {p.product?.image_url ? (
                               <img src={p.product.image_url} alt="" className={styles.tableProductImg} />
                             ) : (
@@ -126,11 +241,11 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
                         </div>
                       </td>
                       <td>
-                        <span className={p.status === "completed" ? styles.statusCompleted : styles.statusPending}>
+                        <span className={p.status === "completed" ? styles.statusCompleted : styles.statusPending} style={{ textTransform: "capitalize" }}>
                           {p.status}
                         </span>
                       </td>
-                      <td className={styles.amount}>₹{p.total_price}</td>
+                      <td className={styles.amount}>₹{p.total_price.toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -139,6 +254,14 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
           )}
         </div>
       </div>
+
+      <RatingModal
+        isOpen={ratingTarget !== null}
+        onClose={() => setRatingTarget(null)}
+        title={`Rate ${ratingTarget?.name}`}
+        onSubmit={handleSubmitRating}
+        isProcessing={ratingProcessing}
+      />
     </section>
   );
 }
