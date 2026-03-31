@@ -45,6 +45,7 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     if (availableModes.includes(mode) && profile) {
       setActiveModeState(mode);
       localStorage.setItem(`craftconnect_mode_${profile.id}`, mode);
+      window.scrollTo({ top: 0, left: 0 });
     }
   };
 
