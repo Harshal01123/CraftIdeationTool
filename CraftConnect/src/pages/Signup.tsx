@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
 import { supabase } from "../lib/supabase";
+import LocationPickerModal from "../components/LocationPickerModal";
 
 type UserType = "artisan" | "user";
 
@@ -61,6 +62,7 @@ function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   function acquireLocation() {
     setError("");
@@ -355,22 +357,43 @@ function Signup() {
                 <option value="Less than 10 years">Less than 10 years</option>
                 <option value="Greater than 10 years">Greater than 10 years</option>
               </select>
-              <button
-                type="button"
-                className={styles.input}
-                style={{ 
-                  cursor: "pointer", 
-                  textAlign: "center", 
-                  border: "2px solid var(--primary)",
-                  backgroundColor: shopLocation ? "var(--primary)" : "transparent",
-                  color: shopLocation ? "var(--surface)" : "var(--primary)",
-                  fontWeight: "600"
-                }}
-                onClick={acquireLocation}
-                disabled={locationLoading}
-              >
-                {locationLoading ? "Acquiring GPS..." : shopLocation ? `📍 ${shopLocation}` : "📍 Acquire GPS Location"}
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                <button
+                  type="button"
+                  className={styles.input}
+                  style={{ 
+                    flex: 1,
+                    cursor: "pointer", 
+                    textAlign: "center", 
+                    border: "2px solid var(--primary)",
+                    backgroundColor: shopLocation ? "var(--primary)" : "transparent",
+                    color: shopLocation ? "var(--surface)" : "var(--primary)",
+                    fontWeight: "600",
+                    padding: "0.8rem 0"
+                  }}
+                  onClick={acquireLocation}
+                  disabled={locationLoading}
+                >
+                  {locationLoading ? "Acquiring GPS..." : shopLocation ? `📍 ${shopLocation}` : "📍 Current Location"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.input}
+                  style={{
+                    flex: 1,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    border: "2px solid var(--outline)",
+                    backgroundColor: "transparent",
+                    color: "var(--on-surface)",
+                    fontWeight: "600",
+                    padding: "0.8rem 0"
+                  }}
+                  onClick={() => setShowMapModal(true)}
+                >
+                  🗺️ Choose on Map
+                </button>
+              </div>
               <textarea
                 placeholder="Describe your work (optional)..."
                 className={styles.textarea}
@@ -409,6 +432,14 @@ function Signup() {
           </p>
         </div>
       </div>
+
+      <LocationPickerModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        onConfirm={(location) => {
+          setShopLocation(location);
+        }}
+      />
     </main>
   );
 }
