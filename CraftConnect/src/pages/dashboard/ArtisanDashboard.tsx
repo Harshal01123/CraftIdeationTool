@@ -132,10 +132,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
   // Computed KPIs
   const activeOrders = sales.filter((s) => s.status !== "completed").length;
   const totalRevenue = sales.reduce((sum, s) => sum + (s.total_price || 0), 0);
-  const totalStudents = courses.reduce(
-    (sum, c) => sum + (c.videos?.length || 0),
-    0,
-  );
+
   const artisanRatings = products
     .map((p) => ratingsMap[p.id])
     .filter(Boolean)
@@ -179,18 +176,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             Your curation has seen increased interest this week. Launch your new
             collections today.
           </p>
-          <button
-            className={styles.viewAnalyticsBtn}
-            onClick={() => navigate("/dashboard/courses")}
-          >
-            View Analytics
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "1rem" }}
-            >
-              arrow_forward
-            </span>
-          </button>
         </div>
         <div className={styles.welcomePattern}></div>
         <div className={styles.welcomeIcon}>
@@ -212,9 +197,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                 account_balance_wallet
               </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
-              +12%
-            </span>
           </div>
           <p className={styles.kpiValue}>{formatRevenue(totalRevenue)}</p>
           <p className={styles.kpiLabel}>Total Revenue</p>
@@ -226,9 +208,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                 assignment
               </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
-              +5%
-            </span>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
           <p className={styles.kpiLabel}>Orders Generated</p>
@@ -240,9 +219,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                 school
               </span>
             </div>
-            <span className={`${styles.kpiBadge} ${styles.kpiBadgeSuccess}`}>
-              +{totalStudents}
-            </span>
           </div>
           <p className={styles.kpiValue}>{courses.length}</p>
           <p className={styles.kpiLabel}>My Courses</p>
@@ -254,11 +230,6 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                 star
               </span>
             </div>
-            <span
-              className={`${styles.kpiBadge} ${storeRating !== "—" ? styles.kpiBadgeSuccess : styles.kpiBadgeNeutral}`}
-            >
-              {storeRating !== "—" ? "Top 1%" : "—"}
-            </span>
           </div>
           <p className={styles.kpiValue}>
             {storeRating}

@@ -16,14 +16,18 @@
 /* ── Welcome Banner ── */
 .welcomeBanner {
   position: relative;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-container) 100%
+  );
   border-radius: 1rem;
   overflow: hidden;
   padding: 2.5rem;
   color: #ffffff;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: left;
   min-height: 180px;
 }
 
@@ -32,6 +36,8 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
+  align-items: left;
+  text-align: left;
   gap: 0.5rem;
 }
 
@@ -89,7 +95,9 @@
   transition: background 0.2s;
   width: fit-content;
 }
-.viewAnalyticsBtn:hover { background-color: rgba(43, 32, 23, 0.85); }
+.viewAnalyticsBtn:hover {
+  background-color: rgba(43, 32, 23, 0.85);
+}
 
 .welcomePattern {
   position: absolute;
@@ -100,7 +108,9 @@
 }
 
 .welcomeIcon {
-  position: relative;
+  position: absolute;
+  right: 2rem;
+  bottom: 0;
   z-index: 10;
   opacity: 0.15;
   font-size: 8rem;
@@ -108,7 +118,11 @@
   display: none;
 }
 
-@media (min-width: 1024px) { .welcomeIcon { display: block; } }
+@media (min-width: 1024px) {
+  .welcomeIcon {
+    display: block;
+  }
+}
 
 /* ── KPI Grid ── */
 .kpiGrid {
@@ -118,7 +132,9 @@
 }
 
 @media (min-width: 1024px) {
-  .kpiGrid { grid-template-columns: repeat(4, 1fr); }
+  .kpiGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .kpiCard {
@@ -147,7 +163,9 @@
   border-radius: 0.5rem;
 }
 
-.kpiIcon { color: var(--secondary); }
+.kpiIcon {
+  color: var(--secondary);
+}
 
 .kpiBadge {
   font-size: 0.65rem;
@@ -157,8 +175,14 @@
   padding: 0.15rem 0.4rem;
   border-radius: 999px;
 }
-.kpiBadgeSuccess { color: #15803d; background-color: #dcfce7; }
-.kpiBadgeNeutral { color: rgba(43, 32, 23, 0.4); background-color: rgba(43, 32, 23, 0.06); }
+.kpiBadgeSuccess {
+  color: #15803d;
+  background-color: #dcfce7;
+}
+.kpiBadgeNeutral {
+  color: rgba(43, 32, 23, 0.4);
+  background-color: rgba(43, 32, 23, 0.06);
+}
 
 .kpiValue {
   font-size: 2rem;
@@ -213,7 +237,9 @@
   cursor: pointer;
   transition: opacity 0.2s;
 }
-.viewAllBtn:hover { opacity: 0.7; }
+.viewAllBtn:hover {
+  opacity: 0.7;
+}
 
 /* ── Orders Table ── */
 .tableWrapper {
@@ -246,7 +272,9 @@
   color: var(--on-surface);
 }
 
-.salesTable tr:hover td { background-color: rgba(255, 255, 255, 0.5); }
+.salesTable tr:hover td {
+  background-color: rgba(255, 255, 255, 0.5);
+}
 
 .orderId {
   font-family: var(--font-label);
@@ -340,7 +368,9 @@
   text-underline-offset: 4px;
 }
 
-.disabledLink { color: var(--outline-variant); }
+.disabledLink {
+  color: var(--outline-variant);
+}
 
 .amount {
   text-align: right;
@@ -348,7 +378,9 @@
   font-family: var(--font-label);
 }
 
-.amountHeader { text-align: right; }
+.amountHeader {
+  text-align: right;
+}
 
 /* ── Bottom Grid (Products + Courses side by side) ── */
 .bottomGrid {
@@ -358,7 +390,9 @@
 }
 
 @media (min-width: 1100px) {
-  .bottomGrid { grid-template-columns: 1fr 1fr; }
+  .bottomGrid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ── Product Mini Cards ── */
@@ -460,15 +494,19 @@
   transition: background 0.2s;
 }
 .productMiniEdit {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   color: var(--primary);
 }
-.productMiniEdit:hover { background: white; }
+.productMiniEdit:hover {
+  background: white;
+}
 .productMiniDelete {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   color: #d32f2f;
 }
-.productMiniDelete:hover { background: white; }
+.productMiniDelete:hover {
+  background: white;
+}
 
 /* ── Courses List ── */
 .coursesList {
@@ -588,7 +626,9 @@
   font-weight: 600;
   transition: background-color 0.2s;
 }
-.addBtn:hover { background-color: var(--primary-container); }
+.addBtn:hover {
+  background-color: var(--primary-container);
+}
 
 /* ── Delete Product Modal ── */
 .popupOverlay {
@@ -655,8 +695,13 @@
   letter-spacing: 0.05em;
   transition: all 0.2s;
 }
-.cancelBtn:hover:not(:disabled) { background: var(--surface-container-low); }
-.cancelBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cancelBtn:hover:not(:disabled) {
+  background: var(--surface-container-low);
+}
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .deleteConfirmBtn {
   background: #d32f2f;
@@ -676,8 +721,13 @@
   gap: 0.5rem;
   min-width: 120px;
 }
-.deleteConfirmBtn:hover:not(:disabled) { opacity: 0.9; }
-.deleteConfirmBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.deleteConfirmBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.deleteConfirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* ── Legacy classes kept for compatibility ── */
 .pageTitle {
