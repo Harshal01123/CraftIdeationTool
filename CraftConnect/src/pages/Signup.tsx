@@ -6,11 +6,11 @@ import { INDUSTRY_OPTIONS } from "../constants/industryOptions";
 import { supabase } from "../lib/supabase";
 import LocationPickerModal from "../components/LocationPickerModal";
 
-type UserType = "artisan" | "user";
+type UserType = "artisan" | "customer";
 
 const roles: { value: UserType; label: string; icon: string }[] = [
   { value: "artisan", label: "Artisan", icon: "brush" },
-  { value: "user", label: "User", icon: "person" },
+  { value: "customer", label: "User", icon: "person" },
 ];
 
 function compressImage(file: File): Promise<Blob> {
@@ -36,8 +36,22 @@ function compressImage(file: File): Promise<Blob> {
 function Signup() {
   const navigate = useNavigate();
 
+  const [step, setStep] = useState<"auth" | "verify" | "profile">("auth");
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setStep("profile");
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setStep("profile");
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const [name, setName] = useState("");
@@ -108,75 +122,109 @@ function Signup() {
     if (loading) return;
     setError("");
 
-    if (!avatarFile) {
-      setError("Please upload a profile photo.");
-      return;
-    }
-    if (!name || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (!userType) {
-      setError("Please select a user type.");
-      return;
-    }
+    if (step === "auth") {
+      if (!email || !password || !confirmPassword) {
+        setError("Please fill in all fields.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
 
-    setLoading(true);
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name, role: userType } },
-    });
-
-    if (signUpError || !data.user) {
-      setError(signUpError?.message ?? "Signup failed.");
+      setLoading(true);
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { 
+          emailRedirectTo: window.location.origin + "/signup"
+        },
+      });
       setLoading(false);
+
+      if (signUpError) {
+        setError(signUpError.message);
+      } else {
+        setStep("verify");
+      }
       return;
     }
 
-    const userId = data.user.id;
-    let avatarUrl: string | null = null;
+    if (step === "profile") {
+      if (!avatarFile) {
+        setError("Please upload a profile photo.");
+        return;
+      }
+      if (!name) {
+        setError("Please enter your name.");
+        return;
+      }
+      if (!userType) {
+        setError("Please select a user type.");
+        return;
+      }
 
-    if (avatarFile) {
-      const compressed = await compressImage(avatarFile);
-      const filePath = `${userId}/avatar.jpg`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, compressed, {
-          upsert: true,
-          contentType: "image/jpeg",
-        });
-
-      if (uploadError) {
-        setError("Image upload failed: " + uploadError.message);
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Session expired. Please log in again.");
         setLoading(false);
         return;
       }
 
-      const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
+      const userId = user.id;
 
-      avatarUrl = urlData.publicUrl;
-    }
+      let avatarUrl: string | null = null;
+      if (avatarFile) {
+        const compressed = await compressImage(avatarFile);
+        // Use a timestamp to ensure a fresh INSERT rather than UPDATE in Storage, 
+        // to avoid any restrictive Storage UPDATE RLS policies.
+        const filePath = `${userId}/avatar_${Date.now()}.jpg`;
 
-    const profileUpdate: Record<string, string | null> = {};
-    if (avatarUrl) profileUpdate.avatar_url = avatarUrl;
-    if (userType === "artisan") {
-      profileUpdate.industry = industry;
-      profileUpdate.location = shopLocation;
-      profileUpdate.description = artisanDesc;
-      profileUpdate.experience = experience;
-    }
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, compressed, {
+            upsert: true,
+            contentType: "image/jpeg",
+          });
 
-    if (Object.keys(profileUpdate).length > 0) {
-      await supabase.from("profiles").update(profileUpdate).eq("id", userId);
+        if (uploadError) {
+          setError("Image upload failed: " + uploadError.message);
+          setLoading(false);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath);
+
+        avatarUrl = urlData.publicUrl;
+      }
+
+      // 3. Finally, update the profile with the newly acquired avatar URL & details
+      const profileUpdate: Record<string, string | null> = {
+        name,
+        role: userType,
+      };
+      if (avatarUrl) profileUpdate.avatar_url = avatarUrl;
+      if (userType === "artisan") {
+        profileUpdate.industry = industry;
+        profileUpdate.location = shopLocation;
+        profileUpdate.description = artisanDesc;
+        profileUpdate.experience = experience;
+      }
+
+      if (Object.keys(profileUpdate).length > 0) {
+        const { error: profileError } = await supabase.from("profiles").update(profileUpdate).eq("id", userId);
+        if (profileError) {
+          setError("Failed to update profile: " + profileError.message);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setLoading(false);
+      navigate("/dashboard");
     }
 
     setLoading(false);
@@ -208,12 +256,26 @@ function Signup() {
 
         <div className={styles.cardHeader}>
           <span className={styles.greeting}>नमस्ते</span>
-          <h1 className={styles.title}>Create Account</h1>
-          <p className={styles.subtitle}>Join the Digital Heritage</p>
+          <h1 className={styles.title}>
+            {step === "auth" ? "Create Account" : step === "verify" ? "Verify Email" : "Complete Profile"}
+          </h1>
+          <p className={styles.subtitle}>
+            {step === "auth" ? "Join the Digital Heritage" : step === "verify" ? "Almost there!" : "Tell us about yourself"}
+          </p>
         </div>
 
+        {step === "verify" ? (
+          <div style={{ textAlign: "center", padding: "2rem 0" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "4rem", color: "var(--primary)", marginBottom: "1rem" }}>mail</span>
+            <h3 style={{ fontFamily: "var(--font-heading)", color: "var(--on-surface)", marginBottom: "1rem" }}>Check Your Inbox</h3>
+            <p style={{ color: "var(--on-surface-variant)", lineHeight: 1.6 }}>
+              We've sent a magic link to <strong>{email}</strong>. Please click the link in the email to verify your account and complete your profile.
+            </p>
+          </div>
+        ) : (
         <form className={styles.form} onSubmit={handleSignup}>
-          <div className={styles.avatarSection}>
+          {step === "profile" && (
+            <div className={styles.avatarSection}>
             <div className={styles.avatarContainer} onClick={() => fileInputRef.current?.click()}>
               <div className={styles.avatarCircle}>
                 {avatarPreview ? (
@@ -235,105 +297,114 @@ function Signup() {
               onChange={handleAvatarChange}
             />
           </div>
+          )}
 
           <div className={styles.inputsGrid}>
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>
-                Full Name <span className={styles.inputLabelHindi}>पूरा नाम</span>
-              </label>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Arjun Singh"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>
-                Email <span className={styles.inputLabelHindi}>ईमेल</span>
-              </label>
-              <input
-                className={styles.input}
-                type="email"
-                placeholder="arjun@craftconnect.in"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>
-                Password <span className={styles.inputLabelHindi}>पासवर्ड</span>
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  className={styles.input}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: '100%', paddingRight: '2.5rem' }}
-                />
-                <span 
-                  className="material-symbols-outlined" 
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
-                >
-                  {showPassword ? "visibility_off" : "visibility"}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>
-                Confirm Password <span className={styles.inputLabelHindi}>पुष्टि करें</span>
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  className={styles.input}
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{ width: '100%', paddingRight: '2.5rem' }}
-                />
-                <span 
-                  className="material-symbols-outlined" 
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
-                >
-                  {showConfirmPassword ? "visibility_off" : "visibility"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.roleSection}>
-            <label className={styles.roleLabel}>I am a...</label>
-            <div className={styles.roleGrid}>
-              {roles.map((role) => (
-                <label key={role.value} className={styles.roleOption}>
-                  <input
-                    className={styles.roleInput}
-                    type="radio"
-                    name="role"
-                    value={role.value}
-                    checked={userType === role.value}
-                    onChange={(e) => setUserType(e.target.value as UserType)}
-                  />
-                  <div className={styles.roleCard}>
-                    <span className={`material-symbols-outlined ${styles.roleIcon}`}>{role.icon}</span>
-                    <span className={styles.roleName}>{role.label}</span>
-                  </div>
+            {step === "profile" && (
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>
+                  Full Name <span className={styles.inputLabelHindi}>पूरा नाम</span>
                 </label>
-              ))}
-            </div>
+                <input
+                  className={styles.input}
+                  type="text"
+                  placeholder="Arjun Singh"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            )}
+
+            {step === "auth" && (
+              <>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>
+                    Email <span className={styles.inputLabelHindi}>ईमेल</span>
+                  </label>
+                  <input
+                    className={styles.input}
+                    type="email"
+                    placeholder="arjun@craftconnect.in"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>
+                    Password <span className={styles.inputLabelHindi}>पासवर्ड</span>
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      className={styles.input}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{ width: '100%', paddingRight: '2.5rem' }}
+                    />
+                    <span 
+                      className="material-symbols-outlined" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
+                    >
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>
+                    Confirm Password <span className={styles.inputLabelHindi}>पुष्टि करें</span>
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      className={styles.input}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      style={{ width: '100%', paddingRight: '2.5rem' }}
+                    />
+                    <span 
+                      className="material-symbols-outlined" 
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
+                    >
+                      {showConfirmPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {userType === "artisan" && (
-            <div className={styles.artisanSection}>
+          {step === "profile" && (
+            <>
+              <div className={styles.roleSection}>
+                <label className={styles.roleLabel}>I am a...</label>
+                <div className={styles.roleGrid}>
+                  {roles.map((role) => (
+                    <label key={role.value} className={styles.roleOption}>
+                      <input
+                        className={styles.roleInput}
+                        type="radio"
+                        name="role"
+                        value={role.value}
+                        checked={userType === role.value}
+                        onChange={(e) => setUserType(e.target.value as UserType)}
+                      />
+                      <div className={styles.roleCard}>
+                        <span className={`material-symbols-outlined ${styles.roleIcon}`}>{role.icon}</span>
+                        <span className={styles.roleName}>{role.label}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {userType === "artisan" && (
+                <div className={styles.artisanSection}>
               <select
                 className={styles.select}
                 value={industry}
@@ -404,6 +475,8 @@ function Signup() {
               />
             </div>
           )}
+          </>
+          )}
 
           {error && <p className={styles.error}>{error}</p>}
 
@@ -415,13 +488,14 @@ function Signup() {
             {loading ? (
               <>
                 <Spinner size="sm" inline />
-                Creating account...
+                {step === "auth" ? "Signing up..." : "Saving..."}
               </>
             ) : (
-              "Sign Up"
+              step === "auth" ? "Sign Up" : "Complete Profile"
             )}
           </button>
         </form>
+        )}
 
         <div className={styles.loginText}>
           <p>
