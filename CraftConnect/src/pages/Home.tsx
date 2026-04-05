@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
-import Button from "../components/Button";
+// import Button from "../components/Button"; // removed since we use raw buttons matching the design system directly.
 
 function Home() {
   const [showPopup, setShowPopup] = useState(
@@ -14,47 +14,57 @@ function Home() {
     setShowPopup(false);
   }
 
-
   return (
     <div className={styles.home}>
+      <div className={styles.paperGrain}></div>
       {/* ================= NAV ================= */}
-      <header className={styles.header}>
+      <nav className={styles.navBar}>
         <div className={styles.logo} onClick={() => navigate("/")}>
           CraftConnect
         </div>
+        <div className={styles.navLinks}>
+        </div>
         <div className={styles.auth}>
-          <button className={styles.navBtn} onClick={() => navigate("/login")}>Login</button>
-          <Button variant="primary" onClick={() => navigate("/signup")}>SIGN UP</Button>
+          <button className={styles.loginBtn} onClick={() => navigate("/login")}>Login</button>
+          <button className={styles.signUpBtn} onClick={() => navigate("/signup")}>Sign Up</button>
+        </div>
+      </nav>
+
+      {/* ================= HERO ================= */}
+      <header className={styles.hero}>
+        <div className={styles.heroContainer}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.heroTitle}>
+              Where <span className={styles.heroTitleItalic}>Craft</span><br />Meets Culture
+            </h1>
+            <p className={styles.heroSubtitle}>
+              A digital curator dedicated to the timeless beauty of Indian hand-artistry. Bridging the gap between the master artisan and the modern connoisseur.
+            </p>
+          </div>
+          
+          {/* Photo Collage */}
+          <div className={styles.heroCollage}>
+            <div className={styles.collageMain}>
+              <img src="/images/bluePottery.jpg" alt="Master Artisan at Pottery Wheel" className={styles.collageImgMain} />
+            </div>
+            <div className={styles.collageTopRight}>
+              <img src="/images/zardozi.jpg" alt="Zardozi Heritage Embroidery" className={styles.collageImgTopRight} />
+            </div>
+            <div className={styles.collageBottomLeft}>
+              <img src="/images/handloom.jpg" alt="Traditional Handloom Weaving" className={styles.collageImgBottomLeft} />
+            </div>
+            <div className={styles.collageBottomRight}>
+              <img src="/images/home_section_1.jpg" alt="Authentic Block Printing" className={styles.collageImgBottomRight} />
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* ================= HERO ================= */}
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>
-            Where Craft<br />Meets Culture
-          </h1>
-          <p className={styles.heroSubtitle}>
-            A digital curator dedicated to the timeless beauty of Indian hand-artistry.
-            Bridging the gap between the master artisan and the modern connoisseur.
-          </p>
-        </div>
-        
-        <div className={styles.heroGrid}>
-          <div className={styles.gridColumn}>
-            <img src="/images/bluePottery.jpg" alt="Blue Pottery" className={`${styles.gridImage} ${styles.imgShort}`} />
-            <img src="/images/handloom.jpg" alt="Handloom" className={`${styles.gridImage} ${styles.imgTall}`} />
-          </div>
-          <div className={styles.gridColumn}>
-            <img src="/images/zardozi.jpg" alt="Zardozi" className={`${styles.gridImage} ${styles.imgTall}`} />
-            <img src="/images/home_section_1.jpg" alt="Indian Crafts" className={`${styles.gridImage} ${styles.imgShort}`} />
-          </div>
-        </div>
-      </section>
-
-      {/* ================= ECOSYSTEM ================= */}
+      {/* ================= MESSAGE FROM THE DEVS ================= */}
       <section className={styles.ecosystemSection} id="customer">
-        <h2 className={styles.sectionTitle}>Message from the DEVS</h2>
+        <div className={styles.ecosystemHeader}>
+          <h2 className={styles.sectionTitle}>Message from the DEVS</h2>
+        </div>
         <div className={styles.ecosystemGrid}>
           <div className={styles.ecoCard}>
             <h3>For the Customer</h3>
@@ -73,56 +83,59 @@ function Home() {
 
       {/* ================= MASTER CRAFTSMEN ================= */}
       <section className={styles.craftsmenSection} id="artisan">
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Master Craftsmen</h2>
-        </div>
-        
-        <div className={styles.craftsmenGrid}>
-          {[
-            {
-              name: "Hirabai Jhareka Baghel",
-              specialty: "Dhokra Artisan",
-              location: "Sarangarh, Chhattisgarh",
-              initials: "HJ",
-              img : "/images/hirbaiPFP.avif"
-            },
-            {
-              name: "Udayram Jhara",
-              specialty: "Dhokra Artisan",
-              location: "Raigarh, Chhattisgarh",
-              initials: "UJ",
-              img : "/images/udayramPFP.jpg"
-            },
-            {
-              name: "Jagat Ram Dewangan",
-              specialty: "Tuma Artisan",
-              location: "Kondagaon, Chhattisgarh",
-              initials: "JRD",
-              img : "/images/jagatPFP.webp"
-            },
-            {
-              name: "Pandiram Mandavi",
-              specialty: "Instrument Artisan",
-              location: "Bastar, Chhattisgarh",
-              initials: "PM",
-              img : "/images/pandiramPFP.webp"
-            }
-          ].map(artisan => (
-            <div key={artisan.name} className={styles.artisanCard}>
-              <div ><img src={artisan.img} alt={artisan.initials} className={styles.artisanImage} /></div>
-              <div className={styles.artisanInfo}>
-                <h3 className={styles.artisanName}>{artisan.name}</h3>
-                <p className={styles.artisanSpecialty}>{artisan.specialty}</p>
-                <p className={styles.artisanLocation}>{artisan.location}</p>
+        <div className={styles.craftsmenContainer}>
+          <h2 className={styles.sectionTitleLeft}>Master Craftsmen</h2>
+          <div className={styles.craftsmenGrid}>
+            {[
+              {
+                name: "Hirabai Jhareka Baghel",
+                specialty: "Dhokra Artisan",
+                location: "Sarangarh, Chhattisgarh",
+                initials: "HJ",
+                img : "/images/hirbaiPFP.avif"
+              },
+              {
+                name: "Udayram Jhara",
+                specialty: "Dhokra Artisan",
+                location: "Raigarh, Chhattisgarh",
+                initials: "UJ",
+                img : "/images/udayramPFP.jpg"
+              },
+              {
+                name: "Jagat Ram Dewangan",
+                specialty: "Tuma Artisan",
+                location: "Kondagaon, Chhattisgarh",
+                initials: "JRD",
+                img : "/images/jagatPFP.webp"
+              },
+              {
+                name: "Pandiram Mandavi",
+                specialty: "Instrument Artisan",
+                location: "Bastar, Chhattisgarh",
+                initials: "PM",
+                img : "/images/pandiramPFP.webp"
+              }
+            ].map(artisan => (
+              <div key={artisan.name} className={styles.artisanCard}>
+                <div className={styles.artisanImageContainer}>
+                  <img src={artisan.img} alt={artisan.initials} className={styles.artisanImage} />
+                </div>
+                <div className={styles.artisanInfo}>
+                  <h3 className={styles.artisanName}>{artisan.name}</h3>
+                  <p className={styles.artisanSpecialty}>{artisan.specialty}</p>
+                  <p className={styles.artisanLocation}>{artisan.location}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ================= MASTERCLASS SERIES ================= */}
       <section className={styles.masterclassSection} id="learner">
-        <h2 className={styles.sectionTitle}>Masterclass Series</h2>
+        <div className={styles.masterclassHeader}>
+          <h2 className={styles.sectionTitle}>Masterclass Series</h2>
+        </div>
         <div className={styles.masterclassGrid}>
           {[
             { title: "The Art of Blue Pottery", img: "/images/bluePottery.jpg" }, 
@@ -130,7 +143,9 @@ function Home() {
             { title: "Mastering Zardozi", img: "/images/zardozi.jpg" }
           ].map((course, i) => (
             <div key={i} className={styles.courseCard}>
-              <img src={course.img} alt={course.title} className={styles.courseImage} />
+              <div className={styles.courseImageContainer}>
+                <img src={course.img} alt={course.title} className={styles.courseImage} />
+              </div>
               <div className={styles.courseInfo}>
                 <h3>{course.title}</h3>
               </div>
@@ -141,7 +156,8 @@ function Home() {
 
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>
-        <div className={styles.logo}>CraftConnect</div>
+        <div className={styles.footerLogo}>CraftConnect</div>
+        <div className={styles.footerCopyright}>© 2024 CraftConnect. All rights reserved.</div>
         <div className={styles.footerLinks}>
           <span className={styles.disclaimerLink} onClick={() => setShowPopup(true)}>Disclaimer</span>
         </div>
