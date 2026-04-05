@@ -1,0 +1,260 @@
+/* Certificate Modal Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 860px;
+  width: 100%;
+}
+
+.closeBtn {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.closeBtn:hover { opacity: 1; }
+.closeBtn span { font-size: 1.75rem; }
+
+/* ── The Certificate itself ── */
+.certificate {
+  width: 100%;
+  background: #ffffff;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  color: #1a1a1a;
+  overflow: hidden;
+}
+
+.topBar {
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 2.5rem;
+}
+
+.brandName {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.brandTagline {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.body {
+  padding: 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.certLabel {
+  font-size: 0.7rem;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #555;
+  margin: 0 0 1.25rem;
+}
+
+.dividerOrnament {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 1.5rem;
+}
+
+.ornamentLine {
+  flex: 1;
+  height: 1px;
+  background: #1a1a1a;
+  opacity: 0.3;
+}
+
+.ornamentDiamond {
+  font-size: 0.5rem;
+  color: #1a1a1a;
+  opacity: 0.5;
+}
+
+.certSubLabel {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #555;
+  margin: 0 0 0.5rem;
+}
+
+.learnerName {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 600;
+  font-style: italic;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+  line-height: 1.1;
+}
+
+.courseTitle {
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  font-weight: 400;
+  color: #333;
+  margin: 0 0 2rem;
+  max-width: 560px;
+  line-height: 1.4;
+}
+
+.dividerThin {
+  width: 100%;
+  height: 1px;
+  background: #1a1a1a;
+  opacity: 0.12;
+  margin-bottom: 1.75rem;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.metaLabel {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.metaValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.metaSeal {
+  font-size: 2rem;
+  color: #1a1a1a;
+  opacity: 0.15;
+}
+
+.signatureRow {
+  display: flex;
+  justify-content: center;
+}
+
+.signatureBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 200px;
+}
+
+.signatureName {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #1a1a1a;
+}
+
+.signatureLine {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: #1a1a1a;
+  opacity: 0.3;
+}
+
+.signatureRole {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+/* Bottom bar */
+.bottomBar {
+  background: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  padding: 0.6rem 2.5rem;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  text-align: center;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1.5px solid #fff;
+  border-radius: 8px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.downloadBtn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+.downloadBtn span { font-size: 1.1rem; }

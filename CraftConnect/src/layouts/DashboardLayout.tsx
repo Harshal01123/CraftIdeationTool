@@ -263,12 +263,24 @@ function DashboardLayout() {
               </span>
             </NavLink>
           )}
+          {activeMode === "learner" && (
+            <NavLink to="/dashboard/certificates" className={navClass}>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>verified</span>
+              <span className={styles.navLinkText}>Certificates</span>
+            </NavLink>
+          )}
           <NavLink to="/dashboard/artisans" className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               brush
             </span>
             <span className={styles.navLinkText}>Artisans</span>
           </NavLink>
+          {activeMode === "artisan" && profile && (
+            <NavLink to={`/dashboard/artisans/${profile.id}`} className={navClass}>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>person</span>
+              <span className={styles.navLinkText}>My Profile</span>
+            </NavLink>
+          )}
           <NavLink to="/dashboard/messages" className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               mail
