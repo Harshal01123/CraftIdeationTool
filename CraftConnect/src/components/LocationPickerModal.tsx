@@ -24,15 +24,28 @@ interface LocationPickerModalProps {
   onConfirm: (locationString: string) => void;
 }
 
-function LocationMarker({ position, setPosition, setAddress, setLoading }: any) {
+function LocationMarker({
+  position,
+  setPosition,
+  setAddress,
+  setLoading,
+}: any) {
   const fetchAddress = async (lat: number, lng: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+      );
       if (!res.ok) throw new Error("Reverse geocoding failed");
       const data = await res.json();
       const addr = data.address || {};
-      const localArea = addr.village || addr.suburb || addr.town || addr.city || addr.county || "";
+      const localArea =
+        addr.village ||
+        addr.suburb ||
+        addr.town ||
+        addr.city ||
+        addr.county ||
+        "";
       const stateArea = addr.state || "";
       const areaName = [localArea, stateArea].filter(Boolean).join(", ");
       setAddress(areaName || `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
@@ -51,9 +64,7 @@ function LocationMarker({ position, setPosition, setAddress, setLoading }: any) 
     },
   });
 
-  return position === null ? null : (
-    <Marker position={position}></Marker>
-  );
+  return position === null ? null : <Marker position={position}></Marker>;
 }
 
 // Component to recenter map when opened
@@ -65,11 +76,17 @@ function RecenterMap({ center }: { center: [number, number] }) {
   return null;
 }
 
-const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ isOpen, onClose, onConfirm }) => {
-  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const [address, setAddress] = useState<string>('');
+const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+}) => {
+  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [address, setAddress] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  
+
   // Default center: India
   const [center, setCenter] = useState<[number, number]>([20.5937, 78.9629]);
 
@@ -84,7 +101,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ isOpen, onClo
           },
           () => {
             // Silently fail to default center
-          }
+          },
         );
       }
     }
@@ -104,26 +121,40 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ isOpen, onClo
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Choose Location on Map</h2>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
+          <button
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close modal"
+          >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-        
-        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", margin: "0" }}>
+
+        <p
+          style={{
+            color: "var(--on-surface-variant)",
+            fontSize: "0.9rem",
+            margin: "0",
+          }}
+        >
           Click anywhere on the map to pin your workshop location.
         </p>
 
         <div className={styles.mapContainer}>
-          <MapContainer center={center} zoom={5} style={{ height: '100%', width: '100%' }}>
+          <MapContainer
+            center={center}
+            zoom={5}
+            style={{ height: "100%", width: "100%" }}
+          >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <LocationMarker 
-              position={position} 
-              setPosition={setPosition} 
-              setAddress={setAddress} 
-              setLoading={setLoading} 
+            <LocationMarker
+              position={position}
+              setPosition={setPosition}
+              setAddress={setAddress}
+              setLoading={setLoading}
             />
             <RecenterMap center={center} />
           </MapContainer>
@@ -131,13 +162,19 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ isOpen, onClo
 
         <div className={styles.selectedLocation}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
               <Spinner size="sm" inline /> Fetching address...
             </div>
           ) : position ? (
-            <span>📍 <strong>Selected:</strong> {address}</span>
+            <span>
+              📍 <strong>Selected:</strong> {address}
+            </span>
           ) : (
-            <span style={{ color: "var(--outline)" }}>No location selected yet.</span>
+            <span style={{ color: "var(--outline)" }}>
+              No location selected yet.
+            </span>
           )}
         </div>
 
@@ -145,8 +182,8 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ isOpen, onClo
           <button className={styles.cancelBtn} onClick={onClose}>
             Cancel
           </button>
-          <button 
-            className={styles.confirmBtn} 
+          <button
+            className={styles.confirmBtn}
             onClick={handleConfirm}
             disabled={!position || loading}
           >

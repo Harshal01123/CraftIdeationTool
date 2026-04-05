@@ -10,12 +10,24 @@ import { supabase } from "../lib/supabase";
 import type { Profile, Product, ArtisanRating } from "../types/chat";
 import { useMode } from "../contexts/ModeContext";
 
+interface Course {
+  id: string;
+  title: string;
+  category: string;
+  level: string;
+  thumbnail: string | null;
+  duration_minutes: number;
+  videos: { title: string }[];
+}
+
 function ArtisanPortfolio() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [reviews, setReviews] = useState<ArtisanRating[]>([]);
   const [avgRating, setAvgRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -85,10 +97,6 @@ function ArtisanPortfolio() {
       if (sessionData.session) {
         const uid = sessionData.session.user.id;
         setCurrentUserId(uid);
-
-        // removed fetch role since we use activeMode
-
-        // fetch existing rating by this user
         const { data: myRating } = await supabase
           .from("artisan_ratings")
           .select("rating, comment")
@@ -103,6 +111,16 @@ function ArtisanPortfolio() {
 
       setProducts((productsData as Product[]) ?? []);
       setProductsLoading(false);
+
+      // Fetch this artisan's courses
+      const { data: coursesData } = await supabase
+        .from("courses")
+        .select("id, title, category, level, thumbnail, duration_minutes, videos")
+        .eq("artisan_id", id)
+        .order("created_at", { ascending: false });
+      setCourses((coursesData as Course[]) ?? []);
+      setCoursesLoading(false);
+
       setLoading(false);
       await fetchReviews();
     }
@@ -351,6 +369,46 @@ function ArtisanPortfolio() {
                   <span className={styles.artisanProductPrice}>
                     ₹{product.price}
                   </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Masterclasses (Courses) Section */}
+      <section className={styles.productsSection}>
+        <div className={styles.productsHeader}>
+          <div>
+            <h3 className={styles.productsTitle}>Masterclasses</h3>
+            <p className={styles.productsSubtitle}>Courses offered by this artisan</p>
+          </div>
+        </div>
+        {coursesLoading ? (
+          <Spinner label="Loading courses..." />
+        ) : courses.length === 0 ? (
+          <p style={{ color: "gray", fontStyle: "italic" }}>No courses listed yet.</p>
+        ) : (
+          <div className={styles.productsGrid}>
+            {courses.map((c) => (
+              <div
+                key={c.id}
+                className={styles.artisanProductCard}
+                onClick={() => navigate("/dashboard/courses/" + c.id)}
+              >
+                <div className={styles.artisanProductImgBox}>
+                  {c.thumbnail ? (
+                    <img src={c.thumbnail} alt={c.title} />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", background: "var(--surface-container-high)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: "2.5rem", color: "var(--outline-variant)" }}>play_circle</span>
+                    </div>
+                  )}
+                </div>
+                <h4 className={styles.artisanProductTitle}>{c.title}</h4>
+                <div className={styles.artisanProductMetaRow}>
+                  <p className={styles.artisanProductCategory}>{c.level} · {c.videos?.length ?? 0} lessons</p>
+                  <span className={styles.artisanProductPrice}>{c.category}</span>
                 </div>
               </div>
             ))}

@@ -581,3 +581,317 @@
   border: none;
   border-radius: 8px;
 }
+
+/* ---------- Enrolled Button (success state) ---------- */
+.enrolledBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: var(--surface-container-high, #f9e4d6);
+  color: var(--primary, #823b18);
+  border: 1.5px solid var(--primary, #823b18);
+  border-radius: 8px;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* ---------- View Enrolled Button (artisan) ---------- */
+.viewEnrolledBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  color: var(--primary, #823b18);
+  border: 1.5px solid var(--primary, #823b18);
+  border-radius: 8px;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.viewEnrolledBtn:hover {
+  background: var(--surface-container-high, #f9e4d6);
+  transform: translateY(-2px);
+}
+
+/* ---------- Enroll Notice Banner ---------- */
+.enrollNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: var(--surface-container-high, #f9e4d6);
+  border-left: 3px solid var(--primary, #823b18);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  color: rgba(36, 25, 17, 0.75);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.enrollNotice span.material-symbols-outlined {
+  color: var(--primary);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.enrollNotice p {
+  margin: 0;
+}
+
+/* ---------- Locked Module Row ---------- */
+.moduleRowLocked {
+  opacity: 0.65;
+}
+
+/* ---------- Lock Icon on Module ---------- */
+.lockIconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--surface-container-high, #f9e4d6);
+  color: var(--outline, #87736b);
+  cursor: not-allowed;
+}
+.lockIconWrap span {
+  font-size: 1.4rem;
+}
+
+/* ---------- Enroll Success Toast ---------- */
+.enrollToast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary, #823b18), #a0522d);
+  color: #fff;
+  border-radius: 12px;
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  box-shadow: 0 8px 32px rgba(130, 59, 24, 0.35);
+  animation: toastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.enrollToast span.material-symbols-outlined {
+  font-size: 1.3rem;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(1rem) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- Enrolled Users Panel ---------- */
+.enrolledPanelOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 32, 23, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.enrolledPanel {
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(43, 32, 23, 0.2);
+  border: 1px solid var(--outline-variant);
+  overflow: hidden;
+}
+
+.enrolledPanelHeader {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
+}
+
+.enrolledPanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-headline);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0;
+}
+.enrolledPanelTitle span.material-symbols-outlined {
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+.enrolledPanelClose {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.enrolledPanelClose:hover {
+  background: rgba(43, 32, 23, 0.08);
+}
+
+.enrolledPanelList {
+  overflow-y: auto;
+  flex: 1;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.enrolledPanelUser {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--surface-container-low);
+  transition: background 0.15s;
+}
+.enrolledPanelUser:hover {
+  background: var(--surface-container-high);
+}
+
+.enrolledPanelAvatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--outline-variant);
+}
+
+.enrolledPanelAvatarFallback {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--surface-container-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--outline-variant);
+  color: var(--outline);
+}
+
+.enrolledPanelUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.enrolledPanelName {
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.enrolledPanelDate {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--on-surface-variant);
+}
+
+.enrolledPanelEmpty {
+  text-align: center;
+  color: var(--on-surface-variant);
+  font-style: italic;
+  font-family: var(--font-body);
+  padding: 2rem 0;
+}
+
+/* Enroll button flex layout */
+.enrollBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ---------- Completed Module Row ---------- */
+.moduleRowDone {
+  border-left: 3px solid #4caf50;
+  background: rgba(76, 175, 80, 0.04);
+}
+
+/* ---------- Done Check Icon ---------- */
+.doneIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.12);
+  color: #4caf50;
+}
+.doneIcon span {
+  font-size: 1.4rem;
+}
+
+/* ---------- Progress Label in Curriculum Header ---------- */
+.progressLabel {
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--surface-container-high);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* ---------- "Completed" Badge in Hero ---------- */
+.badgeCompleted {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+  font-family: var(--font-label);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+

@@ -17,6 +17,7 @@ import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 import ProductPortfolio from "./pages/ProductPortfolio";
 import CoursePortfolio from "./pages/dashboard/CoursePortfolio";
 import EditProfile from "./pages/dashboard/EditProfile";
+import Certificates from "./pages/dashboard/Certificates";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { WishlistProvider } from "./hooks/useWishlist";
 import { ModeProvider } from "./contexts/ModeContext";
@@ -47,6 +48,7 @@ function App() {
               <Route path="profile" element={<EditProfile />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="messages" element={<Messages />} />
+              <Route path="certificates" element={<Certificates />} />
             </Route>
           </Route>
         </Route>
