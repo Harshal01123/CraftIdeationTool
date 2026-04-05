@@ -61,7 +61,11 @@ function Login() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message || authError.code || JSON.stringify(authError));
+      if (authError.message?.toLowerCase().includes("email not confirmed")) {
+        setError("Please verify your email address to log in. Check your inbox for the confirmation link.");
+      } else {
+        setError(authError.message || authError.code || JSON.stringify(authError));
+      }
     } else {
       navigate("/dashboard");
     }
