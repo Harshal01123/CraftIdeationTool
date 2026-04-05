@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "hero": {
+    "title1": "Where ",
+    "titleItalic": "Craft",
+    "title2": " Meets Culture",
+    "subtitle": "A digital curator dedicated to the timeless beauty of Indian hand-artistry. Bridging the gap between the master artisan and the modern connoisseur."
+  },
+  "ecosystem": {
+    "title": "Message from the DEVS",
+    "customer": {
+      "title": "For the Customer",
+      "desc": "Discover authenticated heritage pieces from remote clusters, delivered with the story of their origin."
+    },
+    "learner": {
+      "title": "For the Learner",
+      "desc": "Master the ancient techniques directly from National Award-winning gurus through immersive courses."
+    },
+    "artisan": {
+      "title": "For the Artisan",
+      "desc": "Join a global platform designed to preserve your legacy and provide sustainable fair-trade opportunities."
+    }
+  },
+  "craftsmen": {
+    "title": "Master Craftsmen"
+  },
+  "artisans": {
+    "specialties": {
+      "dhokra": "Dhokra Artisan",
+      "tuma": "Tuma Artisan",
+      "instrument": "Instrument Artisan"
+    },
+    "locations": {
+      "sarangarh": "Sarangarh, Chhattisgarh",
+      "raigarh": "Raigarh, Chhattisgarh",
+      "kondagaon": "Kondagaon, Chhattisgarh",
+      "bastar": "Bastar, Chhattisgarh"
+    }
+  },
+  "masterclass": {
+    "title": "Masterclass Series",
+    "course1": "The Art of Blue Pottery",
+    "course2": "Handloom Fundamentals",
+    "course3": "Mastering Zardozi"
+  },
+  "footer": {
+    "brandDesc": "Curating the finest heritage crafts of the Indian subcontinent. Preserving legacies, one stitch at a time.",
+    "nav": "Navigation",
+    "navLinks": {
+      "story": "The Curator's Story",
+      "directory": "Artisan Directory",
+      "blog": "Heritage Blog",
+      "sustainability": "Sustainability"
+    },
+    "categories": "Categories",
+    "catLinks": {
+      "textiles": "Textiles & Weaves",
+      "earth": "Earth & Clay",
+      "metal": "Metal & Brass",
+      "paintings": "Folk Paintings"
+    },
+    "newsletter": "Newsletter",
+    "newsletterDesc": "Join our editorial list for early access to limited edition drops.",
+    "emailPlace": "Email Address",
+    "madeWith": "Made with ❤️ for Indian Craft",
+    "copyright": "© 2024 CraftConnect. All rights reserved.",
+    "terms": {
+      "privacy": "Privacy Policy",
+      "tos": "Terms of Service",
+      "disclaimer": "Disclaimer"
+    }
+  },
+  "popup": {
+    "title": "Disclaimer",
+    "desc": "This website is only for connecting Chhattisgarh craftsmen with customers and give people a chance to learn a wide variety of traditional crafts via verified tutors. This site does not offer payment gateways and also does not ask for any donations. Happy exploring!",
+    "close": "Close"
+  }
+}

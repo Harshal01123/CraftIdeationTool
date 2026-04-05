@@ -1,0 +1,47 @@
+.switcherContainer {
+  display: flex;
+  background-color: rgba(218, 193, 184, 0.1); /* like --surface-container-low but matching home theme */
+  border-radius: 9999px;
+  padding: 0.25rem;
+  border: 1px solid rgba(218, 193, 184, 0.3);
+  position: relative;
+}
+
+.langBtn {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant, #8b7d77);
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+  z-index: 2;
+}
+
+.langBtn:hover {
+  color: var(--on-surface, #2b2017);
+}
+
+.langBtnActive {
+  color: #ffffff;
+  font-weight: 700;
+}
+.langBtnActive:hover {
+  color: #ffffff; /* keep white on hover */
+}
+
+/* The animated background via framer-motion */
+.activeBackground {
+  position: absolute;
+  inset: 0;
+  background-color: var(--primary, #A0522D);
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: -1;
+}

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import styles from "./Home.module.css";
-// import Button from "../components/Button"; // removed since we use raw buttons matching the design system directly.
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function Home() {
+  const { t } = useTranslation();
   const [showPopup, setShowPopup] = useState(
     () => !localStorage.getItem("craftconnect_disclaimer_seen")
   );
@@ -22,11 +24,12 @@ function Home() {
         <div className={styles.logo} onClick={() => navigate("/")}>
           CraftConnect
         </div>
-        <div className={styles.navLinks}>
+        <div className={styles.navToggleCenter}>
+          <LanguageSwitcher />
         </div>
         <div className={styles.auth}>
-          <button className={styles.loginBtn} onClick={() => navigate("/login")}>Login</button>
-          <button className={styles.signUpBtn} onClick={() => navigate("/signup")}>Sign Up</button>
+          <button className={styles.loginBtn} onClick={() => navigate("/login")}>{t('nav.login')}</button>
+          <button className={styles.signUpBtn} onClick={() => navigate("/signup")}>{t('nav.signup')}</button>
         </div>
       </nav>
 
@@ -35,10 +38,10 @@ function Home() {
         <div className={styles.heroContainer}>
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>
-              Where <span className={styles.heroTitleItalic}>Craft</span><br />Meets Culture
+              {t('hero.title1')}<span className={styles.heroTitleItalic}>{t('hero.titleItalic')}</span><br />{t('hero.title2')}
             </h1>
             <p className={styles.heroSubtitle}>
-              A digital curator dedicated to the timeless beauty of Indian hand-artistry. Bridging the gap between the master artisan and the modern connoisseur.
+              {t('hero.subtitle')}
             </p>
           </div>
           
@@ -63,20 +66,20 @@ function Home() {
       {/* ================= MESSAGE FROM THE DEVS ================= */}
       <section className={styles.ecosystemSection} id="customer">
         <div className={styles.ecosystemHeader}>
-          <h2 className={styles.sectionTitle}>Message from the DEVS</h2>
+          <h2 className={styles.sectionTitle}>{t('ecosystem.title')}</h2>
         </div>
         <div className={styles.ecosystemGrid}>
           <div className={styles.ecoCard}>
-            <h3>For the Customer</h3>
-            <p>Discover authenticated heritage pieces from remote clusters, delivered with the story of their origin.</p>
+            <h3>{t('ecosystem.customer.title')}</h3>
+            <p>{t('ecosystem.customer.desc')}</p>
           </div>
           <div className={styles.ecoCard}>
-            <h3>For the Learner</h3>
-            <p>Master the ancient techniques directly from National Award-winning gurus through immersive courses.</p>
+            <h3>{t('ecosystem.learner.title')}</h3>
+            <p>{t('ecosystem.learner.desc')}</p>
           </div>
           <div className={styles.ecoCard}>
-            <h3>For the Artisan</h3>
-            <p>Join a global platform designed to preserve your legacy and provide sustainable fair-trade opportunities.</p>
+            <h3>{t('ecosystem.artisan.title')}</h3>
+            <p>{t('ecosystem.artisan.desc')}</p>
           </div>
         </div>
       </section>
@@ -84,34 +87,34 @@ function Home() {
       {/* ================= MASTER CRAFTSMEN ================= */}
       <section className={styles.craftsmenSection} id="artisan">
         <div className={styles.craftsmenContainer}>
-          <h2 className={styles.sectionTitleLeft}>Master Craftsmen</h2>
+          <h2 className={styles.sectionTitleLeft}>{t('craftsmen.title')}</h2>
           <div className={styles.craftsmenGrid}>
             {[
               {
                 name: "Hirabai Jhareka Baghel",
-                specialty: "Dhokra Artisan",
-                location: "Sarangarh, Chhattisgarh",
+                specialty: t('artisans.specialties.dhokra'),
+                location: t('artisans.locations.sarangarh'),
                 initials: "HJ",
                 img : "/images/hirbaiPFP.avif"
               },
               {
                 name: "Udayram Jhara",
-                specialty: "Dhokra Artisan",
-                location: "Raigarh, Chhattisgarh",
+                specialty: t('artisans.specialties.dhokra'),
+                location: t('artisans.locations.raigarh'),
                 initials: "UJ",
                 img : "/images/udayramPFP.jpg"
               },
               {
                 name: "Jagat Ram Dewangan",
-                specialty: "Tuma Artisan",
-                location: "Kondagaon, Chhattisgarh",
+                specialty: t('artisans.specialties.tuma'),
+                location: t('artisans.locations.kondagaon'),
                 initials: "JRD",
                 img : "/images/jagatPFP.webp"
               },
               {
                 name: "Pandiram Mandavi",
-                specialty: "Instrument Artisan",
-                location: "Bastar, Chhattisgarh",
+                specialty: t('artisans.specialties.instrument'),
+                location: t('artisans.locations.bastar'),
                 initials: "PM",
                 img : "/images/pandiramPFP.webp"
               }
@@ -134,13 +137,13 @@ function Home() {
       {/* ================= MASTERCLASS SERIES ================= */}
       <section className={styles.masterclassSection} id="learner">
         <div className={styles.masterclassHeader}>
-          <h2 className={styles.sectionTitle}>Masterclass Series</h2>
+          <h2 className={styles.sectionTitle}>{t('masterclass.title')}</h2>
         </div>
         <div className={styles.masterclassGrid}>
           {[
-            { title: "The Art of Blue Pottery", img: "/images/bluePottery.jpg" }, 
-            { title: "Handloom Fundamentals", img: "/images/handloom.jpg" },
-            { title: "Mastering Zardozi", img: "/images/zardozi.jpg" }
+            { title: t('masterclass.course1'), img: "/images/bluePottery.jpg" }, 
+            { title: t('masterclass.course2'), img: "/images/handloom.jpg" },
+            { title: t('masterclass.course3'), img: "/images/zardozi.jpg" }
           ].map((course, i) => (
             <div key={i} className={styles.courseCard}>
               <div className={styles.courseImageContainer}>
@@ -157,20 +160,18 @@ function Home() {
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>
         <div className={styles.footerLogo}>CraftConnect</div>
-        <div className={styles.footerCopyright}>© 2024 CraftConnect. All rights reserved.</div>
+        <div className={styles.footerCopyright}>{t('footer.copyright')}</div>
         <div className={styles.footerLinks}>
-          <span className={styles.disclaimerLink} onClick={() => setShowPopup(true)}>Disclaimer</span>
+          <span className={styles.disclaimerLink} onClick={() => setShowPopup(true)}>{t('footer.terms.disclaimer')}</span>
         </div>
       </footer>
 
       {showPopup && (
         <div className={styles.popupOverlay} onClick={closePopup}>
           <div className={styles.popupCard} onClick={(e) => e.stopPropagation()}>
-            <h3>Disclaimer</h3>
-            <p>
-              This website is only for connecting Chhattisgarh craftsmen with customers and give people a chance to learn a wide variety of traditional crafts via verified tutors. This site does not offer payment gateways and also does not ask for any donations. Happy exploring!
-            </p>
-            <button className={styles.closeBtn} onClick={closePopup}>Close</button>
+            <h3>{t('popup.title')}</h3>
+            <p>{t('popup.desc')}</p>
+            <button className={styles.closeBtn} onClick={closePopup}>{t('popup.close')}</button>
           </div>
         </div>
       )}
