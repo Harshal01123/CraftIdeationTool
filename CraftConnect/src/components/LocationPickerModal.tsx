@@ -11,7 +11,7 @@ import Spinner from './Spinner'; // Import Spinner if it's available in componen
 
 // Fix for default marker icon in react-leaflet
 const DefaultIcon = L.icon({
-  iconUrl: icon,
+  iconUrl: icon, 
   shadowUrl: iconShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41]
