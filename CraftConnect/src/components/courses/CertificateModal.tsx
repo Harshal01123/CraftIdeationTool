@@ -198,6 +198,17 @@ function CertificateContent({ data }: { data: CertificateData }) {
             }}>MASTER ARTISAN</p>
           </div>
         </div>
+
+        {/* Disclaimer */}
+        <p style={{
+          fontFamily: "'Arial', sans-serif",
+          fontSize: "0.5rem",
+          color: "rgba(43,31,19,0.4)",
+          marginTop: "1.5rem",
+          letterSpacing: "0.05em",
+        }}>
+          *This certificate is dynamically generated to acknowledge completion of the course syllabus and is an unofficial credential.
+        </p>
       </div>
     </div>
   );

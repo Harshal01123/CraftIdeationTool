@@ -12,14 +12,51 @@
   background-color: var(--surface-container-low);
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 0;
+  padding: 0 0 1.5rem 0;
   box-shadow: 12px 0 32px -4px rgba(43, 32, 23, 0.08);
   z-index: 60;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+.sidebarCollapsed {
+  width: 80px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+.brandTextCollapsed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.newCollectionText {
+  white-space: nowrap;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  margin-left: 0.75rem;
+}
+
+.sidebarCollapsed .navLinkText,
+.sidebarCollapsed .newCollectionText {
+  opacity: 0;
+  pointer-events: none; /* Allows clicks to pass through invisible text */
 }
 
 .brand {
-  padding: 0 1.5rem;
-  margin-bottom: 2rem;
+  height: 5rem;
+  padding: 0 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .brandTitle {
@@ -55,6 +92,7 @@
   text-decoration: none;
   transition: all 0.3s;
   color: var(--on-surface);
+  white-space: nowrap;
 }
 
 .navLink:hover {
@@ -81,6 +119,8 @@
   letter-spacing: 0.05em;
   font-size: 0.75rem;
   font-weight: 500;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
 }
 
 .navBadge {
@@ -94,6 +134,24 @@
   border-radius: 9999px;
 }
 
+/* ── Mode Switch Transitions ── */
+.navTransitionBox {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.navTransitionBoxOpen {
+  grid-template-rows: 1fr;
+}
+
+.navTransitionInner {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebarBottom {
   margin-top: auto;
   padding: 0 0.5rem;
@@ -104,7 +162,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.75rem;
   background-color: var(--on-surface);
   color: #ffffff;
   padding: 0.75rem 1rem;
@@ -120,6 +177,7 @@
   transition: all 0.3s;
   box-sizing: border-box;
   width: calc(100% - 1rem); /* Account for lateral margins */
+  white-space: nowrap;
 }
 
 .newCollectionBtn:hover {
@@ -137,6 +195,11 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mainWrapperCollapsed {
+  margin-left: 80px;
 }
 
 .topNav {

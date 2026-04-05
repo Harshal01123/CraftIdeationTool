@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Hamburger from "hamburger-react";
 import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import styles from "./DashboardLayout.module.css";
 import { supabase } from "../lib/supabase";
@@ -52,6 +53,7 @@ function DashboardLayout() {
     "idle" | "sending" | "sent" | "error"
   >("idle");
   const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // WhatsApp-style dynamic toast
   const [toastVisible, setToastVisible] = useState(false);
@@ -224,10 +226,20 @@ function DashboardLayout() {
   return (
     <div className={styles.page}>
       {/* SIDEBAR */}
-      <aside className={styles.sidebar}>
+      <aside className={`${styles.sidebar} ${isSidebarCollapsed ? styles.sidebarCollapsed : ""}`}>
         <div className={styles.brand}>
-          <h1 className={styles.brandTitle}>CraftConnect</h1>
-          <p className={styles.brandSubtitle}>The Digital Curator</p>
+          <div style={{ marginLeft: "-8px", display: "flex", alignItems: "center" }}>
+            <Hamburger
+              toggled={!isSidebarCollapsed}
+              toggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              size={20}
+              color="var(--primary)"
+            />
+          </div>
+          <div className={`${styles.brandText} ${isSidebarCollapsed ? styles.brandTextCollapsed : ""}`}>
+            <h1 className={styles.brandTitle}>CraftConnect</h1>
+            <p className={styles.brandSubtitle}>The Digital Curator</p>
+          </div>
         </div>
 
         <nav className={styles.nav}>
@@ -240,48 +252,54 @@ function DashboardLayout() {
             </span>
             <span className={styles.navLinkText}>Dashboard</span>
           </NavLink>
-          {activeMode !== "learner" && (
-            <NavLink
-              to={
-                activeMode === "artisan"
-                  ? "/dashboard/my-products"
-                  : "/dashboard/products"
-              }
-              className={navClass}
-            >
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>
-                storefront
-              </span>
-              <span className={styles.navLinkText}>
-                {activeMode === "artisan" ? "My Products" : "Products"}
-              </span>
-            </NavLink>
-          )}
-          {activeMode !== "customer" && (
-            <NavLink
-              to={
-                activeMode === "artisan"
-                  ? "/dashboard/my-courses"
-                  : "/dashboard/courses"
-              }
-              className={navClass}
-            >
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>
-                school
-              </span>
-              <span className={styles.navLinkText}>
-                {activeMode === "artisan" ? "My Courses" : "Courses"}
-              </span>
-            </NavLink>
-          )}
-          {activeMode === "learner" && (
-            <NavLink to="/dashboard/certificates" className={navClass}>
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>
-                verified
-              </span>
-              <span className={styles.navLinkText}>Certificates</span>
-            </NavLink>
-          )}
+          <div className={`${styles.navTransitionBox} ${activeMode !== "learner" ? styles.navTransitionBoxOpen : ""}`}>
+            <div className={styles.navTransitionInner}>
+              <NavLink
+                to={
+                  activeMode === "artisan"
+                    ? "/dashboard/my-products"
+                    : "/dashboard/products"
+                }
+                className={navClass}
+              >
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  storefront
+                </span>
+                <span className={styles.navLinkText}>
+                  {activeMode === "artisan" ? "My Products" : "Products"}
+                </span>
+              </NavLink>
+            </div>
+          </div>
+          <div className={`${styles.navTransitionBox} ${activeMode !== "customer" ? styles.navTransitionBoxOpen : ""}`}>
+            <div className={styles.navTransitionInner}>
+              <NavLink
+                to={
+                  activeMode === "artisan"
+                    ? "/dashboard/my-courses"
+                    : "/dashboard/courses"
+                }
+                className={navClass}
+              >
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  school
+                </span>
+                <span className={styles.navLinkText}>
+                  {activeMode === "artisan" ? "My Courses" : "Courses"}
+                </span>
+              </NavLink>
+            </div>
+          </div>
+          <div className={`${styles.navTransitionBox} ${activeMode === "learner" ? styles.navTransitionBoxOpen : ""}`}>
+            <div className={styles.navTransitionInner}>
+              <NavLink to="/dashboard/certificates" className={navClass}>
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  verified
+                </span>
+                <span className={styles.navLinkText}>Certificates</span>
+              </NavLink>
+            </div>
+          </div>
           <NavLink to="/dashboard/artisans" end className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               brush
@@ -297,8 +315,8 @@ function DashboardLayout() {
         </nav>
 
         <div className={styles.sidebarBottom}>
-          {activeMode === "artisan" && (
-            <>
+          <div className={`${styles.navTransitionBox} ${activeMode === "artisan" ? styles.navTransitionBoxOpen : ""}`}>
+            <div className={styles.navTransitionInner}>
               <button
                 className={styles.newCollectionBtn}
                 style={{ marginBottom: "0.5rem" }}
@@ -307,7 +325,7 @@ function DashboardLayout() {
                 <span className={`material-symbols-outlined ${styles.navIcon}`}>
                   library_add
                 </span>
-                New Course
+                <span className={styles.newCollectionText}>New Course</span>
               </button>
               <button
                 className={styles.newCollectionBtn}
@@ -319,13 +337,13 @@ function DashboardLayout() {
                 <span className={`material-symbols-outlined ${styles.navIcon}`}>
                   add_circle
                 </span>
-                New Collection
+                <span className={styles.newCollectionText}>New Collection</span>
               </button>
-            </>
-          )}
+            </div>
+          </div>
 
           <div className={styles.profileNavWrapper}>
-            {activeMode === "artisan" && profile && (
+            {profile && (
               <NavLink
                 to={`/dashboard/artisans/${profile.id}`}
                 className={navClass}
@@ -347,7 +365,7 @@ function DashboardLayout() {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className={styles.mainWrapper}>
+      <main className={`${styles.mainWrapper} ${isSidebarCollapsed ? styles.mainWrapperCollapsed : ""}`}>
         {/* TOP NAV ACTIONS ONLY */}
         <div className={styles.topNav}>
           <div className={styles.topNavLeft}>
@@ -429,14 +447,13 @@ function DashboardLayout() {
               <div
                 className={styles.headerProfileBox}
                 onClick={() =>
-                  activeMode === "artisan" &&
                   profile?.id &&
                   navigate(`/dashboard/artisans/${profile.id}`)
                 }
                 style={{
-                  cursor: activeMode === "artisan" ? "pointer" : "default",
+                  cursor: "pointer",
                 }}
-                title={activeMode === "artisan" ? "View My Profile" : ""}
+                title="View My Profile"
               >
                 {profile?.avatar_url ? (
                   <img
