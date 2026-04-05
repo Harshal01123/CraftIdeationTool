@@ -22,14 +22,18 @@ function DashboardLayout() {
   // Determine page title based on route
   const getPageTitles = () => {
     const path = location.pathname;
-    if (path.includes("/my-products")) return { en: "My Products", hi: "मेरे उत्पाद" };
-    if (path.includes("/my-courses")) return { en: "My Courses", hi: "मेरी शिक्षा" };
+    if (path.includes("/my-products"))
+      return { en: "My Products", hi: "मेरे उत्पाद" };
+    if (path.includes("/my-courses"))
+      return { en: "My Courses", hi: "मेरी शिक्षा" };
     if (path.includes("/products")) return { en: "Products", hi: "उत्पाद" };
     if (path.includes("/courses")) return { en: "Courses", hi: "शिक्षा" };
     if (path.includes("/artisans")) return { en: "Artisans", hi: "शिल्पी" };
     if (path.includes("/messages")) return { en: "Messages", hi: "संदेश" };
-    if (path.includes("/notifications")) return { en: "Notifications", hi: "सूचनाएं" };
-    if (path.includes("/profile")) return { en: "Edit Profile", hi: "प्रोफ़ाइल" };
+    if (path.includes("/notifications"))
+      return { en: "Notifications", hi: "सूचनाएं" };
+    if (path.includes("/profile"))
+      return { en: "Edit Profile", hi: "प्रोफ़ाइल" };
     return { en: "Dashboard", hi: "डैशबोर्ड" };
   };
   const titles = getPageTitles();
@@ -44,7 +48,9 @@ function DashboardLayout() {
   const [bugReportOpen, setBugReportOpen] = useState(false);
   const [bugSubject, setBugSubject] = useState("");
   const [bugContent, setBugContent] = useState("");
-  const [bugStatus, setBugStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [bugStatus, setBugStatus] = useState<
+    "idle" | "sending" | "sent" | "error"
+  >("idle");
   const [wishlistOpen, setWishlistOpen] = useState(false);
 
   // WhatsApp-style dynamic toast
@@ -60,7 +66,7 @@ function DashboardLayout() {
 
   useEffect(() => {
     function handleUnreadCountChange() {
-      setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger((prev) => prev + 1);
     }
 
     function handleOpenEditModal(event: Event) {
@@ -83,10 +89,7 @@ function DashboardLayout() {
       OPEN_EDIT_COURSE_MODAL_EVENT,
       handleOpenEditCourseModal as EventListener,
     );
-    window.addEventListener(
-      UNREAD_COUNT_EVENT,
-      handleUnreadCountChange
-    );
+    window.addEventListener(UNREAD_COUNT_EVENT, handleUnreadCountChange);
 
     return () => {
       window.removeEventListener(
@@ -97,10 +100,7 @@ function DashboardLayout() {
         OPEN_EDIT_COURSE_MODAL_EVENT,
         handleOpenEditCourseModal as EventListener,
       );
-      window.removeEventListener(
-        UNREAD_COUNT_EVENT,
-        handleUnreadCountChange
-      );
+      window.removeEventListener(UNREAD_COUNT_EVENT, handleUnreadCountChange);
     };
   }, []);
 
@@ -123,7 +123,7 @@ function DashboardLayout() {
 
       async function fetchUnreadCount() {
         if (!isMounted) return;
-        
+
         // 1. System Notifications
         const { count: sysCount } = await supabase
           .from("notifications")
@@ -148,7 +148,7 @@ function DashboardLayout() {
             .or("is_read.eq.false,is_read.is.null");
           chatCount = msgCount ?? 0;
         }
-        
+
         if (isMounted) {
           setUnreadCount((sysCount ?? 0) + chatCount);
           setChatOnlyCount(chatCount);
@@ -167,16 +167,19 @@ function DashboardLayout() {
           { event: "*", schema: "public", table: "messages" },
           (payload) => {
             fetchUnreadCount();
-            if (payload.eventType === "INSERT" && payload.new.sender_id !== uid) {
-               setToastVisible(true);
-               setTimeout(() => setToastVisible(false), 4500);
+            if (
+              payload.eventType === "INSERT" &&
+              payload.new.sender_id !== uid
+            ) {
+              setToastVisible(true);
+              setTimeout(() => setToastVisible(false), 4500);
             }
-          }
+          },
         )
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "notifications" },
-          () => fetchUnreadCount()
+          () => fetchUnreadCount(),
         )
         .subscribe();
     }
@@ -239,7 +242,11 @@ function DashboardLayout() {
           </NavLink>
           {activeMode !== "learner" && (
             <NavLink
-              to={activeMode === "artisan" ? "/dashboard/my-products" : "/dashboard/products"}
+              to={
+                activeMode === "artisan"
+                  ? "/dashboard/my-products"
+                  : "/dashboard/products"
+              }
               className={navClass}
             >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>
@@ -252,7 +259,11 @@ function DashboardLayout() {
           )}
           {activeMode !== "customer" && (
             <NavLink
-              to={activeMode === "artisan" ? "/dashboard/my-courses" : "/dashboard/courses"}
+              to={
+                activeMode === "artisan"
+                  ? "/dashboard/my-courses"
+                  : "/dashboard/courses"
+              }
               className={navClass}
             >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>
@@ -265,22 +276,18 @@ function DashboardLayout() {
           )}
           {activeMode === "learner" && (
             <NavLink to="/dashboard/certificates" className={navClass}>
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>verified</span>
+              <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                verified
+              </span>
               <span className={styles.navLinkText}>Certificates</span>
             </NavLink>
           )}
-          <NavLink to="/dashboard/artisans" className={navClass}>
+          <NavLink to="/dashboard/artisans" end className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               brush
             </span>
             <span className={styles.navLinkText}>Artisans</span>
           </NavLink>
-          {activeMode === "artisan" && profile && (
-            <NavLink to={`/dashboard/artisans/${profile.id}`} className={navClass}>
-              <span className={`material-symbols-outlined ${styles.navIcon}`}>person</span>
-              <span className={styles.navLinkText}>My Profile</span>
-            </NavLink>
-          )}
           <NavLink to="/dashboard/messages" className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               mail
@@ -294,7 +301,7 @@ function DashboardLayout() {
             <>
               <button
                 className={styles.newCollectionBtn}
-                style={{ marginBottom: '0.5rem' }}
+                style={{ marginBottom: "0.5rem" }}
                 onClick={() => setIsCourseModalOpen(true)}
               >
                 <span className={`material-symbols-outlined ${styles.navIcon}`}>
@@ -318,11 +325,22 @@ function DashboardLayout() {
           )}
 
           <div className={styles.profileNavWrapper}>
+            {activeMode === "artisan" && profile && (
+              <NavLink
+                to={`/dashboard/artisans/${profile.id}`}
+                className={navClass}
+              >
+                <span className={`material-symbols-outlined ${styles.navIcon}`}>
+                  person
+                </span>
+                <span className={styles.navLinkText}>Profile</span>
+              </NavLink>
+            )}
             <NavLink to="/dashboard/profile" className={navClass}>
               <span className={`material-symbols-outlined ${styles.navIcon}`}>
-                account_circle
+                settings
               </span>
-              <span className={styles.navLinkText}>Profile</span>
+              <span className={styles.navLinkText}>Settings</span>
             </NavLink>
           </div>
         </div>
@@ -339,7 +357,7 @@ function DashboardLayout() {
 
           <div className={styles.modeSwitcher}>
             {availableModes.includes("artisan") && (
-              <button 
+              <button
                 className={`${styles.modeBtn} ${activeMode === "artisan" ? styles.modeBtnActive : ""}`}
                 onClick={() => {
                   setActiveMode("artisan");
@@ -350,7 +368,7 @@ function DashboardLayout() {
               </button>
             )}
             {availableModes.includes("customer") && (
-              <button 
+              <button
                 className={`${styles.modeBtn} ${activeMode === "customer" ? styles.modeBtnActive : ""}`}
                 onClick={() => {
                   setActiveMode("customer");
@@ -361,7 +379,7 @@ function DashboardLayout() {
               </button>
             )}
             {availableModes.includes("learner") && (
-              <button 
+              <button
                 className={`${styles.modeBtn} ${activeMode === "learner" ? styles.modeBtnActive : ""}`}
                 onClick={() => {
                   setActiveMode("learner");
@@ -374,13 +392,13 @@ function DashboardLayout() {
           </div>
 
           <div className={styles.topNavRight}>
-            {(location.pathname === "/dashboard/products" || 
-              location.pathname === "/dashboard/courses" || 
+            {(location.pathname === "/dashboard/products" ||
+              location.pathname === "/dashboard/courses" ||
               location.pathname === "/dashboard/artisans") && (
               <div className={styles.headerSearchBox}>
                 <span className="material-symbols-outlined">search</span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder={`Search ${titles.en.toLowerCase()}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -395,7 +413,7 @@ function DashboardLayout() {
               >
                 <span className="material-symbols-outlined">favorite</span>
               </button>
-              
+
               <button
                 className={styles.iconBtn}
                 onClick={() => navigate("/dashboard/notifications")}
@@ -408,7 +426,18 @@ function DashboardLayout() {
                 )}
               </button>
 
-              <div className={styles.headerProfileBox}>
+              <div
+                className={styles.headerProfileBox}
+                onClick={() =>
+                  activeMode === "artisan" &&
+                  profile?.id &&
+                  navigate(`/dashboard/artisans/${profile.id}`)
+                }
+                style={{
+                  cursor: activeMode === "artisan" ? "pointer" : "default",
+                }}
+                title={activeMode === "artisan" ? "View My Profile" : ""}
+              >
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -451,7 +480,10 @@ function DashboardLayout() {
           </p>
           <button
             className={styles.bugReportBtn}
-            onClick={() => { setBugReportOpen(true); setBugStatus("idle"); }}
+            onClick={() => {
+              setBugReportOpen(true);
+              setBugStatus("idle");
+            }}
           >
             <span className="material-symbols-outlined">bug_report</span>
             Report a Bug
@@ -462,8 +494,11 @@ function DashboardLayout() {
       {/* Dynamic WhatsApp-style Toast */}
       {toastVisible && chatOnlyCount > 0 && (
         <div className={styles.dynamicToast}>
-           <span className="material-symbols-outlined">chat</span>
-           <span>You have {chatOnlyCount} new message{chatOnlyCount !== 1 ? "s" : ""}!</span>
+          <span className="material-symbols-outlined">chat</span>
+          <span>
+            You have {chatOnlyCount} new message{chatOnlyCount !== 1 ? "s" : ""}
+            !
+          </span>
         </div>
       )}
 
@@ -501,15 +536,23 @@ function DashboardLayout() {
 
       {/* BUG REPORT MODAL */}
       {bugReportOpen && (
-        <div className={styles.bugOverlay} onClick={() => setBugReportOpen(false)}>
+        <div
+          className={styles.bugOverlay}
+          onClick={() => setBugReportOpen(false)}
+        >
           <div className={styles.bugModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.bugModalHeader}>
               <h3 className={styles.bugModalTitle}>Report a Bug</h3>
-              <button className={styles.bugCloseBtn} onClick={() => setBugReportOpen(false)}>
+              <button
+                className={styles.bugCloseBtn}
+                onClick={() => setBugReportOpen(false)}
+              >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <p className={styles.bugModalSubtitle}>Help us improve CraftConnect by describing the issue.</p>
+            <p className={styles.bugModalSubtitle}>
+              Help us improve CraftConnect by describing the issue.
+            </p>
 
             {bugStatus === "sent" ? (
               <div className={styles.bugSuccess}>
@@ -541,20 +584,34 @@ function DashboardLayout() {
                   />
                 </div>
                 {bugStatus === "error" && (
-                  <p className={styles.bugError}>Failed to send. Please try again.</p>
+                  <p className={styles.bugError}>
+                    Failed to send. Please try again.
+                  </p>
                 )}
                 <div className={styles.bugActions}>
-                  <button className={styles.bugCancelBtn} onClick={() => setBugReportOpen(false)}>
+                  <button
+                    className={styles.bugCancelBtn}
+                    onClick={() => setBugReportOpen(false)}
+                  >
                     Cancel
                   </button>
                   <button
                     className={styles.bugSubmitBtn}
                     onClick={handleSendBugReport}
-                    disabled={bugStatus === "sending" || !bugSubject.trim() || !bugContent.trim()}
+                    disabled={
+                      bugStatus === "sending" ||
+                      !bugSubject.trim() ||
+                      !bugContent.trim()
+                    }
                   >
                     {bugStatus === "sending" ? (
                       <>
-                        <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite" }}>progress_activity</span>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ animation: "spin 1s linear infinite" }}
+                        >
+                          progress_activity
+                        </span>
                         Sending...
                       </>
                     ) : (
