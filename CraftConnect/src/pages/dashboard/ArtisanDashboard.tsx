@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import type { Product, Purchase } from "../../types/chat";
@@ -31,6 +32,7 @@ export const OPEN_EDIT_PRODUCT_MODAL_EVENT =
   "dashboard:open-edit-product-modal";
 
 function ArtisanDashboard({ artisanId }: { artisanId: string }) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
@@ -168,13 +170,12 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
       {/* Welcome Banner */}
       <div className={styles.welcomeBanner}>
         <div className={styles.welcomeContent}>
-          <span className={styles.workspaceTag}>Artisan Workspace</span>
+          <span className={styles.workspaceTag}>{t("artisanDashboard.workspace")}</span>
           <h2 className={styles.welcomeName}>
-            Namaste, {profile?.name?.split(" ")[0] || "Artisan"}
+            {t("artisanDashboard.namaste")}, {profile?.name?.split(" ")[0] || t("artisanDashboard.artisan")}
           </h2>
           <p className={styles.welcomeText}>
-            Your curation has seen increased interest this week. Launch your new
-            collections today.
+            {t("artisanDashboard.welcomeText")}
           </p>
         </div>
         <div className={styles.welcomePattern}></div>
@@ -199,7 +200,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             </div>
           </div>
           <p className={styles.kpiValue}>{formatRevenue(totalRevenue)}</p>
-          <p className={styles.kpiLabel}>Total Revenue</p>
+          <p className={styles.kpiLabel}>{t("artisanDashboard.revenue")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
@@ -210,7 +211,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             </div>
           </div>
           <p className={styles.kpiValue}>{activeOrders}</p>
-          <p className={styles.kpiLabel}>Orders Generated</p>
+          <p className={styles.kpiLabel}>{t("artisanDashboard.orders")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
@@ -221,7 +222,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             </div>
           </div>
           <p className={styles.kpiValue}>{courses.length}</p>
-          <p className={styles.kpiLabel}>My Courses</p>
+          <p className={styles.kpiLabel}>{t("artisanDashboard.myCourses")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
@@ -237,22 +238,22 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
               <span className={styles.kpiValueSub}>/5</span>
             )}
           </p>
-          <p className={styles.kpiLabel}>Store Rating</p>
+          <p className={styles.kpiLabel}>{t("artisanDashboard.storeRating")}</p>
         </div>
       </div>
 
       {/* Recent Orders */}
       <div>
         <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>Recent Orders</h3>
+          <h3 className={styles.sectionTitle}>{t("artisanDashboard.recentOrders")}</h3>
           <Link to="/dashboard/messages" className={styles.viewAllBtn}>
-            View All Orders
+            {t("artisanDashboard.viewAll")}
           </Link>
         </div>
         {salesLoading ? (
           <Spinner label="Loading orders..." />
         ) : sales.length === 0 ? (
-          <p className={styles.empty}>No orders yet.</p>
+          <p className={styles.empty}>{t("artisanDashboard.emptyOrders")}</p>
         ) : (
           <div className={styles.tableWrapper}>
             <table className={styles.salesTable}>
@@ -326,19 +327,19 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         {/* My Products */}
         <div>
           <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>My Products</h3>
+            <h3 className={styles.sectionTitle}>{t("artisanDashboard.myProducts")}</h3>
             <button
               className={styles.viewAllBtn}
               onClick={() => navigate("/dashboard/my-products")}
             >
-              View All
+              {t("artisanDashboard.viewAll")}
             </button>
           </div>
           {loading ? (
             <Spinner label="Loading products..." />
           ) : products.length === 0 ? (
             <p className={styles.empty}>
-              No products yet. Use "New Collection" to add one.
+              {t("artisanDashboard.emptyProducts")}
             </p>
           ) : (
             <div className={styles.productsGrid}>
@@ -372,7 +373,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
                     <div className={styles.productMiniBody}>
                       <p className={styles.productMiniName}>{p.name}</p>
                       <p className={styles.productMiniStock}>
-                        {p.is_available ? "In Stock" : "Out of Stock"}
+                        {p.is_available ? t("artisanDashboard.inStock") : t("artisanDashboard.outOfStock")}
                       </p>
                       <p className={styles.productMiniPrice}>₹{p.price}</p>
                       {rating && rating.total_ratings > 0 && (
@@ -400,19 +401,19 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
         {/* My Courses */}
         <div>
           <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>My Courses</h3>
+            <h3 className={styles.sectionTitle}>{t("artisanDashboard.myCourses")}</h3>
             <button
               className={styles.viewAllBtn}
               onClick={() => navigate("/dashboard/my-courses")}
             >
-              View All
+              {t("artisanDashboard.viewAll")}
             </button>
           </div>
           {coursesLoading ? (
             <Spinner label="Loading courses..." />
           ) : courses.length === 0 ? (
             <p className={styles.empty}>
-              No courses yet. Use "New Course" to create one.
+              {t("artisanDashboard.coursesEmpty")}
             </p>
           ) : (
             <div className={styles.coursesList}>

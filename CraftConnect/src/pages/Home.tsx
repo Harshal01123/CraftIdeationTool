@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import styles from "./Home.module.css";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 
@@ -36,17 +37,27 @@ function Home() {
       {/* ================= HERO ================= */}
       <header className={styles.hero}>
         <div className={styles.heroContainer}>
-          <div className={styles.heroContent}>
+          <motion.div 
+            className={styles.heroContent}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             <h1 className={styles.heroTitle}>
               {t('hero.title1')}<span className={styles.heroTitleItalic}>{t('hero.titleItalic')}</span><br />{t('hero.title2')}
             </h1>
             <p className={styles.heroSubtitle}>
               {t('hero.subtitle')}
             </p>
-          </div>
+          </motion.div>
           
           {/* Photo Collage */}
-          <div className={styles.heroCollage}>
+          <motion.div 
+            className={styles.heroCollage}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          >
             <div className={styles.collageMain}>
               <img src="/images/bluePottery.jpg" alt="Master Artisan at Pottery Wheel" className={styles.collageImgMain} />
             </div>
@@ -59,33 +70,63 @@ function Home() {
             <div className={styles.collageBottomRight}>
               <img src="/images/home_section_1.jpg" alt="Authentic Block Printing" className={styles.collageImgBottomRight} />
             </div>
-          </div>
+          </motion.div>
         </div>
       </header>
 
       {/* ================= MESSAGE FROM THE DEVS ================= */}
-      <section className={styles.ecosystemSection} id="customer">
+      <motion.section 
+        className={styles.ecosystemSection} id="customer"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.7 }}
+      >
         <div className={styles.ecosystemHeader}>
           <h2 className={styles.sectionTitle}>{t('ecosystem.title')}</h2>
         </div>
         <div className={styles.ecosystemGrid}>
-          <div className={styles.ecoCard}>
+          <motion.div 
+            className={styles.ecoCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             <h3>{t('ecosystem.customer.title')}</h3>
             <p>{t('ecosystem.customer.desc')}</p>
-          </div>
-          <div className={styles.ecoCard}>
+          </motion.div>
+          <motion.div 
+            className={styles.ecoCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <h3>{t('ecosystem.learner.title')}</h3>
             <p>{t('ecosystem.learner.desc')}</p>
-          </div>
-          <div className={styles.ecoCard}>
+          </motion.div>
+          <motion.div 
+            className={styles.ecoCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             <h3>{t('ecosystem.artisan.title')}</h3>
             <p>{t('ecosystem.artisan.desc')}</p>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ================= MASTER CRAFTSMEN ================= */}
-      <section className={styles.craftsmenSection} id="artisan">
+      <motion.section 
+        className={styles.craftsmenSection} id="artisan"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.7 }}
+      >
         <div className={styles.craftsmenContainer}>
           <h2 className={styles.sectionTitleLeft}>{t('craftsmen.title')}</h2>
           <div className={styles.craftsmenGrid}>
@@ -118,8 +159,15 @@ function Home() {
                 initials: "PM",
                 img : "/images/pandiramPFP.webp"
               }
-            ].map(artisan => (
-              <div key={artisan.name} className={styles.artisanCard}>
+            ].map((artisan, index) => (
+              <motion.div 
+                key={artisan.name} 
+                className={styles.artisanCard}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
                 <div className={styles.artisanImageContainer}>
                   <img src={artisan.img} alt={artisan.initials} className={styles.artisanImage} />
                 </div>
@@ -128,14 +176,20 @@ function Home() {
                   <p className={styles.artisanSpecialty}>{artisan.specialty}</p>
                   <p className={styles.artisanLocation}>{artisan.location}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ================= MASTERCLASS SERIES ================= */}
-      <section className={styles.masterclassSection} id="learner">
+      <motion.section 
+        className={styles.masterclassSection} id="learner"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.7 }}
+      >
         <div className={styles.masterclassHeader}>
           <h2 className={styles.sectionTitle}>{t('masterclass.title')}</h2>
         </div>
@@ -145,17 +199,24 @@ function Home() {
             { title: t('masterclass.course2'), img: "/images/handloom.jpg" },
             { title: t('masterclass.course3'), img: "/images/zardozi.jpg" }
           ].map((course, i) => (
-            <div key={i} className={styles.courseCard}>
+            <motion.div 
+              key={i} 
+              className={styles.courseCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            >
               <div className={styles.courseImageContainer}>
                 <img src={course.img} alt={course.title} className={styles.courseImage} />
               </div>
               <div className={styles.courseInfo}>
                 <h3>{course.title}</h3>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>

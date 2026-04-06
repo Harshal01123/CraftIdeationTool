@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import type { Purchase } from "../../types/chat";
@@ -7,6 +8,7 @@ import styles from "./Dashboard.module.css";
 import RatingModal from "../../components/ratings/RatingModal";
 
 function CustomerDashboard({ customerId }: { customerId: string }) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [ratedArtisans, setRatedArtisans] = useState<Set<string>>(new Set());
@@ -127,9 +129,9 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
       {/* Welcome Banner */}
       <div className={styles.welcomeBanner} style={{backgroundColor: "var(--primary-container)"}}>
         <div className={styles.welcomeContent}>
-          <span className={styles.workspaceTag}>Collector Workspace</span>
-          <h3 className={styles.welcomeName}>Namaste, {profile?.name?.split(" ")[0] || "Collector"}</h3>
-          <p className={styles.welcomeText}>Thank you for supporting India's rich cultural heritage. Your purchases empower generations of artisans.</p>
+          <span className={styles.workspaceTag}>{t("customerDashboard.workspace")}</span>
+          <h3 className={styles.welcomeName}>{t("customerDashboard.namaste")}, {profile?.name?.split(" ")[0] || t("customerDashboard.collector")}</h3>
+          <p className={styles.welcomeText}>{t("customerDashboard.thankYou")}</p>
         </div>
         <div className={styles.welcomeIcon}>
           <span className="material-symbols-outlined" style={{fontSize: "inherit"}}>shopping_cart</span>
@@ -145,7 +147,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
             </div>
           </div>
           <p className={styles.kpiValue}>{totalOrders}</p>
-          <p className={styles.kpiLabel}>Total Orders</p>
+          <p className={styles.kpiLabel}>{t("customerDashboard.totalOrders")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}>
@@ -154,7 +156,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
             </div>
           </div>
           <p className={styles.kpiValue}>₹{totalSpent}</p>
-          <p className={styles.kpiLabel}>Total Spent</p>
+          <p className={styles.kpiLabel}>{t("customerDashboard.totalSpent")}</p>
         </div>
       </div>
 
@@ -165,7 +167,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
           {pendingReviews.length > 0 && (
             <div style={{ marginBottom: "2rem" }}>
               <div className={styles.sectionHeader}>
-                <h4 className={styles.sectionTitle} style={{ color: "var(--primary)" }}>Pending Reviews</h4>
+                <h4 className={styles.sectionTitle} style={{ color: "var(--primary)" }}>{t("customerDashboard.pendingReviews")}</h4>
               </div>
               <div style={{ display: "flex", gap: "1rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
                 {pendingReviews.map((r) => (
@@ -183,7 +185,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ margin: 0, fontWeight: 600, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</p>
-                      <p style={{ margin: 0, fontSize: "0.75rem", color: "gray", textTransform: "capitalize" }}>Rate {r.type}</p>
+                      <p style={{ margin: 0, fontSize: "0.75rem", color: "gray", textTransform: "capitalize" }}>{t("customerDashboard.rate")} {r.type}</p>
                     </div>
                     <button 
                       onClick={() => setRatingTarget(r)}
@@ -195,7 +197,7 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
                        onMouseOver={(e) => (e.currentTarget.style.background = "var(--primary)", e.currentTarget.style.color = "white")}
                        onMouseOut={(e) => (e.currentTarget.style.background = "var(--primary-container)", e.currentTarget.style.color = "var(--on-primary-container)")}
                     >
-                      Rate
+                      {t("customerDashboard.rate")}
                     </button>
                   </div>
                 ))}
@@ -205,12 +207,12 @@ function CustomerDashboard({ customerId }: { customerId: string }) {
 
           {/* Order History Section */}
           <div className={styles.sectionHeader}>
-            <h4 className={styles.sectionTitle}>Order History</h4>
+            <h4 className={styles.sectionTitle}>{t("customerDashboard.orderHistory")}</h4>
           </div>
           {loading ? (
             <Spinner label="Loading history..." />
           ) : purchases.length === 0 ? (
-            <p className={styles.empty}>You haven't purchased anything yet.</p>
+            <p className={styles.empty}>{t("customerDashboard.emptyHistory")}</p>
           ) : (
             <div className={styles.tableWrapper}>
               <table className={styles.salesTable}>
