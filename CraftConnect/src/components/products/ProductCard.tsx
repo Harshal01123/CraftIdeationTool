@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import styles from "./ProductCard.module.css";
 import { useWishlist } from "../../hooks/useWishlist";
 import StarRating from "../ratings/StarRating";
@@ -30,6 +31,7 @@ function ProductCard({
   onBuy,
   onView,
 }: ProductCardProps) {
+  const { t } = useTranslation();
   const { wishlistIds, toggleWishlist } = useWishlist();
   const isWishlisted = wishlistIds.has(id);
 
@@ -90,7 +92,7 @@ function ProductCard({
                 <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>
                   visibility
                 </span>
-                <span>View</span>
+                <span>{t("extended.viewProduct")}</span>
               </button>
             )}
             {onEdit && (
@@ -100,7 +102,7 @@ function ProductCard({
             )}
             {onDelete && (
               <button className={styles.deleteBtn} onClick={onDelete}>
-                Delete
+                {t("extended.delete")}
               </button>
             )}
             {onBuy && (
@@ -111,7 +113,7 @@ function ProductCard({
                 >
                   shopping_bag
                 </span>
-                <span>Buy Now</span>
+                <span>{t("extended.buyNow")}</span>
               </button>
             )}
           </div>

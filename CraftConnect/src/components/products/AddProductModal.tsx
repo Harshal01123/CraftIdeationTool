@@ -4,6 +4,7 @@ import type { Product } from "../../types/chat";
 import Spinner from "../Spinner";
 import { INDUSTRY_OPTIONS } from "../../constants/industryOptions";
 import styles from "./AddProductModal.module.css";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   artisanId: string;
@@ -18,6 +19,7 @@ export default function AddProductModal({
   onClose,
   onSaved,
 }: Props) {
+  const { t } = useTranslation();
   const [name, setName] = useState(existingProduct?.name ?? "");
   const [description, setDescription] = useState(
     existingProduct?.description ?? "",
@@ -343,7 +345,7 @@ export default function AddProductModal({
           <header className={styles.formHeader}>
             <p className={styles.formHindi}>नया उत्पाद</p>
             <h2 className={styles.formTitle}>
-              {existingProduct ? "Edit Product" : "Add New Product"}
+              {existingProduct ? t("extended.update") : t("extended.addNewProduct")}
             </h2>
             <p className={styles.formSubtitle}>
               Cataloging the soul of the craft.
@@ -453,9 +455,9 @@ export default function AddProductModal({
                       <Spinner size="sm" inline /> Processing...
                     </>
                   ) : existingProduct ? (
-                    "Save Changes"
+                    t("extended.saveChanges")
                   ) : (
-                    "Add to Collection"
+                    t("extended.addNewProduct")
                   )}
                 </span>
                 <div className={styles.submitBtnHover}></div>

@@ -9,6 +9,7 @@ import StarRating from "../components/ratings/StarRating";
 import { supabase } from "../lib/supabase";
 import type { Profile, Product, ArtisanRating } from "../types/chat";
 import { useMode } from "../contexts/ModeContext";
+import { useTranslation } from "react-i18next";
 
 interface Course {
   id: string;
@@ -21,6 +22,7 @@ interface Course {
 }
 
 function ArtisanPortfolio() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [reviews, setReviews] = useState<ArtisanRating[]>([]);
@@ -241,7 +243,7 @@ function ArtisanPortfolio() {
                 className={styles.viewProfileBtn}
                 onClick={() => navigate("/dashboard/profile")}
               >
-                Edit Profile
+                {t("extended.viewPortfolio")}
               </button>
             )}
             {!isOwnProfile && activeMode === "customer" && (
@@ -264,7 +266,7 @@ function ArtisanPortfolio() {
             <div className={styles.aboutQuoteIcon}>
               <span className="material-symbols-outlined">format_quote</span>
             </div>
-            <h3 className={styles.aboutTitle}>About the Artisan</h3>
+            <h3 className={styles.aboutTitle}>{t("extended.artisanAbout")}</h3>
             <div className={styles.aboutText}>
               <p>
                 {artisan.description ||
@@ -293,7 +295,7 @@ function ArtisanPortfolio() {
               >
                 cognition
               </span>
-              Craftsmanship Details
+              {t("extended.craftDetails")}
             </h4>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Industry</span>
@@ -347,10 +349,10 @@ function ArtisanPortfolio() {
         </div>
 
         {productsLoading ? (
-          <Spinner label="Loading products..." />
+          <Spinner label={t("extended.loadingProducts")} />
         ) : products.length === 0 ? (
           <p style={{ color: "gray", fontStyle: "italic" }}>
-            No products listed yet.
+            {t("extended.emptyProducts")}
           </p>
         ) : (
           <div className={styles.productsGrid}>
@@ -380,14 +382,14 @@ function ArtisanPortfolio() {
       <section className={styles.productsSection}>
         <div className={styles.productsHeader}>
           <div>
-            <h3 className={styles.productsTitle}>Masterclasses</h3>
+            <h3 className={styles.productsTitle}>{t("extended.masterclasses")}</h3>
             <p className={styles.productsSubtitle}>Courses offered by this artisan</p>
           </div>
         </div>
         {coursesLoading ? (
-          <Spinner label="Loading courses..." />
+          <Spinner label={t("extended.loadingCourses")} />
         ) : courses.length === 0 ? (
-          <p style={{ color: "gray", fontStyle: "italic" }}>No courses listed yet.</p>
+          <p style={{ color: "gray", fontStyle: "italic" }}>{t("extended.emptyCourses")}</p>
         ) : (
           <div className={styles.productsGrid}>
             {courses.map((c) => (
@@ -419,7 +421,7 @@ function ArtisanPortfolio() {
       {/* Reviews Section */}
       <section className={styles.reviewsSection}>
         <div className={styles.reviewsHeader}>
-          <h3 className={styles.reviewsTitle}>Reviews & Ratings</h3>
+          <h3 className={styles.reviewsTitle}>{t("extended.reviews")}</h3>
           {!isOwnProfile && activeMode === "customer" && (
             <button
               className={styles.writeReviewBtn}

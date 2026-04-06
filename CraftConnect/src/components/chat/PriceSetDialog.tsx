@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Product } from "../../types/chat";
 import styles from "./PriceSetDialog.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   product: Product;
@@ -17,8 +18,10 @@ export default function PriceSetDialog({
   onConfirm,
   onClose,
   isProcessing,
-  title = "Make an Offer",
+  title,
 }: Props) {
+  const { t } = useTranslation();
+  const displayTitle = title || t("extended.makeOffer");
   const [price, setPrice] = useState<string>(
     initialPrice !== undefined ? String(initialPrice) : String(product.price)
   );
@@ -36,7 +39,7 @@ export default function PriceSetDialog({
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
+          <h3 className={styles.title}>{displayTitle}</h3>
           <button className={styles.closeBtn} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>

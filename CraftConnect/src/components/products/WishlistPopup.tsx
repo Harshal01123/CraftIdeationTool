@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import { useTranslation } from "react-i18next";
 import { useWishlist } from "../../hooks/useWishlist";
 import { useAuth } from "../../hooks/useAuth";
 import type { Product } from "../../types/chat";
@@ -11,6 +12,7 @@ import { useMode } from "../../contexts/ModeContext";
 import OfferFlowCoordinator from "../chat/OfferFlowCoordinator";
 
 function WishlistPopup({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setActiveMode } = useMode();
   const { profile } = useAuth();
@@ -58,7 +60,7 @@ function WishlistPopup({ onClose }: { onClose: () => void }) {
           <div className={styles.header}>
             <h2 className={styles.title}>
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", color: "#d32f2f" }}>favorite</span>
-              My Wishlist
+              {t("extended.myWishlist")}
             </h2>
             <button className={styles.closeBtn} onClick={onClose}>
               <span className="material-symbols-outlined">close</span>
@@ -67,11 +69,11 @@ function WishlistPopup({ onClose }: { onClose: () => void }) {
 
           <div className={styles.content}>
             {loading ? (
-               <Spinner label="Loading wishlist..." />
+               <Spinner label={t("extended.loadingWishlist")} />
             ) : products.length === 0 ? (
               <div className={styles.empty}>
                 <span className="material-symbols-outlined" style={{ fontSize: "3rem", color: "var(--outline)", opacity: 0.5 }}>heart_broken</span>
-                <p>Your wishlist is empty.</p>
+                <p>{t("extended.emptyWishlist")}</p>
                 <button className={styles.exploreBtn} onClick={() => { onClose(); setActiveMode("customer"); navigate("/dashboard/products"); }}>Explore Products</button>
               </div>
             ) : (

@@ -4,9 +4,11 @@ import { useAuth } from "../../hooks/useAuth";
 import ChatSidebar from "../../components/chat/ChatSidebar";
 import ChatWindow from "../../components/chat/ChatWindow";
 import Spinner from "../../components/Spinner";
+import { useTranslation } from "react-i18next";
 import styles from "./Messages.module.css";
 
 function Messages() {
+  const { t } = useTranslation();
   const { profile, authLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeConversationId, setActiveConversationId] = useState<
@@ -30,7 +32,7 @@ function Messages() {
   if (authLoading)
     return (
       <div className={styles.loading}>
-        <Spinner label="Loading..." />
+        <Spinner label={t("extended.loading")} />
       </div>
     );
 
@@ -56,7 +58,7 @@ function Messages() {
           />
         ) : (
           <div className={styles.empty}>
-            <p>Select a conversation to start chatting</p>
+            <p>{t("extended.emptyMessages")}</p>
           </div>
         )}
       </div>

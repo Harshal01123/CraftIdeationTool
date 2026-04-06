@@ -1,5 +1,6 @@
 import type { OfferPayload } from "../../types/chat";
 import styles from "./OfferCard.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   payload: OfferPayload;
@@ -29,6 +30,7 @@ export default function OfferCard({
   onBargain,
   disabled,
 }: Props) {
+  const { t } = useTranslation();
   const { productName, imageUrl, listedPrice, offeredPrice, status } = payload;
   const statusInfo = STATUS_LABELS[status] ?? STATUS_LABELS.pending;
 
@@ -67,13 +69,13 @@ export default function OfferCard({
       {showArtisanActions && (
         <div className={styles.actions}>
           <button className={styles.btnAccept} onClick={onAccept} disabled={disabled}>
-            <span className="material-symbols-outlined">check_circle</span> Accept
+            <span className="material-symbols-outlined">check_circle</span> {t("extended.acceptOffer")}
           </button>
           <button className={styles.btnBargain} onClick={onBargain} disabled={disabled}>
             <span className="material-symbols-outlined">sync_alt</span> Bargain
           </button>
           <button className={styles.btnReject} onClick={onReject} disabled={disabled}>
-            <span className="material-symbols-outlined">cancel</span> Reject
+            <span className="material-symbols-outlined">cancel</span> {t("extended.rejectOffer")}
           </button>
         </div>
       )}
@@ -82,13 +84,13 @@ export default function OfferCard({
       {showCounterActions && (
         <div className={styles.actions}>
           <button className={styles.btnAccept} onClick={onAccept} disabled={disabled}>
-            <span className="material-symbols-outlined">check_circle</span> Accept Counter
+            <span className="material-symbols-outlined">check_circle</span> {t("extended.acceptOffer")}
           </button>
           <button className={styles.btnBargain} onClick={onBargain} disabled={disabled}>
             <span className="material-symbols-outlined">sync_alt</span> Counter Again
           </button>
           <button className={styles.btnReject} onClick={onReject} disabled={disabled}>
-            <span className="material-symbols-outlined">cancel</span> Reject
+            <span className="material-symbols-outlined">cancel</span> {t("extended.rejectOffer")}
           </button>
         </div>
       )}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import YouTube from "react-youtube";
 import { supabase } from "../../lib/supabase";
 import styles from "./CreateCourseModal.module.css";
+import { useTranslation } from "react-i18next";
 
 interface CreateCourseModalProps {
   artisanId: string;
@@ -41,6 +42,7 @@ export default function CreateCourseModal({
   onClose,
   onSaved,
 }: CreateCourseModalProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -455,7 +457,7 @@ export default function CreateCourseModal({
           {/* Header Section */}
           <div className={styles.header}>
             <div>
-              <h2 className={styles.title}>{existingCourse ? "Edit Course" : "Add New Course"}</h2>
+              <h2 className={styles.title}>{existingCourse ? t("extended.update") : t("extended.createNewCourse")}</h2>
               <p className={styles.hindiSubtitle}>{existingCourse ? "पाठ्यक्रम संपादित करें" : "नया पाठ्यक्रम"}</p>
             </div>
             <button

@@ -8,6 +8,7 @@ import CertificateModal from "../../components/courses/CertificateModal";
 import styles from "./CoursePortfolio.module.css";
 import { OPEN_EDIT_COURSE_MODAL_EVENT } from "./MyCourses";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
+import { useTranslation } from "react-i18next";
 
 // ── Types ─────────────────────────────────────────────────────────
 interface Profile { id: string; name: string; avatar_url: string; }
@@ -104,6 +105,7 @@ interface ActiveVideo { src: string; type: "youtube" | "native"; videoIndex: num
 
 // ── Component ─────────────────────────────────────────────────────
 export default function CoursePortfolio() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -338,7 +340,7 @@ export default function CoursePortfolio() {
   }
 
   // ── Guards ─────────────────────────────────────────────────────
-  if (loading) return <div className={styles.loadingContainer}><Spinner label="Loading course portfolio..." /></div>;
+  if (loading) return <div className={styles.loadingContainer}><Spinner label={t("extended.loadingPortfolio")} /></div>;
   if (!course) return (
     <div className={styles.notFound}>
       <h2>Course not found</h2>

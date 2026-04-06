@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase";
 import type { Profile } from "../../types/chat";
 import Spinner from "../Spinner";
 import styles from "./NewChatDialog.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   currentProfile: Profile;
@@ -18,6 +19,7 @@ async function fetchArtisans(): Promise<Profile[]> {
 }
 
 export default function NewChatDialog({ currentProfile, onClose, onArtisanSelected }: Props) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<SearchMode>("name");
   const [allArtisans, setAllArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>New Conversation</h3>
+          <h3 className={styles.title}>{t("extended.newConversation")}</h3>
           <button className={styles.closeBtn} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>

@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import CertificateModal from "../../components/courses/CertificateModal";
 import Spinner from "../../components/Spinner";
 import styles from "./Certificates.module.css";
+import { useTranslation } from "react-i18next";
 
 interface CertRow {
   id: string;
@@ -27,6 +28,7 @@ interface ModalData {
 
 export default function Certificates() {
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const [certs, setCerts] = useState<CertRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalData, setModalData] = useState<ModalData | null>(null);
@@ -62,16 +64,16 @@ export default function Certificates() {
     <div className={styles.page}>
       <div className={styles.canvas}>
         <div className={styles.header}>
-          <h1 className={styles.title}>My Certificates</h1>
-          <p className={styles.subtitle}>Your earned masterclass credentials</p>
+          <h1 className={styles.title}>{t("extended.myCertificates")}</h1>
+          <p className={styles.subtitle}>{t("extended.certificatesSubtitle")}</p>
         </div>
 
         {loading ? (
-          <div className={styles.loadingWrap}><Spinner label="Loading certificates..." /></div>
+          <div className={styles.loadingWrap}><Spinner label={t("extended.loadingCertificates")} /></div>
         ) : certs.length === 0 ? (
           <div className={styles.empty}>
             <span className="material-symbols-outlined">verified</span>
-            <p>No certificates yet. Complete a masterclass to earn one!</p>
+            <p>{t("extended.emptyCertificates")}</p>
           </div>
         ) : (
           <div className={styles.grid}>
@@ -82,9 +84,9 @@ export default function Certificates() {
                   <span className={styles.cardCode}>{cert.certificate_code}</span>
                 </div>
                 <div className={styles.cardBody}>
-                  <p className={styles.cardCertLabel}>Certificate of Completion</p>
+                  <p className={styles.cardCertLabel}>{t("extended.certificateOfCompletion")}</p>
                   <h3 className={styles.cardCourseTitle}>{cert.course.title}</h3>
-                  <p className={styles.cardArtisan}>by {cert.course.artisan.name}</p>
+                  <p className={styles.cardArtisan}>{t("extended.byArtisan", { name: cert.course.artisan.name })}</p>
                   <div className={styles.cardMeta}>
                     <span className={styles.cardCategory}>{cert.course.category}</span>
                     <span className={styles.cardDate}>
@@ -94,7 +96,7 @@ export default function Certificates() {
                 </div>
                 <button className={styles.viewBtn} onClick={() => openModal(cert)}>
                   <span className="material-symbols-outlined">workspace_premium</span>
-                  View Certificate
+                  {t("extended.viewCertificate")}
                 </button>
               </div>
             ))}

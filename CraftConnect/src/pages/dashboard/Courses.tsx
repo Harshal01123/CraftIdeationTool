@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
 import Spinner from "../../components/Spinner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { useMode } from "../../contexts/ModeContext";
 
@@ -39,6 +40,7 @@ function formatDuration(minutes: number) {
 }
 
 export default function Courses() {
+  const { t } = useTranslation();
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
   const { profile } = useAuth();
   const { activeMode } = useMode();
@@ -122,7 +124,7 @@ export default function Courses() {
         {/* Categories Grid */}
         <div className={styles.categoriesContainer}>
           {loading ? (
-            <Spinner size="lg" label="Loading courses..." />
+            <Spinner size="lg" label={t("extended.loadingCourses")} />
           ) : (
             groupedCourses.map((category) => {
               const matchedCourses = category.courses.filter(course => {
@@ -215,7 +217,7 @@ export default function Courses() {
                   <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>Check your browser console for more details.</p>
                 </div>
               ) : (
-                <p>No master classes available to enroll in yet. Check back soon for new artisan courses!</p>
+                <p>{t("extended.emptyCourses")}</p>
               )}
             </div>
           )}

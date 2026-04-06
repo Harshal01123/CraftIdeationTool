@@ -410,7 +410,7 @@ function ArtisanDashboard({ artisanId }: { artisanId: string }) {
             </button>
           </div>
           {coursesLoading ? (
-            <Spinner label="Loading courses..." />
+            <Spinner label={t("extended.loadingCourses")} />
           ) : courses.length === 0 ? (
             <p className={styles.empty}>
               {t("artisanDashboard.coursesEmpty")}

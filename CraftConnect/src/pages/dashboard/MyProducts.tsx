@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import Spinner from "../../components/Spinner";
@@ -15,6 +16,7 @@ interface ProductRatingSummary {
 }
 
 function MyProducts() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [artisanId, setArtisanId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -85,10 +87,10 @@ function MyProducts() {
       <div className={pageStyles.contentWrap} style={{ gap: "2rem" }}>
 
         {loading ? (
-          <Spinner size="lg" label="Loading your products..." />
+          <Spinner size="lg" label={t("extended.loadingProducts")} />
         ) : products.length === 0 ? (
           <p style={{ color: "var(--outline)", textAlign: "center", padding: "4rem" }}>
-            No products yet. Use "New Collection" to add one.
+            {t("extended.emptyMyProducts")}
           </p>
         ) : (
           <div className={styles.productsGrid} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.5rem" }}>
@@ -154,7 +156,7 @@ function MyProducts() {
             <div className={styles.popupActions}>
               <button className={styles.cancelBtn} onClick={() => setProductToDelete(null)} disabled={isDeleting}>Cancel</button>
               <button className={styles.deleteConfirmBtn} onClick={confirmDelete} disabled={isDeleting}>
-                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
+                {isDeleting ? <Spinner size="sm" inline /> : t("extended.delete")}
               </button>
             </div>
           </div>
