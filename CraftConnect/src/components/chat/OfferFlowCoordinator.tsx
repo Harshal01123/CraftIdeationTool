@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Profile, Product } from "../../types/chat";
+import { useTranslation } from "react-i18next";
 import ArtisanProductPicker from "./ArtisanProductPicker";
 import PriceSetDialog from "./PriceSetDialog";
 import { startProductConversation, startConversation } from "../../lib/chatUtils";
@@ -23,10 +24,12 @@ export default function OfferFlowCoordinator({
   product,
   onConversationStarted,
 }: Props) {
+  const { t } = useTranslation();
   const { profile: currentProfile } = useAuth();
   const [step, setStep] = useState<Step>("title");
   const [title, setTitle] = useState("");
   const [processing, setProcessing] = useState(false);
+  const isOffer = !!product;
 
   useEffect(() => {
     if (isOpen) {
@@ -89,9 +92,11 @@ export default function OfferFlowCoordinator({
     return (
       <div className={styles.dialogOverlay}>
         <div className={styles.dialog}>
-          <h3 className={styles.dialogTitle}>Start an Offer</h3>
+          <h3 className={styles.dialogTitle}>
+            {isOffer ? t("extended.startOffer") : t("extended.newConversation")}
+          </h3>
           <p className={styles.dialogSubtitle}>
-            What is this {product ? "offer" : "conversation"} regarding?
+            {isOffer ? t("extended.whatIsOfferRegarding") : t("extended.whatIsConversationRegarding")}
           </p>
           <input
             className={styles.dialogInput}
@@ -107,14 +112,14 @@ export default function OfferFlowCoordinator({
           />
           <div className={styles.dialogActions}>
             <button className={styles.cancelBtn} onClick={onClose} disabled={processing}>
-              Cancel
+              {t("extended.cancel")}
             </button>
             <button
               className={styles.confirmBtn}
               onClick={() => setStep(product ? "price" : "product")}
               disabled={!title.trim() || processing}
             >
-              Continue
+              {t("extended.continue")}
             </button>
           </div>
         </div>
@@ -131,7 +136,7 @@ export default function OfferFlowCoordinator({
           style={{ padding: "1.5rem", maxWidth: "480px" }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>About a Product?</h3>
+            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t("extended.aboutProduct")}</h3>
             <button
               onClick={async () => {
                 if (!currentProfile || !artisan) return;
@@ -158,7 +163,7 @@ export default function OfferFlowCoordinator({
               }}
               disabled={processing}
             >
-              Skip, just chat
+              {t("extended.skipJustChat")}
             </button>
           </div>
           <ArtisanProductPicker

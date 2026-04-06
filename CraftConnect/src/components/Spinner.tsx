@@ -1,4 +1,5 @@
 import { ThreeDots } from "react-loader-spinner";
+import { useTranslation } from "react-i18next";
 import styles from "./Spinner.module.css";
 
 interface SpinnerProps {
@@ -8,6 +9,7 @@ interface SpinnerProps {
 }
 
 function Spinner({ size = "md", label, inline = false }: SpinnerProps) {
+  const { t } = useTranslation();
   const dimension = size === "sm" ? "30" : size === "lg" ? "80" : "50";
   
   return (
@@ -15,7 +17,7 @@ function Spinner({ size = "md", label, inline = false }: SpinnerProps) {
       className={`${styles.container} ${inline ? styles.inline : styles.block}`}
       role="status"
       aria-live="polite"
-      aria-label={label ?? "Loading"}
+      aria-label={label ?? t("extended.loadingFallback")}
       style={{ 
         display: "flex", 
         flexDirection: inline ? "row" : "column", 

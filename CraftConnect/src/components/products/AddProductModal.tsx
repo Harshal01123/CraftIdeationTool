@@ -181,7 +181,7 @@ export default function AddProductModal({
           <div className={styles.imageContent}>
             {/* Primary View */}
             <div>
-              <p className={styles.sectionLabel}>Primary View</p>
+              <p className={styles.sectionLabel}>{t("extended.primaryView")}</p>
               <div className={styles.mainImageContainer}>
                 {combinedPreviews.length > 0 ? (
                   <>
@@ -226,7 +226,7 @@ export default function AddProductModal({
 
               {combinedPreviews.length === 0 && (
                 <div className={styles.uploadTextBtn}>
-                  Upload Image
+                  {t("extended.upload")}
                   <input
                     type="file"
                     multiple
@@ -241,7 +241,7 @@ export default function AddProductModal({
 
             {/* Additional Views */}
             <div>
-              <p className={styles.sectionLabel}>Additional Views (Max 5)</p>
+              <p className={styles.sectionLabel}>{t("extended.additionalViews")}</p>
               <div className={styles.thumbnailGrid}>
                 {combinedPreviews.slice(1).map((src, idx) => (
                   <div key={idx} className={styles.thumbnailSlot}>
@@ -272,7 +272,7 @@ export default function AddProductModal({
                     >
                       add_a_photo
                     </span>
-                    <span className={styles.thumbLabel}>Upload</span>
+                    <span className={styles.thumbLabel}>{t("extended.upload")}</span>
                     <input
                       type="file"
                       multiple
@@ -292,7 +292,7 @@ export default function AddProductModal({
                         >
                           add_a_photo
                         </span>
-                        <span className={styles.thumbLabel}>Upload</span>
+                        <span className={styles.thumbLabel}>{t("extended.upload")}</span>
                         <input
                           type="file"
                           multiple
@@ -307,7 +307,7 @@ export default function AddProductModal({
                         >
                           add_a_photo
                         </span>
-                        <span className={styles.thumbLabel}>Upload</span>
+                        <span className={styles.thumbLabel}>{t("extended.upload")}</span>
                         <input
                           type="file"
                           multiple
@@ -325,7 +325,7 @@ export default function AddProductModal({
                     >
                       add_a_photo
                     </span>
-                    <span className={styles.thumbLabel}>Upload</span>
+                    <span className={styles.thumbLabel}>{t("extended.upload")}</span>
                     <input
                       type="file"
                       multiple
@@ -343,18 +343,18 @@ export default function AddProductModal({
         {/* ── Form Section ── */}
         <div className={styles.formSection}>
           <header className={styles.formHeader}>
-            <p className={styles.formHindi}>नया उत्पाद</p>
+            <p className={styles.formHindi}>{t("extended.newProductTitle", "नया उत्पाद")}</p>
             <h2 className={styles.formTitle}>
               {existingProduct ? t("extended.update") : t("extended.addNewProduct")}
             </h2>
             <p className={styles.formSubtitle}>
-              Cataloging the soul of the craft.
+              {t("extended.catalogingSoul")}
             </p>
           </header>
 
           <form onSubmit={handleSubmit} className={styles.formFields}>
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Product Name</label>
+              <label className={styles.inputLabel}>{t("extended.productName")}</label>
               <input
                 type="text"
                 className={styles.inputElement}
@@ -365,21 +365,21 @@ export default function AddProductModal({
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Craft Type</label>
+              <label className={styles.inputLabel}>{t("extended.craftType")}</label>
               <div className={styles.selectWrapper}>
                 <select
                   className={styles.selectElement}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="">Select Type</option>
+                  <option value="">{t("extended.selectType")}</option>
                   {category &&
                     !INDUSTRY_OPTIONS.includes(
                       category as (typeof INDUSTRY_OPTIONS)[number],
-                    ) && <option value={category}>{category}</option>}
+                    ) && <option value={category}>{t(`industry.${category}`, category)}</option>}
                   {INDUSTRY_OPTIONS.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {t(`industry.${option}`, option)}
                     </option>
                   ))}
                 </select>
@@ -392,7 +392,7 @@ export default function AddProductModal({
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Description</label>
+              <label className={styles.inputLabel}>{t("extended.productDescription")}</label>
               <textarea
                 className={styles.textAreaElement}
                 value={description}
@@ -403,7 +403,7 @@ export default function AddProductModal({
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Price (INR)</label>
+              <label className={styles.inputLabel}>{t("extended.priceInr")}</label>
               <div className={styles.priceWrapper}>
                 <span className={styles.priceSymbol}>₹</span>
                 <input
@@ -419,7 +419,7 @@ export default function AddProductModal({
 
             <div className={styles.grid2Col}>
               <div className={styles.inputGroup}>
-                <label className={styles.inputLabel}>Dimensions</label>
+                <label className={styles.inputLabel}>{t("extended.dimensions")}</label>
                 <input
                   type="text"
                   className={styles.inputElement}
@@ -430,7 +430,7 @@ export default function AddProductModal({
               </div>
 
               <div className={styles.inputGroup}>
-                <label className={styles.inputLabel}>Weight</label>
+                <label className={styles.inputLabel}>{t("extended.weight")}</label>
                 <input
                   type="text"
                   className={styles.inputElement}

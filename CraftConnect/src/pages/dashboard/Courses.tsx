@@ -162,9 +162,9 @@ export default function Courses() {
                         onClick={() => toggleCategory(category.name)}
                       >
                         {isExpanded ? (
-                          <><span className="material-symbols-outlined">expand_less</span> Show Less</>
+                          <><span className="material-symbols-outlined">expand_less</span> {t("extended.showLess")}</>
                         ) : (
-                          <><span className="material-symbols-outlined">expand_more</span> View All ({matchedCourses.length})</>
+                          <><span className="material-symbols-outlined">expand_more</span> {t("extended.viewAll")} ({matchedCourses.length})</>
                         )}
                       </button>
                     )}
@@ -190,14 +190,14 @@ export default function Courses() {
                         <div className={styles.courseContent}>
                           <h4 className={styles.courseTitle}>{course.title}</h4>
                           <p className={styles.courseInstructor}>
-                            Instructor: {course.artisan?.name || "Unknown Artisan"}
+                            {t("extended.instructor", "Instructor")}: {course.artisan?.name || t("extended.unknown")}
                           </p>
                           <div className={styles.courseFooter}>
                             <span className={styles.courseDuration}>
                               <span className="material-symbols-outlined">schedule</span> 
                               {formatDuration(course.duration_minutes)}
                             </span>
-                            <button className={styles.viewCourseBtn}>View Course</button>
+                            <button className={styles.viewCourseBtn}>{t("extended.viewCourse", "View Course")}</button>
                           </div>
                         </div>
                       </div>

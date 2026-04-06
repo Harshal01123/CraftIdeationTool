@@ -107,7 +107,7 @@ function Products() {
   }, [displayableProducts, selectedCategory, searchQuery, appliedMaxPrice]);
 
   function handleBuyClick(product: Product) {
-    if (!profile) return alert("Please log in to purchase.");
+    if (!profile) return alert(t("extended.loginToPurchase"));
 
     setSelectedProduct(product);
     setShowDialog(true);
@@ -124,11 +124,9 @@ function Products() {
         <div className={styles.heroBanner}>
           <div className={styles.heroContent}>
             <span className={styles.heroHindi}>विरासत</span>
-            <h2 className={styles.heroTitle}>Handpicked Collection</h2>
+            <h2 className={styles.heroTitle}>{t("extended.handpickedCollection")}</h2>
             <p className={styles.heroDesc}>
-              Discover rare artifacts sourced directly from master artisans
-              across the Indian subcontinent. Each piece tells a story of
-              generation-spanning craftsmanship.
+              {t("extended.discoverRareArtifacts")}
             </p>
           </div>
         </div>
@@ -145,7 +143,7 @@ function Products() {
                 }`}
                 onClick={() => setSelectedCategory(null)}
               >
-                <span className={styles.catName}>All Collections</span>
+                <span className={styles.catName}>{t("extended.allCollections")}</span>
                 <span className={styles.catCount}>({products.length})</span>
               </li>
               {categories.map(([cat, count]) => (
@@ -156,7 +154,7 @@ function Products() {
                   }`}
                   onClick={() => setSelectedCategory(cat)}
                 >
-                  <span className={styles.catName}>{cat}</span>
+                  <span className={styles.catName}>{t(`industry.${cat}`, cat)}</span>
                   <span className={styles.catCount}>({count})</span>
                 </li>
               ))}

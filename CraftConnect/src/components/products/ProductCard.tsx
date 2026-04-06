@@ -61,16 +61,16 @@ function ProductCard({
       </div>
       <div className={styles.content}>
         <div className={styles.topInfo}>
-          <span className={styles.categoryTag}>Craft</span>
+          <span className={styles.categoryTag}>{t("extended.craftTag")}</span>
           <span className={styles.dot}></span>
-          <span className={styles.locationTag}>India</span>
+          <span className={styles.locationTag}>{t("extended.locationIndiaTag")}</span>
         </div>
 
         <h3 className={styles.productName}>{name}</h3>
 
         {artisanName && (
           <p className={styles.artisanCredit}>
-            Crafted by <span className={styles.artisanLink}>{artisanName}</span>
+            {t("extended.craftedBy")} <span className={styles.artisanLink}>{artisanName}</span>
           </p>
         )}
 
@@ -79,7 +79,7 @@ function ProductCard({
           <div className={styles.ratingDisplay}>
             <StarRating value={avgRating} size="sm" />
             <span className={styles.ratingCount}>
-              {totalRatings > 0 ? `(${totalRatings})` : "No reviews"}
+              {totalRatings > 0 ? `(${totalRatings})` : t("extended.noReviews", "No reviews")}
             </span>
           </div>
         </div>
@@ -97,7 +97,7 @@ function ProductCard({
             )}
             {onEdit && (
               <button className={styles.editBtn} onClick={onEdit}>
-                Edit
+                {t("extended.edit")}
               </button>
             )}
             {onDelete && (

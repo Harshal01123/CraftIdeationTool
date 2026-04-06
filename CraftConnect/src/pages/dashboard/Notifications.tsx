@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { type Notification, type Message, type Conversation } from "../../types/chat";
 import styles from "./Notifications.module.css";
+import { useTranslation } from "react-i18next";
 
 function isToday(dateStr: string) {
   const d = new Date(dateStr);
@@ -76,6 +77,7 @@ function formatTime(dateStr: string) {
 }
 
 function Notifications() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [sysNotifs, setSysNotifs] = useState<Notification[]>([]);
   const [unreadChatMsgs, setUnreadChatMsgs] = useState<(Message & { conversation?: Conversation })[]>([]);
@@ -324,7 +326,7 @@ function Notifications() {
       
       <div className={styles.header}>
         <button className={styles.markAllBtn} onClick={markAllAsRead}>
-          Mark all as read
+          {t("extended.markAllAsRead")}
         </button>
       </div>
 
@@ -333,9 +335,9 @@ function Notifications() {
           <div className={styles.emptyIcon}>
             <span className="material-symbols-outlined">check_circle</span>
           </div>
-          <h4 className={styles.emptyTitle}>You're all caught up</h4>
+          <h4 className={styles.emptyTitle}>{t("extended.youAreCaughtUp")}</h4>
           <p className={styles.emptyBody}>
-            Your curatorial dashboard is pristine. Check back later for new heritage updates.
+            {t("extended.dashboardPristine")}
           </p>
         </div>
       ) : (
@@ -395,7 +397,7 @@ function Notifications() {
                                 markAsRead(n);
                               }}
                             >
-                              Mark Read
+                              {t("extended.markRead")}
                             </button>
                           )}
                         </div>

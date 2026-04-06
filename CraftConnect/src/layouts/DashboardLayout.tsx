@@ -379,7 +379,7 @@ function DashboardLayout() {
                   navigate("/dashboard");
                 }}
               >
-                Artisan
+                {t('extended.modeArtisan')}
               </button>
             )}
             {availableModes.includes("customer") && (
@@ -390,7 +390,7 @@ function DashboardLayout() {
                   navigate("/dashboard");
                 }}
               >
-                Customer
+                {t('extended.modeCustomer')}
               </button>
             )}
             {availableModes.includes("learner") && (
@@ -401,7 +401,7 @@ function DashboardLayout() {
                   navigate("/dashboard");
                 }}
               >
-                Learner
+                {t('extended.modeLearner')}
               </button>
             )}
           </div>
@@ -444,7 +444,7 @@ function DashboardLayout() {
                 )}
               </button>
 
-              <div
+                <div
                 className={styles.headerProfileBox}
                 onClick={() =>
                   profile?.id &&
@@ -453,7 +453,7 @@ function DashboardLayout() {
                 style={{
                   cursor: "pointer",
                 }}
-                title="View My Profile"
+                title={t('extended.viewMyProfile')}
               >
                 {profile?.avatar_url ? (
                   <img
@@ -474,7 +474,7 @@ function DashboardLayout() {
               <button
                 className={styles.iconBtn}
                 onClick={handleLogout}
-                title="Logout"
+                title={t('extended.logout')}
               >
                 <span className="material-symbols-outlined">logout</span>
               </button>
@@ -490,10 +490,10 @@ function DashboardLayout() {
         {/* FOOTER */}
         <footer className={styles.footer}>
           <div className={styles.footerBrand}>
-            CraftConnect Heritage Editorial
+            {t('extended.heritageBrand')}
           </div>
           <p className={styles.footerCopyright}>
-            © 2026 CraftConnect Heritage Editorial. All rights reserved.
+            {t('extended.copyright')}
           </p>
           <button
             className={styles.bugReportBtn}
@@ -558,7 +558,7 @@ function DashboardLayout() {
         >
           <div className={styles.bugModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.bugModalHeader}>
-              <h3 className={styles.bugModalTitle}>Report a Bug</h3>
+              <h3 className={styles.bugModalTitle}>{t('extended.reportBugTitle')}</h3>
               <button
                 className={styles.bugCloseBtn}
                 onClick={() => setBugReportOpen(false)}
@@ -567,32 +567,32 @@ function DashboardLayout() {
               </button>
             </div>
             <p className={styles.bugModalSubtitle}>
-              Help us improve CraftConnect by describing the issue.
+              {t('extended.reportBugSubtitle')}
             </p>
 
             {bugStatus === "sent" ? (
               <div className={styles.bugSuccess}>
                 <span className="material-symbols-outlined">check_circle</span>
-                Report sent successfully!
+                {t('extended.reportSuccess')}
               </div>
             ) : (
               <>
                 <div className={styles.bugField}>
-                  <label className={styles.bugLabel}>Subject</label>
+                  <label className={styles.bugLabel}>{t('extended.subject')}</label>
                   <input
                     className={styles.bugInput}
                     type="text"
-                    placeholder="Brief description of the bug..."
+                    placeholder={t('extended.subjectPlaceholder')}
                     value={bugSubject}
                     onChange={(e) => setBugSubject(e.target.value)}
                     disabled={bugStatus === "sending"}
                   />
                 </div>
                 <div className={styles.bugField}>
-                  <label className={styles.bugLabel}>Details</label>
+                  <label className={styles.bugLabel}>{t('extended.details')}</label>
                   <textarea
                     className={styles.bugTextarea}
-                    placeholder="What happened? What did you expect? Steps to reproduce..."
+                    placeholder={t('extended.detailsPlaceholder')}
                     rows={5}
                     value={bugContent}
                     onChange={(e) => setBugContent(e.target.value)}
@@ -601,7 +601,7 @@ function DashboardLayout() {
                 </div>
                 {bugStatus === "error" && (
                   <p className={styles.bugError}>
-                    Failed to send. Please try again.
+                    {t('extended.reportError')}
                   </p>
                 )}
                 <div className={styles.bugActions}>
@@ -609,7 +609,7 @@ function DashboardLayout() {
                     className={styles.bugCancelBtn}
                     onClick={() => setBugReportOpen(false)}
                   >
-                    Cancel
+                    {t('extended.cancel')}
                   </button>
                   <button
                     className={styles.bugSubmitBtn}
@@ -628,12 +628,12 @@ function DashboardLayout() {
                         >
                           progress_activity
                         </span>
-                        Sending...
+                        {t('extended.sending')}
                       </>
                     ) : (
                       <>
                         <span className="material-symbols-outlined">send</span>
-                        Send Report
+                        {t('extended.sendReport')}
                       </>
                     )}
                   </button>

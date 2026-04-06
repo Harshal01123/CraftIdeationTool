@@ -54,13 +54,13 @@ export default function OfferCard({
         {/* Details */}
         <div className={styles.body}>
           <p className={styles.productName}>{productName}</p>
-          <p className={styles.listed}>Listed at ₹{listedPrice.toLocaleString()}</p>
+          <p className={styles.listed}>{t("extended.listedAt")} ₹{listedPrice.toLocaleString()}</p>
           <p className={styles.offered}>
-            {isMine ? "Your offer:" : "Offer:"}{" "}
+            {isMine ? t("extended.yourOffer") : t("extended.offer")}{" "}
             <strong>₹{offeredPrice.toLocaleString()}</strong>
           </p>
           <span className={`${styles.badge} ${styles[statusInfo.cls]}`}>
-            {statusInfo.label}
+            {t(`extended.status_${status}`, statusInfo.label)}
           </span>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function OfferCard({
             <span className="material-symbols-outlined">check_circle</span> {t("extended.acceptOffer")}
           </button>
           <button className={styles.btnBargain} onClick={onBargain} disabled={disabled}>
-            <span className="material-symbols-outlined">sync_alt</span> Bargain
+            <span className="material-symbols-outlined">sync_alt</span> {t("extended.bargain")}
           </button>
           <button className={styles.btnReject} onClick={onReject} disabled={disabled}>
             <span className="material-symbols-outlined">cancel</span> {t("extended.rejectOffer")}
@@ -87,7 +87,7 @@ export default function OfferCard({
             <span className="material-symbols-outlined">check_circle</span> {t("extended.acceptOffer")}
           </button>
           <button className={styles.btnBargain} onClick={onBargain} disabled={disabled}>
-            <span className="material-symbols-outlined">sync_alt</span> Counter Again
+            <span className="material-symbols-outlined">sync_alt</span> {t("extended.counterAgain")}
           </button>
           <button className={styles.btnReject} onClick={onReject} disabled={disabled}>
             <span className="material-symbols-outlined">cancel</span> {t("extended.rejectOffer")}

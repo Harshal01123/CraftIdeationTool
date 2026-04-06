@@ -59,12 +59,12 @@ export default function PriceSetDialog({
           <div className={styles.productInfo}>
             <p className={styles.productName}>{product.name}</p>
             <p className={styles.productCategory}>{product.category}</p>
-            <p className={styles.productListed}>Listed at ₹{product.price.toLocaleString()}</p>
+            <p className={styles.productListed}>{t("extended.listedAt")} ₹{product.price.toLocaleString()}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <label className={styles.label}>Your Offer Price (₹)</label>
+          <label className={styles.label}>{t("extended.yourOfferPrice")}</label>
           <div className={styles.inputRow}>
             <span className={styles.rupee}>₹</span>
             <input
@@ -75,21 +75,21 @@ export default function PriceSetDialog({
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               autoFocus
-              placeholder="Enter your price..."
+              placeholder={t("extended.enterPrice")}
             />
           </div>
           {numeric > product.price && (
-            <p className={styles.hint}>💡 Your offer is above listed price — great for the artisan!</p>
+            <p className={styles.hint}>{t("extended.offerAboveListed")}</p>
           )}
           {numeric < product.price * 0.5 && isValid && (
-            <p className={styles.warn}>⚠️ Your offer is less than 50% of the listed price.</p>
+            <p className={styles.warn}>{t("extended.offerBelow50")}</p>
           )}
           <div className={styles.actions}>
             <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isProcessing}>
-              Cancel
+              {t("extended.cancel")}
             </button>
             <button type="submit" className={styles.sendBtn} disabled={!isValid || isProcessing}>
-              {isProcessing ? "Sending..." : "Send Offer"}
+              {isProcessing ? t("extended.sending") : t("extended.sendOffer")}
               <span className="material-symbols-outlined">send</span>
             </button>
           </div>

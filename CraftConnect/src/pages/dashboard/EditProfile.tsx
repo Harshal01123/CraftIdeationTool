@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import Spinner from "../../components/Spinner";
+import { useTranslation } from "react-i18next";
 import styles from "./EditProfile.module.css";
 import type { Profile } from "../../types/chat";
 
@@ -25,6 +26,7 @@ function compressImage(file: File): Promise<Blob> {
 }
 
 export default function EditProfile() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -235,12 +237,12 @@ export default function EditProfile() {
             <span className={`material-symbols-outlined ${styles.sectionIcon}`}>
               person
             </span>
-            <h4 className={styles.sectionTitle}>Personal Information</h4>
+            <h4 className={styles.sectionTitle}>{t("extended.personalInfo")}</h4>
           </div>
 
           <div className={styles.grid2}>
             <div className={styles.inputGroup}>
-              <label>Full Name</label>
+              <label>{t("extended.fullName")}</label>
               <input
                 type="text"
                 value={name}
@@ -248,7 +250,7 @@ export default function EditProfile() {
               />
             </div>
             <div className={`${styles.inputGroup} ${styles.colSpan2}`}>
-              <label>Location</label>
+              <label>{t("extended.location")}</label>
               <input
                 type="text"
                 value={location}
@@ -256,7 +258,7 @@ export default function EditProfile() {
               />
             </div>
             <div className={`${styles.inputGroup} ${styles.colSpan2}`}>
-              <label>Bio / Description</label>
+              <label>{t("extended.bioDescription")}</label>
               <textarea
                 rows={4}
                 value={bio}
@@ -288,14 +290,14 @@ export default function EditProfile() {
             <span className={`material-symbols-outlined ${styles.sectionIcon}`}>
               lock
             </span>
-            <h4 className={styles.sectionTitle}>Security &amp; Password</h4>
+            <h4 className={styles.sectionTitle}>{t("extended.securityPassword")}</h4>
           </div>
 
           <div className={styles.securityLayout}>
             <div className={styles.inputGroup}>
               <div className={styles.labelRow}>
-                <label>Current Password</label>
-                <span className={styles.hindiLabel}>पुरानी गोपनीयता</span>
+                <label>{t("extended.currentPassword")}</label>
+                <span className={styles.hindiLabel}>{t("extended.currentPasswordHindi")}</span>
               </div>
               <div style={{ position: "relative" }}>
                 <input
@@ -324,7 +326,7 @@ export default function EditProfile() {
 
             <div className={styles.grid2}>
               <div className={styles.inputGroup}>
-                <label>New Password</label>
+                <label>{t("extended.newPassword")}</label>
                 <div style={{ position: "relative" }}>
                   <input
                     type={showNewPassword ? "text" : "password"}
@@ -350,7 +352,7 @@ export default function EditProfile() {
                 </div>
               </div>
               <div className={styles.inputGroup}>
-                <label>Confirm New Password</label>
+                <label>{t("extended.confirmNewPassword")}</label>
                 <div style={{ position: "relative" }}>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -386,10 +388,10 @@ export default function EditProfile() {
             className={styles.cancelBtn}
             onClick={() => window.history.back()}
           >
-            Cancel
+            {t("extended.cancel")}
           </button>
           <button type="submit" className={styles.saveBtn} disabled={saving}>
-            {saving ? <Spinner size="sm" inline /> : "Save Changes"}
+            {saving ? <Spinner size="sm" inline /> : t("extended.saveChanges")}
             {!saving && (
               <span className="material-symbols-outlined">check_circle</span>
             )}
