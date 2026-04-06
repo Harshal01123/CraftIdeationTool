@@ -5,6 +5,7 @@ import { useMode } from "../../contexts/ModeContext";
 import styles from "./ChatSidebar.module.css";
 import NewChatDialog from "./NewChatDialog";
 import OfferFlowCoordinator from "./OfferFlowCoordinator";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   currentProfile: Profile;
@@ -21,6 +22,7 @@ function ChatSidebar({
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [offerArtisan, setOfferArtisan] = useState<Profile | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const { t } = useTranslation();
   const { activeMode } = useMode();
   const isArtisan = activeMode === "artisan";
 
@@ -135,7 +137,7 @@ function ChatSidebar({
     <>
       <aside className={styles.sidebar}>
         <div className={styles.headingWrapper}>
-          <h3 className={styles.heading}>Inbox</h3>
+          <h3 className={styles.heading}>{t("app.inbox", "Inbox")}</h3>
           {!isArtisan && (
             <span
               className={`material-symbols-outlined ${styles.headingIcon}`}
@@ -191,7 +193,7 @@ function ChatSidebar({
           );
         })}
         {conversations.length === 0 && (
-          <p className={styles.empty}>No conversations yet.</p>
+          <p className={styles.empty}>{t("extended.emptyMessages")}</p>
         )}
       </ul>
       </aside>

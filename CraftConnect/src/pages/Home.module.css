@@ -85,20 +85,12 @@ h3 {
   cursor: pointer;
 }
 
-.navLinks {
-  display: none;
-}
-@media (min-width: 768px) {
-  .navLinks {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    font-family: var(--font-label);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--on-surface);
-  }
+.navToggleCenter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
 }
 
 .auth {
@@ -108,7 +100,7 @@ h3 {
 }
 
 .loginBtn {
-  background: rgba(160, 82, 45, 0.1); 
+  background: rgba(160, 82, 45, 0.1);
   color: var(--primary);
   font-family: var(--font-label);
   font-size: 0.75rem;
@@ -126,7 +118,7 @@ h3 {
 }
 
 .signUpBtn {
-  background: rgba(160, 82, 45, 0.1); 
+  background: rgba(160, 82, 45, 0.1);
   color: var(--primary);
   font-family: var(--font-label);
   font-size: 0.75rem;
@@ -247,7 +239,9 @@ h3 {
 }
 .collageImgTopRight {
   border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -263,7 +257,9 @@ h3 {
 }
 .collageImgBottomLeft {
   border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -373,7 +369,9 @@ h3 {
   background-color: #ffffff;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
 }
@@ -456,7 +454,9 @@ h3 {
   background-color: #ffffff;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
 }
@@ -489,8 +489,8 @@ h3 {
 
 /* ── Footer ── */
 .footer {
-  background-color: #2B2017;
-  color: #F5EFE0;
+  background-color: #2b2017;
+  color: #f5efe0;
   padding: 2rem;
   display: flex;
   flex-direction: column;

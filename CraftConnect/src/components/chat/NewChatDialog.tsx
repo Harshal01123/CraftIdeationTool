@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase";
 import type { Profile } from "../../types/chat";
 import Spinner from "../Spinner";
 import styles from "./NewChatDialog.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   currentProfile: Profile;
@@ -18,6 +19,7 @@ async function fetchArtisans(): Promise<Profile[]> {
 }
 
 export default function NewChatDialog({ currentProfile, onClose, onArtisanSelected }: Props) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<SearchMode>("name");
   const [allArtisans, setAllArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>New Conversation</h3>
+          <h3 className={styles.title}>{t("extended.newConversation")}</h3>
           <button className={styles.closeBtn} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -73,14 +75,14 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
                 onClick={() => { setMode("name"); setNameQuery(""); }}
               >
                 <span className="material-symbols-outlined">person_search</span>
-                Search by Name
+                {t("extended.searchByName")}
               </button>
               <button
                 className={`${styles.modeBtn} ${mode === "industry" ? styles.modeBtnActive : ""}`}
                 onClick={() => { setMode("industry"); setSelectedIndustry(""); setSelectedArtisanFromIndustry(null); }}
               >
                 <span className="material-symbols-outlined">category</span>
-                Search by Industry
+                {t("extended.searchByIndustry")}
               </button>
             </div>
 
@@ -88,13 +90,13 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
               <div className={styles.loading}><Spinner label="Loading artisans..." /></div>
             ) : mode === "name" ? (
               <div className={styles.section}>
-                <label className={styles.label}>Artisan Name</label>
+                <label className={styles.label}>{t("extended.artisanName")}</label>
                 <div className={styles.searchWrapper}>
                   <span className="material-symbols-outlined">search</span>
                   <input
                     className={styles.searchInput}
                     type="text"
-                    placeholder="Type an artisan name..."
+                    placeholder={t("extended.typeArtisanName")}
                     value={nameQuery}
                     onChange={(e) => { setNameQuery(e.target.value); setShowSuggestions(true); }}
                     onFocus={() => setShowSuggestions(true)}
@@ -119,19 +121,19 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
               </div>
             ) : (
               <div className={styles.section}>
-                <label className={styles.label}>Industry</label>
+                <label className={styles.label}>{t("extended.industry")}</label>
                 <select
                   className={styles.select}
                   value={selectedIndustry}
                   onChange={(e) => { setSelectedIndustry(e.target.value); setSelectedArtisanFromIndustry(null); }}
                 >
-                  <option value="">— Select an industry —</option>
+                  <option value="">{t("extended.selectIndustry")}</option>
                   {industries.map((ind) => <option key={ind} value={ind}>{ind}</option>)}
                 </select>
 
                 {selectedIndustry && (
                   <>
-                    <label className={styles.label} style={{ marginTop: "1rem" }}>Artisan</label>
+                    <label className={styles.label} style={{ marginTop: "1rem" }}>{t("extended.artisan")}</label>
                     <select
                       className={styles.select}
                       value={selectedArtisanFromIndustry?.id ?? ""}
@@ -140,18 +142,18 @@ export default function NewChatDialog({ currentProfile, onClose, onArtisanSelect
                         setSelectedArtisanFromIndustry(found);
                       }}
                     >
-                      <option value="">— Select an artisan —</option>
+                      <option value="">{t("extended.selectArtisan")}</option>
                       {artisansInIndustry.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
 
                     <div className={styles.actions}>
-                      <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>
+                      <button className={styles.cancelBtn} onClick={onClose}>{t("extended.cancel")}</button>
                       <button
                         className={styles.okBtn}
                         disabled={!selectedArtisanFromIndustry}
                         onClick={handleOkFromIndustry}
                       >
-                        See Products
+                        {t("extended.seeProducts")}
                       </button>
                     </div>
                   </>

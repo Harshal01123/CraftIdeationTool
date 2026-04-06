@@ -7,9 +7,11 @@ import StarRating from "../components/ratings/StarRating";
 import RatingModal from "../components/ratings/RatingModal";
 import ReviewCard from "../components/ratings/ReviewCard";
 import OfferFlowCoordinator from "../components/chat/OfferFlowCoordinator";
+import { useTranslation } from "react-i18next";
 import styles from "./ProductPortfolio.module.css";
 
 function ProductPortfolio() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -92,7 +94,7 @@ function ProductPortfolio() {
     await fetchReviews();
   }
 
-  if (loading) return <div className={styles.loadingWrap}><Spinner label="Loading product..." /></div>;
+  if (loading) return <div className={styles.loadingWrap}><Spinner label={t("extended.loadingPortfolio")} /></div>;
   if (notFound || !product) return (
     <div className={styles.loadingWrap}>
       <p>Product not found.</p>
@@ -169,7 +171,7 @@ function ProductPortfolio() {
             {!isOwner && (
               <button className={styles.cartBtn} onClick={() => setShowContactDialog(true)}>
                 <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", verticalAlign: "middle", marginRight: "6px" }}>shopping_bag</span>
-                Buy Now
+                {t("extended.buyNow")}
               </button>
             )}
           </div>
@@ -233,7 +235,7 @@ function ProductPortfolio() {
                 <p className={styles.artisanCardRole}>{artisan.industry ?? "Master Artisan"} · {artisan.location ?? "India"}</p>
               </div>
               <button className={styles.viewArtisanBtn} onClick={() => navigate(`/dashboard/artisans/${artisan.id}`)}>
-                View Portfolio
+                {t("extended.viewPortfolio")}
               </button>
             </div>
           </div>

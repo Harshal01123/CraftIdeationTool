@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../lib/supabase";
 import Spinner from "../../components/Spinner";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
@@ -32,6 +33,7 @@ function formatDuration(minutes: number) {
 }
 
 function MyCourses() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,11 +82,11 @@ function MyCourses() {
       <div className={styles.contentWrap}>
 
         {loading ? (
-          <Spinner size="lg" label="Loading your courses..." />
+          <Spinner size="lg" label={t("extended.loadingCourses")} />
         ) : courses.length === 0 ? (
           <div style={{ textAlign: "center", padding: "4rem", color: "var(--outline)" }}>
             <span className="material-symbols-outlined" style={{ fontSize: "3rem" }}>school</span>
-            <p>No courses yet. Use "New Course" to create one.</p>
+            <p>{t("extended.emptyMyCourses")}</p>
           </div>
         ) : (
           <div className={styles.categoriesContainer}>

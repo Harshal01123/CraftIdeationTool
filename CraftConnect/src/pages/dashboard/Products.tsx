@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../lib/supabase";
 import type { Product } from "../../types/chat";
 import ProductCard from "../../components/products/ProductCard";
@@ -16,6 +17,7 @@ interface ProductRatingSummary {
 }
 
 function Products() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,7 +107,7 @@ function Products() {
   }, [displayableProducts, selectedCategory, searchQuery, appliedMaxPrice]);
 
   function handleBuyClick(product: Product) {
-    if (!profile) return alert("Please log in to purchase.");
+    if (!profile) return alert(t("extended.loginToPurchase"));
 
     setSelectedProduct(product);
     setShowDialog(true);
@@ -122,11 +124,9 @@ function Products() {
         <div className={styles.heroBanner}>
           <div className={styles.heroContent}>
             <span className={styles.heroHindi}>विरासत</span>
-            <h2 className={styles.heroTitle}>Handpicked Collection</h2>
+            <h2 className={styles.heroTitle}>{t("extended.handpickedCollection")}</h2>
             <p className={styles.heroDesc}>
-              Discover rare artifacts sourced directly from master artisans
-              across the Indian subcontinent. Each piece tells a story of
-              generation-spanning craftsmanship.
+              {t("extended.discoverRareArtifacts")}
             </p>
           </div>
         </div>
@@ -135,7 +135,7 @@ function Products() {
       <div className={styles.mainLayout}>
         <aside className={styles.sidebar}>
           <div className={styles.filterSection}>
-            <h3 className={styles.filterLabel}>Categories</h3>
+            <h3 className={styles.filterLabel}>{t("extended.categories")}</h3>
             <ul className={styles.categoryList}>
               <li
                 className={`${styles.categoryItem} ${
@@ -143,7 +143,7 @@ function Products() {
                 }`}
                 onClick={() => setSelectedCategory(null)}
               >
-                <span className={styles.catName}>All Collections</span>
+                <span className={styles.catName}>{t("extended.allCollections")}</span>
                 <span className={styles.catCount}>({products.length})</span>
               </li>
               {categories.map(([cat, count]) => (
@@ -154,7 +154,7 @@ function Products() {
                   }`}
                   onClick={() => setSelectedCategory(cat)}
                 >
-                  <span className={styles.catName}>{cat}</span>
+                  <span className={styles.catName}>{t(`industry.${cat}`, cat)}</span>
                   <span className={styles.catCount}>({count})</span>
                 </li>
               ))}
@@ -162,7 +162,7 @@ function Products() {
           </div>
 
           <div className={styles.filterSection}>
-            <h3 className={styles.filterLabel}>Max Price</h3>
+            <h3 className={styles.filterLabel}>{t("extended.maxPrice")}</h3>
             <div className={styles.rangeWrapper}>
               <input
                 type="range"
@@ -222,7 +222,7 @@ function Products() {
                   e.currentTarget.style.borderColor = 'var(--outline-variant)';
                 }}
               >
-                Apply Filter
+                {t("extended.applyFilter")}
               </button>
             </div>
           </div>
@@ -231,10 +231,10 @@ function Products() {
         <div className={styles.contentArea}>
           {loading ? (
             <div className={styles.loader}>
-              <Spinner label="Loading artifacts..." />
+              <Spinner label={t("extended.loadingProducts")} />
             </div>
           ) : filteredProducts.length === 0 ? (
-            <p className={styles.emptyText}>No artifacts found.</p>
+            <p className={styles.emptyText}>{t("extended.emptyProducts")}</p>
           ) : (
             <div className={styles.grid}>
               {filteredProducts.map((p) => {

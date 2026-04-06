@@ -9,6 +9,7 @@ import StarRating from "../components/ratings/StarRating";
 import { supabase } from "../lib/supabase";
 import type { Profile, Product, ArtisanRating } from "../types/chat";
 import { useMode } from "../contexts/ModeContext";
+import { useTranslation } from "react-i18next";
 
 interface Course {
   id: string;
@@ -21,6 +22,7 @@ interface Course {
 }
 
 function ArtisanPortfolio() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [reviews, setReviews] = useState<ArtisanRating[]>([]);
@@ -131,7 +133,7 @@ function ArtisanPortfolio() {
   async function handleChatClick() {
     if (!artisan || !currentUserId) return;
     if (currentUserId === artisan.id) {
-      alert("You cannot start a chat with yourself.");
+      alert(t("extended.cannotChatWithSelf"));
       return;
     }
     setShowDialog(true);
@@ -159,16 +161,16 @@ function ArtisanPortfolio() {
   if (loading)
     return (
       <div className={styles.container}>
-        <Spinner label="Loading..." />
+        <Spinner label={t("extended.loading")} />
       </div>
     );
 
   if (notFound || !artisan) {
     return (
       <div className={styles.container}>
-        <p>Artisan not found.</p>
+        <p>{t("extended.artisanNotFound")}</p>
         <button className={styles.backBtn} onClick={() => navigate(-1)}>
-          Go Back
+          {t("extended.goBack")}
         </button>
       </div>
     );
@@ -202,7 +204,7 @@ function ArtisanPortfolio() {
           <h1 className={styles.artisanName}>{artisan.name}</h1>
           <div className={styles.metaRow}>
             <span className={styles.metaIndustry}>
-              {artisan.industry || "Master Artisan"}
+              {artisan.industry || t("extended.masterArtisan")}
             </span>
             <div className={styles.metaDivider}></div>
             <div className={styles.metaLocation}>
@@ -233,7 +235,7 @@ function ArtisanPortfolio() {
                 >
                   chat
                 </span>
-                Chat with Artisan
+                {t("extended.chatWithArtisan")}
               </button>
             )}
             {isOwnProfile && (
@@ -241,7 +243,7 @@ function ArtisanPortfolio() {
                 className={styles.viewProfileBtn}
                 onClick={() => navigate("/dashboard/profile")}
               >
-                Edit Profile
+                {t("extended.viewPortfolio")}
               </button>
             )}
             {!isOwnProfile && activeMode === "customer" && (
@@ -250,7 +252,7 @@ function ArtisanPortfolio() {
                 onClick={() => setShowRatingModal(true)}
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: "1.1rem" }}>star</span>
-                {existingRating ? "Edit Rating" : "Rate Artisan"}
+                {existingRating ? t("extended.editRating") : t("extended.rateArtisan")}
               </button>
             )}
           </div>
@@ -264,11 +266,10 @@ function ArtisanPortfolio() {
             <div className={styles.aboutQuoteIcon}>
               <span className="material-symbols-outlined">format_quote</span>
             </div>
-            <h3 className={styles.aboutTitle}>About the Artisan</h3>
+            <h3 className={styles.aboutTitle}>{t("extended.artisanAbout")}</h3>
             <div className={styles.aboutText}>
               <p>
-                {artisan.description ||
-                  "This artisan has not provided a description yet."}
+                {artisan.description || t("extended.noDescriptionProvided")}
               </p>
               {artisan.description && artisan.description.length > 50 && (
                 <div className={styles.aboutQuote}>
@@ -293,30 +294,30 @@ function ArtisanPortfolio() {
               >
                 cognition
               </span>
-              Craftsmanship Details
+              {t("extended.craftDetails")}
             </h4>
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Industry</span>
+              <span className={styles.detailLabel}>{t("extended.industryLabel")}</span>
               <span className={styles.detailValue}>
-                {artisan.industry || "Local Artist"}
+                {artisan.industry || t("extended.localArtist")}
               </span>
             </div>
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Experience</span>
+              <span className={styles.detailLabel}>{t("extended.experienceLabel")}</span>
               <span className={styles.detailValue}>
-                {artisan.experience || "Not Specified"}
+                {artisan.experience || t("extended.notSpecified")}
               </span>
             </div>
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Location</span>
+              <span className={styles.detailLabel}>{t("extended.locationLabel")}</span>
               <span className={styles.detailValue}>
                 {artisan.location || "Chhattisgarh"}
               </span>
             </div>
             <div className={styles.detailRow}>
-              <span className={styles.detailLabel}>Authenticity</span>
+              <span className={styles.detailLabel}>{t("extended.authenticityLabel")}</span>
               <span className={`${styles.detailValue} ${styles.highlight}`}>
-                Verified Seller
+                {t("extended.verifiedSeller")}
               </span>
             </div>
           </div>
@@ -335,22 +336,22 @@ function ArtisanPortfolio() {
         <div className={styles.productsHeader}>
           <div>
             <h3 className={styles.productsTitle}>
-              The {artisan.name.split(" ").pop()} Archive
+              {t("extended.the")} {artisan.name.split(" ").pop()} {t("extended.archive")}
             </h3>
             <p className={styles.productsSubtitle}>
-              Available hand-sculpted works
+              {t("extended.availableWorks")}
             </p>
           </div>
           {products.length > 0 && (
-            <span className={styles.viewAllLink}>Explore Full Collection</span>
+            <span className={styles.viewAllLink}>{t("extended.exploreCollection")}</span>
           )}
         </div>
 
         {productsLoading ? (
-          <Spinner label="Loading products..." />
+          <Spinner label={t("extended.loadingProducts")} />
         ) : products.length === 0 ? (
           <p style={{ color: "gray", fontStyle: "italic" }}>
-            No products listed yet.
+            {t("extended.emptyProducts")}
           </p>
         ) : (
           <div className={styles.productsGrid}>
@@ -365,7 +366,7 @@ function ArtisanPortfolio() {
                 </div>
                 <h4 className={styles.artisanProductTitle}>{product.name}</h4>
                 <div className={styles.artisanProductMetaRow}>
-                  <p className={styles.artisanProductCategory}>Handcrafted</p>
+                  <p className={styles.artisanProductCategory}>{t("extended.handcrafted")}</p>
                   <span className={styles.artisanProductPrice}>
                     ₹{product.price}
                   </span>
@@ -380,14 +381,14 @@ function ArtisanPortfolio() {
       <section className={styles.productsSection}>
         <div className={styles.productsHeader}>
           <div>
-            <h3 className={styles.productsTitle}>Masterclasses</h3>
-            <p className={styles.productsSubtitle}>Courses offered by this artisan</p>
+            <h3 className={styles.productsTitle}>{t("extended.masterclasses")}</h3>
+            <p className={styles.productsSubtitle}>{t("extended.coursesOfferedByArtisan")}</p>
           </div>
         </div>
         {coursesLoading ? (
-          <Spinner label="Loading courses..." />
+          <Spinner label={t("extended.loadingCourses")} />
         ) : courses.length === 0 ? (
-          <p style={{ color: "gray", fontStyle: "italic" }}>No courses listed yet.</p>
+          <p style={{ color: "gray", fontStyle: "italic" }}>{t("extended.emptyCourses")}</p>
         ) : (
           <div className={styles.productsGrid}>
             {courses.map((c) => (
@@ -407,7 +408,7 @@ function ArtisanPortfolio() {
                 </div>
                 <h4 className={styles.artisanProductTitle}>{c.title}</h4>
                 <div className={styles.artisanProductMetaRow}>
-                  <p className={styles.artisanProductCategory}>{c.level} · {c.videos?.length ?? 0} lessons</p>
+                  <p className={styles.artisanProductCategory}>{c.level} · {c.videos?.length ?? 0} {t("extended.lessons")}</p>
                   <span className={styles.artisanProductPrice}>{c.category}</span>
                 </div>
               </div>
@@ -419,20 +420,20 @@ function ArtisanPortfolio() {
       {/* Reviews Section */}
       <section className={styles.reviewsSection}>
         <div className={styles.reviewsHeader}>
-          <h3 className={styles.reviewsTitle}>Reviews & Ratings</h3>
+          <h3 className={styles.reviewsTitle}>{t("extended.reviews")}</h3>
           {!isOwnProfile && activeMode === "customer" && (
             <button
               className={styles.writeReviewBtn}
               onClick={() => setShowRatingModal(true)}
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: "1rem" }}>star</span>
-              {existingRating ? "Edit Your Review" : "Write a Review"}
+              {existingRating ? t("extended.editYourReview") : t("extended.writeReview")}
             </button>
           )}
         </div>
 
         {reviews.length === 0 ? (
-          <p className={styles.noReviews}>No reviews yet. Be the first to review this artisan!</p>
+          <p className={styles.noReviews}>{t("extended.noReviewsYet")}</p>
         ) : (
           <div className={styles.reviewsList}>
             {reviews.map((r) => (

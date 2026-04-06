@@ -8,6 +8,7 @@ import CertificateModal from "../../components/courses/CertificateModal";
 import styles from "./CoursePortfolio.module.css";
 import { OPEN_EDIT_COURSE_MODAL_EVENT } from "./MyCourses";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
+import { useTranslation } from "react-i18next";
 
 // ── Types ─────────────────────────────────────────────────────────
 interface Profile { id: string; name: string; avatar_url: string; }
@@ -104,6 +105,7 @@ interface ActiveVideo { src: string; type: "youtube" | "native"; videoIndex: num
 
 // ── Component ─────────────────────────────────────────────────────
 export default function CoursePortfolio() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -338,11 +340,11 @@ export default function CoursePortfolio() {
   }
 
   // ── Guards ─────────────────────────────────────────────────────
-  if (loading) return <div className={styles.loadingContainer}><Spinner label="Loading course portfolio..." /></div>;
+  if (loading) return <div className={styles.loadingContainer}><Spinner label={t("extended.loadingPortfolio")} /></div>;
   if (!course) return (
     <div className={styles.notFound}>
-      <h2>Course not found</h2>
-      <button className={styles.backBtn} onClick={() => navigate("/dashboard/courses")}>Back to Courses</button>
+      <h2>{t("extended.courseNotFound")}</h2>
+      <button className={styles.backBtn} onClick={() => navigate("/dashboard/courses")}>{t("extended.backToCourses")}</button>
     </div>
   );
 
@@ -359,7 +361,7 @@ export default function CoursePortfolio() {
         {/* Back link */}
         <button className={styles.backLink} onClick={() => navigate("/dashboard/courses")}>
           <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>arrow_back</span>
-          Back to Masterclasses
+          {t("extended.backToCourses")}
         </button>
 
         {/* Hero Section */}
@@ -372,7 +374,7 @@ export default function CoursePortfolio() {
                 {isCourseCompleted && (
                   <span className={styles.badgeCompleted}>
                     <span className="material-symbols-outlined" style={{ fontSize: "0.75rem" }}>verified</span>
-                    Completed
+                    {t("extended.completed")}
                   </span>
                 )}
               </div>
@@ -396,22 +398,22 @@ export default function CoursePortfolio() {
                 )}
               </div>
               <div className={styles.artisanBlock}>
-                <span className={styles.artisanLabel}>Master Artisan</span>
-                <span className={styles.artisanName}>{course.artisan?.name || "Unknown"}</span>
-                <span className={styles.artisanHindi}>मास्टर शिल्पकार</span>
+                <span className={styles.artisanLabel}>{t("extended.masterArtisan")}</span>
+                <span className={styles.artisanName}>{course.artisan?.name || t("extended.unknown")}</span>
+                <span className={styles.artisanHindi}>{t("extended.masterArtisanHindi")}</span>
               </div>
               <div className={styles.statsRow}>
                 <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Lessons</span>
-                  <span className={styles.statValue}>{totalVideos} Lessons</span>
+                  <span className={styles.statLabel}>{t("extended.lessons")}</span>
+                  <span className={styles.statValue}>{totalVideos} {t("extended.lessons")}</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Duration</span>
-                  <span className={styles.statValue}>{formatDuration(course.duration_minutes)} Total</span>
+                  <span className={styles.statLabel}>{t("extended.duration")}</span>
+                  <span className={styles.statValue}>{formatDuration(course.duration_minutes)}</span>
                 </div>
                 <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Learners</span>
-                  <span className={styles.statValue}>{enrollCount} Enrolled</span>
+                  <span className={styles.statLabel}>{t("extended.learners")}</span>
+                  <span className={styles.statValue}>{enrollCount} {t("extended.enrolled")}</span>
                 </div>
               </div>
             </div>
@@ -424,18 +426,18 @@ export default function CoursePortfolio() {
                 isCourseCompleted ? (
                   <button className={styles.enrolledBtn} onClick={() => setShowCert(true)}>
                     <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>workspace_premium</span>
-                    View Certificate
+                    {t("extended.viewCertificate")}
                   </button>
                 ) : (
                   <button className={styles.enrolledBtn} disabled>
                     <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>verified</span>
-                    Enrolled
+                    {t("extended.enrolled")}
                   </button>
                 )
               ) : (
                 <button className={styles.enrollBtn} onClick={handleEnroll} disabled={enrollLoading}>
                   {enrollLoading ? <Spinner size="sm" inline /> : (
-                    <><span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>school</span>Enroll Now</>
+                    <><span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>school</span>{t("extended.enrollNow")}</>
                   )}
                 </button>
               )
@@ -444,15 +446,15 @@ export default function CoursePortfolio() {
               <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                 <button className={styles.viewEnrolledBtn} onClick={() => setShowEnrolledPanel(true)}>
                   <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>group</span>
-                  View Enrolled ({enrollCount})
+                  {t("extended.viewEnrolled")} ({enrollCount})
                 </button>
                 <button className={styles.editBtn} onClick={handleManageCourse}>
                   <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", marginRight: "0.5rem" }}>edit</span>
-                  Edit Course
+                  {t("extended.editCourse")}
                 </button>
                 <button className={styles.deleteBtn} onClick={() => setShowDeleteConfirm(true)}>
                   <span className="material-symbols-outlined" style={{ fontSize: "1.2rem", marginRight: "0.5rem" }}>delete</span>
-                  Delete Course
+                  {t("extended.deleteCourse")}
                 </button>
               </div>
             )}
@@ -462,11 +464,11 @@ export default function CoursePortfolio() {
         {/* Curriculum Section */}
         <section className={styles.curriculumSection}>
           <div className={styles.curriculumHeader}>
-            <h2 className={styles.curriculumTitle}>Curriculum</h2>
+            <h2 className={styles.curriculumTitle}>{t("extended.curriculum")}</h2>
             <div className={styles.curriculumRule} />
             {isEnrolled && !isOwner && (
               <span className={styles.progressLabel}>
-                {completedVideos.size}/{totalVideos} completed
+                {completedVideos.size}/{totalVideos} {t("extended.completed", "completed").toLowerCase()}
               </span>
             )}
           </div>
@@ -474,7 +476,7 @@ export default function CoursePortfolio() {
           {!isEnrolled && !isOwner && (
             <div className={styles.enrollNotice}>
               <span className="material-symbols-outlined">lock</span>
-              <p>Enroll in this course to unlock all videos and start learning.</p>
+              <p>{t("extended.enrollToWatch")}</p>
             </div>
           )}
 
@@ -519,7 +521,7 @@ export default function CoursePortfolio() {
                       <span className="material-symbols-outlined">lock</span>
                     </div>
                   ) : (
-                    <button className={styles.modulePlayBtn} title="Play Video"
+                    <button className={styles.modulePlayBtn} title={t("extended.playVideo")}
                       disabled={!video.youtube_id} onClick={() => openVideo(video.youtube_id, idx)}>
                       <span className="material-symbols-outlined">play_circle</span>
                     </button>
@@ -528,7 +530,7 @@ export default function CoursePortfolio() {
               );
             })}
             {(!course.videos || course.videos.length === 0) && (
-              <p className={styles.emptyCurriculum}>Modules are currently being uploaded. Check back soon.</p>
+              <p className={styles.emptyCurriculum}>{t("extended.modulesUploading")}</p>
             )}
           </div>
         </section>
@@ -565,7 +567,7 @@ export default function CoursePortfolio() {
       {showEnrollToast && (
         <div className={styles.enrollToast}>
           <span className="material-symbols-outlined">school</span>
-          <span>You've been enrolled! Start learning.</span>
+          <span>{t("extended.enrollSuccess")}</span>
         </div>
       )}
 
@@ -576,7 +578,7 @@ export default function CoursePortfolio() {
             <div className={styles.enrolledPanelHeader}>
               <h3 className={styles.enrolledPanelTitle}>
                 <span className="material-symbols-outlined">group</span>
-                Enrolled Learners ({enrollCount})
+                {t("extended.enrolled")} ({enrollCount})
               </h3>
               <button className={styles.enrolledPanelClose} onClick={() => setShowEnrolledPanel(false)}>
                 <span className="material-symbols-outlined">close</span>
@@ -584,7 +586,7 @@ export default function CoursePortfolio() {
             </div>
             <div className={styles.enrolledPanelList}>
               {enrolledUsers.length === 0 ? (
-                <p className={styles.enrolledPanelEmpty}>No learners enrolled yet.</p>
+                <p className={styles.enrolledPanelEmpty}>{t("extended.noLearners")}</p>
               ) : (
                 enrolledUsers.map((u) => (
                   <div key={u.id} className={styles.enrolledPanelUser}>
@@ -614,18 +616,18 @@ export default function CoursePortfolio() {
           <div onClick={(e) => e.stopPropagation()}
             style={{ backgroundColor: "var(--surface)", borderRadius: "16px", padding: "2.5rem", width: "90%", maxWidth: "420px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 24px 48px rgba(0,0,0,0.2)" }}>
             <span className="material-symbols-outlined" style={{ fontSize: "3.5rem", color: "#d32f2f", marginBottom: "1rem" }}>warning</span>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", color: "var(--on-surface)", marginBottom: "0.5rem" }}>Delete Course?</h3>
+            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.5rem", color: "var(--on-surface)", marginBottom: "0.5rem" }}>{t("extended.deleteConfirmTitle")}</h3>
             <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "var(--outline)", marginBottom: "2rem", lineHeight: 1.5 }}>
-              Are you sure you want to delete <strong>{course?.title}</strong>? This cannot be undone.
+              {t("extended.deleteConfirmDesc")} <strong>{course?.title}</strong>?
             </p>
             <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
               <button onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting}
                 style={{ flex: 1, padding: "0.8rem", borderRadius: "8px", border: "1px solid var(--outline-variant)", backgroundColor: "transparent", color: "var(--on-surface)", fontFamily: "var(--font-label)", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Cancel
+                {t("extended.cancel")}
               </button>
               <button onClick={confirmDelete} disabled={isDeleting}
                 style={{ flex: 1, padding: "0.8rem", borderRadius: "8px", border: "none", backgroundColor: "#d32f2f", color: "#fff", fontFamily: "var(--font-label)", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                {isDeleting ? <Spinner size="sm" inline /> : "Delete"}
+                {isDeleting ? <Spinner size="sm" inline /> : t("extended.delete")}
               </button>
             </div>
           </div>

@@ -9,6 +9,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import OfferFlowCoordinator from "../../components/chat/OfferFlowCoordinator";
 import RatingModal from "../../components/ratings/RatingModal";
 import StarRating from "../../components/ratings/StarRating";
+import { useTranslation } from "react-i18next";
 
 interface ArtisanRatingSummary {
   artisan_id: string;
@@ -17,6 +18,7 @@ interface ArtisanRatingSummary {
 }
 
 function Artisans() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { activeMode } = useMode();
   const navigate = useNavigate();
@@ -124,7 +126,7 @@ function Artisans() {
                 <div className={styles.decoTopRight}></div>
                 <div className={styles.decoBottomLeft}></div>
 
-                <span className={styles.spotlightTag}>Featured Artisan</span>
+                <span className={styles.spotlightTag}>{t("extended.featuredArtisan")}</span>
                 <h3 className={styles.spotlightTitle}>
                   {spotlightArtisan.name}
                 </h3>
@@ -151,7 +153,7 @@ function Artisans() {
                       navigate(`/dashboard/artisans/${spotlightArtisan.id}`)
                     }
                   >
-                    Read Story
+                    {t("extended.readStory")}
                   </button>
                 </div>
               </div>
@@ -162,7 +164,7 @@ function Artisans() {
         {/* Filter Bar */}
         <div className={styles.filterBar} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontVariationSettings: "'FILL' 1" }}>tune</span>
-          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>Advanced Filters:</span>
+          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{t("extended.advancedFilters")}</span>
           
           <select 
             className={styles.filterPill} 
@@ -170,9 +172,9 @@ function Artisans() {
             onChange={(e) => setSortOrder(e.target.value as any)}
             style={{ backgroundColor: 'transparent', cursor: 'pointer', border: '1px solid var(--outline-variant)' }}
           >
-            <option value="">Sort by Name</option>
-            <option value="asc">A to Z</option>
-            <option value="desc">Z to A</option>
+            <option value="">{t("extended.sortByName")}</option>
+            <option value="asc">{t("extended.atoz")}</option>
+            <option value="desc">{t("extended.ztoa")}</option>
           </select>
 
           <select 
@@ -181,7 +183,7 @@ function Artisans() {
             onChange={(e) => setSelectedIndustry(e.target.value)}
             style={{ backgroundColor: 'transparent', cursor: 'pointer', border: '1px solid var(--outline-variant)' }}
           >
-            <option value="">All Industries</option>
+            <option value="">{t("extended.allIndustries")}</option>
             {Array.from(new Set(artisans.map(a => a.industry).filter(Boolean))).map(ind => (
               <option key={ind as string} value={ind as string}>{ind}</option>
             ))}
@@ -192,7 +194,7 @@ function Artisans() {
                className={styles.advancedFilter} 
                onClick={() => { setSortOrder(""); setSelectedIndustry(""); }}
              >
-               Clear Filters
+               {t("extended.clearFilters")}
              </button>
           )}
         </div>
@@ -200,7 +202,7 @@ function Artisans() {
         {/* Content */}
         {loading ? (
           <div className={styles.loader}>
-            <Spinner label="Loading artisans..." />
+            <Spinner label={t("extended.loadingArtisans")} />
           </div>
         ) : (
           (() => {
@@ -230,7 +232,7 @@ function Artisans() {
             }
 
             if (filteredArtisans.length === 0) {
-              return <p className={styles.emptyText}>No artisans found.</p>;
+              return <p className={styles.emptyText}>{t("extended.emptyArtisans")}</p>;
             }
 
             return (
@@ -293,7 +295,7 @@ function Artisans() {
                           className={styles.viewProfileBtn}
                           onClick={() => navigate(`/dashboard/artisans/${artisan.id}`)}
                         >
-                          View Profile
+                          {t("extended.viewPortfolio")}
                         </button>
                         {activeMode === "customer" && artisan.id !== profile?.id && (
                           <button
@@ -301,7 +303,7 @@ function Artisans() {
                             onClick={(e) => handleRateClick(artisan, e)}
                           >
                             <span className="material-symbols-outlined" style={{ fontSize: "1rem", fontVariationSettings: "'FILL' 1" }}>star</span>
-                            Rate
+                            {t("extended.rate")}
                           </button>
                         )}
                         {artisan.id !== profile?.id && (

@@ -4,6 +4,7 @@ import type { Product, Profile } from "../../types/chat";
 import Spinner from "../Spinner";
 import PriceSetDialog from "./PriceSetDialog";
 import styles from "./ArtisanProductPicker.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   artisan: Profile;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function ArtisanProductPicker({ artisan, onOfferConfirmed, onBack, isProcessing }: Props) {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Product | null>(null);
@@ -39,14 +41,14 @@ export default function ArtisanProductPicker({ artisan, onOfferConfirmed, onBack
           </button>
           <div>
             <h4 className={styles.heading}>{artisan.name}'s Products</h4>
-            <p className={styles.subheading}>Select a product to make an offer</p>
+            <p className={styles.subheading}>{t("extended.selectProduct")}</p>
           </div>
         </div>
 
         {loading ? (
-          <div className={styles.loading}><Spinner label="Loading products..." /></div>
+          <div className={styles.loading}><Spinner label={t("extended.loading")} /></div>
         ) : products.length === 0 ? (
-          <p className={styles.empty}>This artisan has no products listed.</p>
+          <p className={styles.empty}>{t("extended.noProducts")}</p>
         ) : (
           <div className={styles.grid}>
             {products.map((p) => (

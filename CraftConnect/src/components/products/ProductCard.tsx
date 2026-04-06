@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import styles from "./ProductCard.module.css";
 import { useWishlist } from "../../hooks/useWishlist";
 import StarRating from "../ratings/StarRating";
@@ -30,6 +31,7 @@ function ProductCard({
   onBuy,
   onView,
 }: ProductCardProps) {
+  const { t } = useTranslation();
   const { wishlistIds, toggleWishlist } = useWishlist();
   const isWishlisted = wishlistIds.has(id);
 
@@ -59,16 +61,16 @@ function ProductCard({
       </div>
       <div className={styles.content}>
         <div className={styles.topInfo}>
-          <span className={styles.categoryTag}>Craft</span>
+          <span className={styles.categoryTag}>{t("extended.craftTag")}</span>
           <span className={styles.dot}></span>
-          <span className={styles.locationTag}>India</span>
+          <span className={styles.locationTag}>{t("extended.locationIndiaTag")}</span>
         </div>
 
         <h3 className={styles.productName}>{name}</h3>
 
         {artisanName && (
           <p className={styles.artisanCredit}>
-            Crafted by <span className={styles.artisanLink}>{artisanName}</span>
+            {t("extended.craftedBy")} <span className={styles.artisanLink}>{artisanName}</span>
           </p>
         )}
 
@@ -77,7 +79,7 @@ function ProductCard({
           <div className={styles.ratingDisplay}>
             <StarRating value={avgRating} size="sm" />
             <span className={styles.ratingCount}>
-              {totalRatings > 0 ? `(${totalRatings})` : "No reviews"}
+              {totalRatings > 0 ? `(${totalRatings})` : t("extended.noReviews", "No reviews")}
             </span>
           </div>
         </div>
@@ -90,17 +92,17 @@ function ProductCard({
                 <span className="material-symbols-outlined" style={{ fontSize: "1rem" }}>
                   visibility
                 </span>
-                <span>View</span>
+                <span>{t("extended.viewProduct")}</span>
               </button>
             )}
             {onEdit && (
               <button className={styles.editBtn} onClick={onEdit}>
-                Edit
+                {t("extended.edit")}
               </button>
             )}
             {onDelete && (
               <button className={styles.deleteBtn} onClick={onDelete}>
-                Delete
+                {t("extended.delete")}
               </button>
             )}
             {onBuy && (
@@ -111,7 +113,7 @@ function ProductCard({
                 >
                   shopping_bag
                 </span>
-                <span>Buy Now</span>
+                <span>{t("extended.buyNow")}</span>
               </button>
             )}
           </div>

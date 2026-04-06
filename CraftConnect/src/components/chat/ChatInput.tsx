@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../Button";
 import styles from "./ChatInput.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onSend: (content: string) => void;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 function ChatInput({ onSend, onReOffer }: Props) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
 
   function handleSend() {
@@ -26,7 +28,7 @@ function ChatInput({ onSend, onReOffer }: Props) {
       <input
         className={styles.input}
         type="text"
-        placeholder="Type a message and press Enter..."
+        placeholder={t("extended.typeMessage")}
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}

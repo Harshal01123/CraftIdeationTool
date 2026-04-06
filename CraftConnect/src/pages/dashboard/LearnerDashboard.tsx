@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../lib/supabase";
 import styles from "./Dashboard.module.css";
@@ -15,6 +16,7 @@ interface InProgressCourse {
 }
 
 function LearnerDashboard() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [enrolled, setEnrolled] = useState(0);
@@ -103,9 +105,9 @@ function LearnerDashboard() {
       {/* Welcome Banner */}
       <div className={styles.welcomeBanner} style={{ backgroundColor: "var(--tertiary)" }}>
         <div className={styles.welcomeContent}>
-          <span className={styles.workspaceTag}>Learner Workspace</span>
-          <h3 className={styles.welcomeName}>Namaste, {profile?.name?.split(" ")[0] || "Learner"}</h3>
-          <p className={styles.welcomeText}>Continue your journey through India's rich cultural heritage.</p>
+          <span className={styles.workspaceTag}>{t("learnerDashboard.workspace")}</span>
+          <h3 className={styles.welcomeName}>{t("learnerDashboard.namaste")}, {profile?.name?.split(" ")[0] || t("learnerDashboard.learner")}</h3>
+          <p className={styles.welcomeText}>{t("learnerDashboard.welcomeText")}</p>
         </div>
         <div className={styles.welcomeIcon}>
           <span className="material-symbols-outlined" style={{ fontSize: "inherit" }}>school</span>
@@ -117,22 +119,22 @@ function LearnerDashboard() {
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}><div className={styles.kpiIconBox}><span className={`material-symbols-outlined ${styles.kpiIcon}`}>verified</span></div></div>
           <p className={styles.kpiValue}>{certs}</p>
-          <p className={styles.kpiLabel}>Certificates</p>
+          <p className={styles.kpiLabel}>{t("learnerDashboard.certificates")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}><div className={styles.kpiIconBox}><span className={`material-symbols-outlined ${styles.kpiIcon}`}>menu_book</span></div></div>
           <p className={styles.kpiValue}>{enrolled}</p>
-          <p className={styles.kpiLabel}>Enrolled Courses</p>
+          <p className={styles.kpiLabel}>{t("learnerDashboard.enrolledCourses")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}><div className={styles.kpiIconBox}><span className={`material-symbols-outlined ${styles.kpiIcon}`}>done_all</span></div></div>
           <p className={styles.kpiValue}>{completed}</p>
-          <p className={styles.kpiLabel}>Completed Courses</p>
+          <p className={styles.kpiLabel}>{t("learnerDashboard.completedCourses")}</p>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiHeader}><div className={styles.kpiIconBox}><span className={`material-symbols-outlined ${styles.kpiIcon}`}>local_fire_department</span></div></div>
           <p className={styles.kpiValue}>{streak}</p>
-          <p className={styles.kpiLabel}>Streak Days</p>
+          <p className={styles.kpiLabel}>{t("learnerDashboard.streakDays")}</p>
         </div>
       </div>
 
@@ -140,9 +142,9 @@ function LearnerDashboard() {
       {inProgress.length > 0 && (
         <div style={{ marginTop: "2rem" }}>
           <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Continue Learning</h3>
+            <h3 className={styles.sectionTitle}>{t("learnerDashboard.continueLearning")}</h3>
             <button className={styles.viewAllBtn} onClick={() => navigate("/dashboard/courses")}>
-              Browse All
+              {t("learnerDashboard.browseAll")}
             </button>
           </div>
           <div className={styles.coursesList}>
@@ -169,7 +171,7 @@ function LearnerDashboard() {
                     <p className={styles.courseListTitle}>{c.title}</p>
                     <div className={styles.courseListMeta}>
                       <span className={styles.courseListLevel}>{c.level}</span>
-                      <span className={styles.courseListVideos}>{c.completedCount}/{total} lessons</span>
+                      <span className={styles.courseListVideos}>{c.completedCount}/{total} {t("learnerDashboard.lessons")}</span>
                     </div>
                     {/* Progress bar */}
                     <div style={{ marginTop: "0.5rem", height: "4px", background: "var(--outline-variant)", borderRadius: "9999px", overflow: "hidden" }}>

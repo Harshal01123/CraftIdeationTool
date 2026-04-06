@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
 import { COURSE_SAVED_EVENT } from "../../layouts/DashboardLayout";
 import Spinner from "../../components/Spinner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { useMode } from "../../contexts/ModeContext";
 
@@ -30,15 +31,16 @@ interface Course {
   artisan: Profile;
 }
 
-function formatDuration(minutes: number) {
+function formatDuration(minutes: number, t: any) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  if (h === 0) return `${m}m`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
+  if (h === 0) return `${m}${t("extended.minsShort")}`;
+  if (m === 0) return `${h}${t("extended.hoursShort")}`;
+  return `${h}${t("extended.hoursShort")} ${m}${t("extended.minsShort")}`;
 }
 
 export default function Courses() {
+  const { t } = useTranslation();
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
   const { profile } = useAuth();
   const { activeMode } = useMode();
@@ -122,7 +124,7 @@ export default function Courses() {
         {/* Categories Grid */}
         <div className={styles.categoriesContainer}>
           {loading ? (
-            <Spinner size="lg" label="Loading courses..." />
+            <Spinner size="lg" label={t("extended.loadingCourses")} />
           ) : (
             groupedCourses.map((category) => {
               const matchedCourses = category.courses.filter(course => {
@@ -160,9 +162,9 @@ export default function Courses() {
                         onClick={() => toggleCategory(category.name)}
                       >
                         {isExpanded ? (
-                          <><span className="material-symbols-outlined">expand_less</span> Show Less</>
+                          <><span className="material-symbols-outlined">expand_less</span> {t("extended.showLess")}</>
                         ) : (
-                          <><span className="material-symbols-outlined">expand_more</span> View All ({matchedCourses.length})</>
+                          <><span className="material-symbols-outlined">expand_more</span> {t("extended.viewAll")} ({matchedCourses.length})</>
                         )}
                       </button>
                     )}
@@ -188,14 +190,14 @@ export default function Courses() {
                         <div className={styles.courseContent}>
                           <h4 className={styles.courseTitle}>{course.title}</h4>
                           <p className={styles.courseInstructor}>
-                            Instructor: {course.artisan?.name || "Unknown Artisan"}
+                            {t("extended.instructor", "Instructor")}: {course.artisan?.name || t("extended.unknown")}
                           </p>
                           <div className={styles.courseFooter}>
                             <span className={styles.courseDuration}>
                               <span className="material-symbols-outlined">schedule</span> 
-                              {formatDuration(course.duration_minutes)}
+                              {formatDuration(course.duration_minutes, t)}
                             </span>
-                            <button className={styles.viewCourseBtn}>View Course</button>
+                            <button className={styles.viewCourseBtn}>{t("extended.viewCourse", "View Course")}</button>
                           </div>
                         </div>
                       </div>
@@ -215,7 +217,7 @@ export default function Courses() {
                   <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>Check your browser console for more details.</p>
                 </div>
               ) : (
-                <p>No master classes available to enroll in yet. Check back soon for new artisan courses!</p>
+                <p>{t("extended.emptyCourses")}</p>
               )}
             </div>
           )}
