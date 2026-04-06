@@ -40,7 +40,7 @@ export default function ArtisanProductPicker({ artisan, onOfferConfirmed, onBack
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <div>
-            <h4 className={styles.heading}>{artisan.name}'s Products</h4>
+            <h4 className={styles.heading}>{t("extended.artisanProducts", { name: artisan.name })}</h4>
             <p className={styles.subheading}>{t("extended.selectProduct")}</p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function ArtisanProductPicker({ artisan, onOfferConfirmed, onBack
                   disabled={isProcessing}
                 >
                   <span className="material-symbols-outlined">local_offer</span>
-                  Make Offer
+                  {t("extended.makeOffer")}
                 </button>
               </div>
             ))}

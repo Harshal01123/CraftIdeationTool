@@ -12,6 +12,7 @@ import ArtisanProductPicker from "./ArtisanProductPicker";
 import Button from "../Button";
 import Spinner from "../Spinner";
 import styles from "./ChatWindow.module.css";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   conversationId: string;
@@ -31,6 +32,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const { activeMode } = useMode();
 
+  const { t } = useTranslation();
   const isArtisan = activeMode === "artisan";
 
   function markActed(id: string) {
@@ -173,11 +175,11 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
   }
 
   if (loading) {
-    return <div className={styles.status}><Spinner label="Loading messages..." /></div>;
+    return <div className={styles.status}><Spinner label={t("extended.loadingMessages")} /></div>;
   }
 
   if (!conversation) {
-    return <div className={styles.status}>Could not load conversation.</div>;
+    return <div className={styles.status}>{t("extended.couldNotLoad")}</div>;
   }
 
   const other = isArtisan ? conversation.customer : conversation.artisan;
@@ -211,23 +213,23 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
 
           {conversation.status === "OPEN" ? (
             !showConfirm ? (
-              <Button variant="secondary" onClick={() => setShowConfirm(true)}>End Chat</Button>
+              <Button variant="secondary" onClick={() => setShowConfirm(true)}>{t("extended.endChat")}</Button>
             ) : (
               <div className={styles.confirmRow}>
-                <span className={styles.confirmText}>Are you sure?</span>
-                <Button variant="secondary" onClick={handleClose}>Yes</Button>
-                <Button variant="secondary" onClick={() => setShowConfirm(false)}>No</Button>
+                <span className={styles.confirmText}>{t("extended.areYouSure")}</span>
+                <Button variant="secondary" onClick={handleClose}>{t("extended.yes")}</Button>
+                <Button variant="secondary" onClick={() => setShowConfirm(false)}>{t("extended.no")}</Button>
               </div>
             )
           ) : (
-            <span className={styles.closedBadge}>Archived</span>
+            <span className={styles.closedBadge}>{t("extended.archivedBadge")}</span>
           )}
         </div>
 
         {/* Messages */}
         <div className={styles.messageList} ref={listRef}>
           {messages.length === 0 ? (
-            <p className={styles.noMessages}>No messages yet.</p>
+            <p className={styles.noMessages}>{t("extended.noMessages")}</p>
           ) : (
             messages.map((msg) => {
               const payload = msg.type === "OFFER"
@@ -282,7 +284,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
         <PriceSetDialog
           product={bargainProduct}
           initialPrice={bargainTarget.offeredPrice}
-          title={isArtisan ? "Send Counter Offer" : "Counter Their Offer"}
+          title={isArtisan ? t("extended.sendCounterOffer") : t("extended.counterTheirOffer")}
           onConfirm={(price) => {
             const msg = latestPendingOffer?.message;
             if (!msg) return;
@@ -300,7 +302,7 @@ function ChatWindow({ conversationId, currentProfile }: Props) {
           <PriceSetDialog
             product={lastOfferProduct}
             initialPrice={lastOfferPayload?.offeredPrice}
-            title="Make New Offer"
+            title={t("extended.makeNewOffer")}
             onConfirm={async (price) => {
               setIsActing(true);
               await sendOffer({

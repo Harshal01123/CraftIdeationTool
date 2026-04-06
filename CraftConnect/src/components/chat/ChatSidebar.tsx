@@ -179,7 +179,7 @@ function ChatSidebar({
                   </span>
                 </div>
                 <p className={`${styles.itemSub} ${unreadCounts[conv.id] > 0 && activeConversationId !== conv.id ? styles.itemSubUnread : ""}`}>
-                  {conv.status === "CLOSED" ? "🔒 Archived" : "View conversation..."}
+                  {conv.status === "CLOSED" ? t("extended.archivedLabel") : t("extended.viewConversation")}
                 </p>
               </div>
 
