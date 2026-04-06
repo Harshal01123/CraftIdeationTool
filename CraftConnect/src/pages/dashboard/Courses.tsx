@@ -31,12 +31,12 @@ interface Course {
   artisan: Profile;
 }
 
-function formatDuration(minutes: number) {
+function formatDuration(minutes: number, t: any) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  if (h === 0) return `${m}m`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
+  if (h === 0) return `${m}${t("extended.minsShort")}`;
+  if (m === 0) return `${h}${t("extended.hoursShort")}`;
+  return `${h}${t("extended.hoursShort")} ${m}${t("extended.minsShort")}`;
 }
 
 export default function Courses() {
@@ -195,7 +195,7 @@ export default function Courses() {
                           <div className={styles.courseFooter}>
                             <span className={styles.courseDuration}>
                               <span className="material-symbols-outlined">schedule</span> 
-                              {formatDuration(course.duration_minutes)}
+                              {formatDuration(course.duration_minutes, t)}
                             </span>
                             <button className={styles.viewCourseBtn}>{t("extended.viewCourse", "View Course")}</button>
                           </div>

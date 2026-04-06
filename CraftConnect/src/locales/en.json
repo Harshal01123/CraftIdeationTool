@@ -156,7 +156,7 @@
     "loadingWishlist": "Loading wishlist...",
     "loadingPortfolio": "Loading portfolio...",
     "emptyProducts": "No products listed yet.",
-    "emptyCourses": "No masterclasses found matching your search.",
+    "emptyCourses": "No courses found matching your criteria.",
     "emptyMessages": "No messages yet.",
     "emptyInbox": "Your inbox is empty.",
     "emptyWishlist": "Your wishlist is empty.",
@@ -372,7 +372,12 @@
     "coursesOfferedByArtisan": "Courses offered by this artisan",
     "writeReview": "Write a Review",
     "editYourReview": "Edit Your Review",
-    "noReviewsYet": "No reviews yet. Be the first to review this artisan!"
+    "noReviewsYet": "No reviews yet. Be the first to review this artisan!",
+    "instructor": "Instructor",
+    "viewCourse": "View Course",
+    "hoursShort": "h",
+    "minsShort": "m",
+    "noReviewsLower": "No reviews"
   },
   "industry": {
     "Pottery": "Pottery",
