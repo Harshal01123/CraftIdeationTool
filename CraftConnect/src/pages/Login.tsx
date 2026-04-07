@@ -382,7 +382,9 @@ function Login() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   
   // Full recovery flow state
-  const [isRecoveryFlow, setIsRecoveryFlow] = useState(false);
+  const [isRecoveryFlow, setIsRecoveryFlow] = useState(() => {
+    return window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
+  });
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -390,9 +392,7 @@ function Login() {
     window.scrollTo(0, 0);
     
     supabase.auth.getSession().then(({ data }) => {
-      if (window.location.hash.includes("type=recovery")) {
-        setIsRecoveryFlow(true);
-      } else if (data.session) {
+      if (data.session && !isRecoveryFlow && !window.location.hash.includes("type=recovery")) {
         navigate("/dashboard");
       }
     });
@@ -400,7 +400,7 @@ function Login() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
         setIsRecoveryFlow(true);
-      } else if (session && !window.location.hash.includes("type=recovery") && !isRecoveryFlow) {
+      } else if (session && event !== "PASSWORD_RECOVERY" && !isRecoveryFlow && !window.location.hash.includes("type=recovery")) {
         navigate("/dashboard");
       }
     });
@@ -452,7 +452,7 @@ function Login() {
 
     try {
       const { error: invokeError } = await supabase.functions.invoke("request-reset", {
-        body: { email }
+        body: { email, origin: window.location.origin }
       });
 
       if (invokeError) throw invokeError;

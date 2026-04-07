@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email } = await req.json();
+    const { email, origin } = await req.json();
 
     if (!email?.trim()) {
       return new Response(
@@ -24,9 +24,9 @@ serve(async (req) => {
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
 
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !RESEND_API_KEY) {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !BREVO_API_KEY) {
       return new Response(
         JSON.stringify({ error: "Server misconfiguration: missing env variables." }),
         { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
@@ -46,11 +46,8 @@ serve(async (req) => {
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: email,
-      options: {
-        // We'll let Supabase handle the redirect based on the site URL,
-        // or we could enforce a specific one if set in env.
-        redirectTo: Deno.env.get("FRONTEND_URL") || "https://craftconnect.in/login",
-      },
+        // Dynamically redirect back to exactly where the request came from (e.g. localhost or production)
+        redirectTo: origin ? `${origin}/login` : "https://craftconnect.in/login",
     });
 
     if (linkError) {
@@ -63,23 +60,29 @@ serve(async (req) => {
 
     const actionLink = linkData.properties.action_link;
 
-    // 3. Email the exact generated actionLink to user via Resend
-    const res = await fetch("https://api.resend.com/emails", {
+    // 3. Email the exact generated actionLink to user via Brevo
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
+        "api-key": BREVO_API_KEY,
+        "accept": "application/json",
+        "content-type": "application/json",
       },
       body: JSON.stringify({
-        from: "CraftConnect Security <onboarding@resend.dev>",
-        to: [email],
+        sender: { name: "CraftConnect Security", email: "rakeshketan28@gmail.com" },
+        to: [{ email: email }],
         subject: "Reset Your CraftConnect Password",
-        html: `
+        htmlContent: `
           <h3>Password Reset Request</h3>
           <p>We received a request to reset your password. Click the link below to securely set a new password:</p>
           <a href="${actionLink}" style="display:inline-block;padding:10px 20px;background-color:#2b2017;color:white;text-decoration:none;border-radius:4px;">Reset Password</a>
           <p>If you did not request this, you can safely ignore this email.</p>
         `,
+        tags: ["password-reset"],
+        tracking: {
+            clicks: false,  // Disables click tracking to prevent Brevo from mangling the secure URL hash fragment!
+            open: false
+        }
       }),
     });
 
