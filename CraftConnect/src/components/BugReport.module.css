@@ -1,0 +1,204 @@
+/* ── Bug Report Button ── */
+.bugReportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(201, 150, 42, 0.35);
+  color: rgba(237, 229, 208, 0.55);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bugReportBtn span {
+  font-size: 1rem;
+}
+.bugReportBtn:hover {
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+/* ── Bug Report Modal Overlay ── */
+.bugOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 32, 23, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.bugModal {
+  background: var(--surface-container-lowest);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 60px rgba(43, 32, 23, 0.25);
+  border: 1px solid var(--outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bugModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bugModalTitle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--on-surface);
+  margin: 0;
+}
+.bugModalSubtitle {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  margin: -0.5rem 0 0;
+  line-height: 1.5;
+}
+
+.bugCloseBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  display: flex;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.bugCloseBtn:hover {
+  background: rgba(43, 32, 23, 0.08);
+}
+
+.bugField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.bugLabel {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.bugInput,
+.bugTextarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--on-surface);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.bugInput:focus,
+.bugTextarea:focus {
+  border-color: var(--primary);
+  background: white;
+}
+.bugInput:disabled,
+.bugTextarea:disabled {
+  opacity: 0.6;
+}
+.bugTextarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.bugError {
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  color: var(--error);
+  margin: 0;
+}
+
+.bugSuccess {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  justify-content: center;
+  font-family: var(--font-label);
+  font-size: 0.9rem;
+  color: var(--primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bugSuccess span {
+  font-size: 1.75rem;
+}
+
+.bugActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.bugCancelBtn {
+  background: transparent;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bugCancelBtn:hover {
+  background: var(--surface-container-low);
+}
+
+.bugSubmitBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bugSubmitBtn span {
+  font-size: 1rem;
+}
+.bugSubmitBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.bugSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
