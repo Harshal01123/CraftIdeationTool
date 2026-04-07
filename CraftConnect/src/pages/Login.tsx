@@ -391,11 +391,26 @@ function Login() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session && !isRecoveryFlow && !window.location.hash.includes("type=recovery")) {
-        navigate("/dashboard");
-      }
-    });
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const type = params.get("type");
+
+    if (accessToken && refreshToken && type === "recovery") {
+      // Brevo click-tracking fix: manually ingest the params to set session
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
+        if (!error) {
+          setIsRecoveryFlow(true);
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+      });
+    } else {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session && !isRecoveryFlow && !window.location.hash.includes("type=recovery") && type !== "recovery") {
+          navigate("/dashboard");
+        }
+      });
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {

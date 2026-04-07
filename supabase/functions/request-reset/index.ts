@@ -58,7 +58,9 @@ serve(async (req) => {
       );
     }
 
-    const actionLink = linkData.properties.action_link;
+    const rawLink = linkData.properties.action_link;
+    // Bypassing Brevo Click Tracking flaw: convert URL Hash to URL Query Params so the redirect doesn't erase tokens
+    const actionLink = rawLink.replace("#", "?");
 
     // 3. Email the exact generated actionLink to user via Brevo
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
