@@ -16,23 +16,28 @@ function ResetPassword() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const params = new URLSearchParams(window.location.search);
+    // Supabase appends tokens as a URL hash (#access_token=...&type=recovery)
+    // after its own /verify redirect. Check both hash and search params.
+    const hash = window.location.hash.substring(1); // strip the leading '#'
+    const search = window.location.search.substring(1); // strip the leading '?'
+    const params = new URLSearchParams(hash || search);
+
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
+    const type = params.get("type");
 
-    // Manually set the session using the query params from Brevo
-    if (accessToken && refreshToken) {
+    if (accessToken && refreshToken && type === "recovery") {
       supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
         if (error) {
           setError("Recovery link is invalid or expired. Please request a new one.");
         } else {
           setSessionReady(true);
-          // Safely hide the tokens from the URL bar
+          // Clean up the tokens from the URL bar
           window.history.replaceState(null, "", window.location.pathname);
         }
       });
     } else {
-      // If they somehow arrive here natively and already have a session, we let them proceed.
+      // No tokens in URL — check if there's already a valid recovery session
       supabase.auth.getSession().then(({ data }) => {
         if (data.session) {
           setSessionReady(true);
