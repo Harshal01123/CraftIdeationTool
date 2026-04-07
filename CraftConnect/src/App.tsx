@@ -4,6 +4,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import Signup from "./pages/Signup";
 import Courses from "./pages/dashboard/Courses";
 import Artisans from "./pages/dashboard/Artisans";
@@ -30,6 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/signup" element={<Signup />} />
 
         {/* All dashboard routes are protected — requires login */}

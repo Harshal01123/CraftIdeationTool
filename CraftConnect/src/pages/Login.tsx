@@ -381,47 +381,23 @@ function Login() {
   // Forgot password flow state
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   
-  // Full recovery flow state
-  const [isRecoveryFlow, setIsRecoveryFlow] = useState(() => {
-    return window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
-  });
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    const type = params.get("type");
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        navigate("/dashboard");
+      }
+    });
 
-    if (accessToken && refreshToken && type === "recovery") {
-      // Brevo click-tracking fix: manually ingest the params to set session
-      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
-        if (!error) {
-          setIsRecoveryFlow(true);
-          window.history.replaceState(null, "", window.location.pathname);
-        }
-      });
-    } else {
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session && !isRecoveryFlow && !window.location.hash.includes("type=recovery") && type !== "recovery") {
-          navigate("/dashboard");
-        }
-      });
-    }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsRecoveryFlow(true);
-      } else if (session && event !== "PASSWORD_RECOVERY" && !isRecoveryFlow && !window.location.hash.includes("type=recovery")) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
         navigate("/dashboard");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, isRecoveryFlow]);
+  }, [navigate]);
 
   async function handleLogin(e?: React.FormEvent) {
     if (e) e.preventDefault();
@@ -483,31 +459,6 @@ function Login() {
     }
   }
 
-  async function handleUpdateRecoveredPassword(e: React.FormEvent) {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    
-    setLoading(true);
-    setError("");
-
-    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-
-    setLoading(false);
-
-    if (updateError) {
-      setError(updateError.message);
-    } else {
-      setResetMessage("Password successfully updated! Redirecting to dashboard...");
-      setTimeout(() => navigate("/dashboard"), 2000);
-    }
-  }
 
   return (
     <div className={styles.loginPage}>
@@ -530,9 +481,9 @@ function Login() {
 
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>
-              {isRecoveryFlow ? "SET NEW PASSWORD" : (isForgotPassword ? "RESET PASSWORD" : "LOGIN")}
+              {isForgotPassword ? "RESET PASSWORD" : "LOGIN"}
             </h2>
-            {(!isRecoveryFlow && !isForgotPassword) ? (
+            {!isForgotPassword ? (
               <div className={styles.swagatam}>
                 <span className={styles.swagatamLine}></span>
                 <span className={styles.swagatamText}>स्वागतम्</span>
@@ -540,66 +491,14 @@ function Login() {
               </div>
             ) : (
               <p className={styles.cardSubtitle} style={{ fontFamily: 'var(--font-body)', color: 'rgba(43, 32, 23, 0.7)', fontStyle: 'italic', fontSize: '0.875rem' }}>
-                {isRecoveryFlow ? "Enter your new credentials below" : "We will send a recovery link securely to your inbox"}
+                We will send a recovery link securely to your inbox
               </p>
             )}
           </div>
 
-          <form className={styles.form} onSubmit={isRecoveryFlow ? handleUpdateRecoveredPassword : (isForgotPassword ? handleResetPassword : handleLogin)}>
+          <form className={styles.form} onSubmit={isForgotPassword ? handleResetPassword : handleLogin}>
             
-            {isRecoveryFlow ? (
-              <div className={styles.inputGroup}>
-                <label className={styles.inputLabel} htmlFor="new-password">
-                  New Password
-                </label>
-                <div className={styles.inputWrapper} style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                  <input
-                    className={styles.input}
-                    id="new-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    style={{ paddingRight: '2.5rem' }}
-                    required
-                  />
-                  <span 
-                    className="material-symbols-outlined" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
-                  >
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
-                  <div className={styles.inputHindiLabel}>नया कूटशब्द</div>
-                </div>
-
-                <label className={styles.inputLabel} htmlFor="confirm-password">
-                  Confirm New Password
-                </label>
-                <div className={styles.inputWrapper} style={{ position: 'relative' }}>
-                  <input
-                    className={styles.input}
-                    id="confirm-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{ paddingRight: '2.5rem' }}
-                    required
-                  />
-                  <span 
-                    className="material-symbols-outlined" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--outline)' }}
-                  >
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
-                  <div className={styles.inputHindiLabel}>पुष्टि करें</div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className={styles.inputGroup}>
+            <div className={styles.inputGroup}>
               <label className={styles.inputLabel} htmlFor="email">
                 Email Address
               </label>
@@ -663,8 +562,6 @@ function Login() {
                 </>
               )}
             </div>
-            </>
-            )}
 
             {resetMessage && (
                 <p style={{ color: "green", fontSize: "0.85rem", marginTop: "0.5rem" }}>
@@ -678,7 +575,7 @@ function Login() {
                 </p>
               )}
 
-            {!isForgotPassword && !isRecoveryFlow && (
+            {!isForgotPassword && (
               <div className={styles.optionsRow}>
                 <label className={styles.rememberMe}>
                   <input className={styles.checkbox} type="checkbox" />
@@ -692,7 +589,7 @@ function Login() {
               type="submit"
               disabled={loading}
             >
-              {loading ? "PROCESSING..." : (isRecoveryFlow ? "SAVE NEW PASSWORD" : (isForgotPassword ? "SEND RESET LINK" : "LOGIN"))}
+              {loading ? "PROCESSING..." : (isForgotPassword ? "SEND RESET LINK" : "LOGIN")}
             </button>
           </form>
 

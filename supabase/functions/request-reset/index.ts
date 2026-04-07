@@ -47,7 +47,7 @@ serve(async (req) => {
       type: "recovery",
       email: email,
         // Dynamically redirect back to exactly where the request came from (e.g. localhost or production)
-        redirectTo: origin ? `${origin}/login` : "https://craftconnect.in/login",
+        redirectTo: origin ? `${origin}/reset-password` : "https://craft-connect-six.vercel.app/reset-password",
     });
 
     if (linkError) {
