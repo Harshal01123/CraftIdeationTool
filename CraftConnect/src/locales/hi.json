@@ -394,12 +394,23 @@
     "archivedLabel": "🔒 संग्रहीत"
   },
   "industry": {
-    "Pottery": "मिट्टी के बर्तन",
-    "Bamboo": "बांस",
-    "Glass": "कांच",
-    "Tiles": "टाइल्स",
-    "Handloom": "हथकरघा",
-    "Painting": "चित्रकारी",
+    "Bamboo Craft": "बांस शिल्प",
+    "Bell Metal / Dhokra": "घंटी धातु / ढोकरा",
+    "Cowrie & Shell Craft": "कौड़ी एवं शंख शिल्प",
+    "Godna / Tattoo Art": "गोदना / टैटू कला",
+    "Gourd (Tuma) Craft": "तूमा (लौकी) शिल्प",
+    "Handloom & Weaving": "हथकरघा एवं बुनाई",
+    "Jewellery & Ornaments": "आभूषण एवं गहने",
+    "Kosa Silk": "कोसा रेशम",
+    "Leather Craft": "चमड़ा शिल्प",
+    "Painting & Folk Art": "चित्रकारी एवं लोक कला",
+    "Pottery & Terracotta": "मिट्टी शिल्प एवं टेराकोटा",
+    "Stone Carving": "पत्थर नक्काशी",
+    "Textile Printing": "वस्त्र मुद्रण",
+    "Tiles & Mosaic": "टाइल्स एवं मोज़ेक",
+    "Wood Carving": "लकड़ी नक्काशी",
+    "Wrought Iron / Loha Shilp": "लोहा शिल्प",
+    "Other": "अन्य",
     "Uncategorized": "अवर्गीकृत"
   }
 }
