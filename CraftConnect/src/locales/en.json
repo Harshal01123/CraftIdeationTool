@@ -396,12 +396,23 @@
     "archivedLabel": "🔒 Archived"
   },
   "industry": {
-    "Pottery": "Pottery",
-    "Bamboo": "Bamboo",
-    "Glass": "Glass",
-    "Tiles": "Tiles",
-    "Handloom": "Handloom",
-    "Painting": "Painting",
+    "Bamboo Craft": "Bamboo Craft",
+    "Bell Metal / Dhokra": "Bell Metal / Dhokra",
+    "Cowrie & Shell Craft": "Cowrie & Shell Craft",
+    "Godna / Tattoo Art": "Godna / Tattoo Art",
+    "Gourd (Tuma) Craft": "Gourd (Tuma) Craft",
+    "Handloom & Weaving": "Handloom & Weaving",
+    "Jewellery & Ornaments": "Jewellery & Ornaments",
+    "Kosa Silk": "Kosa Silk",
+    "Leather Craft": "Leather Craft",
+    "Painting & Folk Art": "Painting & Folk Art",
+    "Pottery & Terracotta": "Pottery & Terracotta",
+    "Stone Carving": "Stone Carving",
+    "Textile Printing": "Textile Printing",
+    "Tiles & Mosaic": "Tiles & Mosaic",
+    "Wood Carving": "Wood Carving",
+    "Wrought Iron / Loha Shilp": "Wrought Iron / Loha Shilp",
+    "Other": "Other",
     "Uncategorized": "Uncategorized"
   }
 }

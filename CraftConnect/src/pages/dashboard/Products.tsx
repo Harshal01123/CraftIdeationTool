@@ -81,6 +81,9 @@ function Products() {
     });
     // Sort so INDUSTRY_OPTIONS come first (sorted alphabetically), followed by others
     return Object.entries(counts).sort((a, b) => {
+      // "Other" always goes last
+      if (a[0] === "Other") return 1;
+      if (b[0] === "Other") return -1;
       const aIsOpt = (INDUSTRY_OPTIONS as readonly string[]).includes(a[0]);
       const bIsOpt = (INDUSTRY_OPTIONS as readonly string[]).includes(b[0]);
       if (aIsOpt && !bIsOpt) return -1;
@@ -133,37 +136,52 @@ function Products() {
       </section>
 
       <div className={styles.mainLayout}>
-        <aside className={styles.sidebar}>
-          <div className={styles.filterSection}>
-            <h3 className={styles.filterLabel}>{t("extended.categories")}</h3>
-            <ul className={styles.categoryList}>
-              <li
-                className={`${styles.categoryItem} ${
-                  selectedCategory === null ? styles.categoryItemActive : ""
-                }`}
-                onClick={() => setSelectedCategory(null)}
+        {/* ── Top Filter Bar ── */}
+        <div className={styles.topFilterBar}>
+          {/* Category Dropdown */}
+          <div className={styles.topFilterGroup}>
+            <span className={styles.topFilterLabel}>{t("extended.categories")}</span>
+            <div style={{ position: "relative" }}>
+              <select
+                value={selectedCategory ?? ""}
+                onChange={(e) => setSelectedCategory(e.target.value || null)}
+                className={styles.topSelect}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--primary)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--outline-variant)")}
               >
-                <span className={styles.catName}>{t("extended.allCollections")}</span>
-                <span className={styles.catCount}>({products.length})</span>
-              </li>
-              {categories.map(([cat, count]) => (
-                <li
-                  key={cat}
-                  className={`${styles.categoryItem} ${
-                    selectedCategory === cat ? styles.categoryItemActive : ""
-                  }`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  <span className={styles.catName}>{t(`industry.${cat}`, cat)}</span>
-                  <span className={styles.catCount}>({count})</span>
-                </li>
-              ))}
-            </ul>
+                <option value="">{t("extended.allCollections")} ({products.length})</option>
+                {categories.map(([cat, count]) => (
+                  <option key={cat} value={cat}>
+                    {t(`industry.${cat}`, cat)} ({count})
+                  </option>
+                ))}
+              </select>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  position: "absolute",
+                  right: "0.6rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  fontSize: "1.1rem",
+                  color: "var(--on-surface-variant)",
+                  pointerEvents: "none",
+                }}
+              >
+                expand_more
+              </span>
+            </div>
           </div>
 
-          <div className={styles.filterSection}>
-            <h3 className={styles.filterLabel}>{t("extended.maxPrice")}</h3>
-            <div className={styles.rangeWrapper}>
+          {/* Price Range */}
+          <div className={styles.topFilterGroup} style={{ flex: 1, maxWidth: "320px" }}>
+            <span className={styles.topFilterLabel}>
+              {t("extended.maxPrice")}:&nbsp;
+              <strong style={{ color: "var(--primary)" }}>
+                ₹{maxPrice >= 10000 ? "10,000+" : maxPrice.toLocaleString("en-IN")}
+              </strong>
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <input
                 type="range"
                 min="100"
@@ -171,63 +189,19 @@ function Products() {
                 step="100"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                style={{
-                  width: "100%",
-                  cursor: "pointer",
-                  accentColor: "var(--primary)",
-                }}
+                style={{ flex: 1, cursor: "pointer", accentColor: "var(--primary)" }}
               />
-              <div
-                className={styles.rangeLabels}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "0.8rem",
-                  color: "var(--on-surface-variant)",
-                  marginTop: "0.5rem",
-                }}
-              >
-                <span>₹100</span>
-                <span>
-                  ₹
-                  {maxPrice >= 10000
-                    ? "10,000+"
-                    : maxPrice.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <button 
+              <button
                 onClick={() => setAppliedMaxPrice(maxPrice)}
-                style={{
-                  width: '100%',
-                  marginTop: '1rem',
-                  padding: '0.4rem',
-                  backgroundColor: 'transparent',
-                  border: '1px solid var(--outline-variant)',
-                  borderRadius: '6px',
-                  color: 'var(--on-surface-variant)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--surface-container-high)';
-                  e.currentTarget.style.color = 'var(--primary)';
-                  e.currentTarget.style.borderColor = 'var(--primary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = 'var(--on-surface-variant)';
-                  e.currentTarget.style.borderColor = 'var(--outline-variant)';
-                }}
+                className={styles.applyBtn}
               >
                 {t("extended.applyFilter")}
               </button>
             </div>
           </div>
-        </aside>
+        </div>
 
+        {/* ── Full-width Product Grid ── */}
         <div className={styles.contentArea}>
           {loading ? (
             <div className={styles.loader}>
