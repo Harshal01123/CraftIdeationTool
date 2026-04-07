@@ -1,54 +1,99 @@
 # CraftConnect
 
-**CraftConnect** is a comprehensive web platform designed to revitalize the local handicraft sector, aligning with the "Vocal for Local" initiative. The platform addresses the lack of digital visibility for local artisans and the fading of traditional heritage skills by combining a **Marketplace** for custom goods with an **Educational Ecosystem**.
+**CraftConnect** is a full-stack digital heritage platform designed to revitalise India's local handicraft sector, aligned with the "Vocal for Local" initiative. It bridges the gap between master artisans and modern customers/learners through a rich **Marketplace**, **Educational Ecosystem**, and **Real-Time Communication** layer.
 
 ## Overview
 
-The system ensures that commerce and education coexist. It provides:
-- A marketplace for artisans to sell custom goods.
-- An educational platform featuring curated video tutorials and study materials for heritage crafts (Pottery, Block Printing, Weaving, Bamboo crafts).
-- An AI-driven chatbot for context-aware assistance.
+The platform serves three distinct user roles:
+
+| Role | Description |
+|------|-------------|
+| **Artisan** | Lists products, creates masterclass courses, manages orders, and chats with customers. |
+| **Customer** | Discovers and purchases authentic handcrafted goods, rates artisans and products. |
+| **Learner** | Enrols in artisan-led masterclasses, tracks progress, earns certificates. |
 
 ## System Architecture
-<img width="1600" height="814" alt="image" src="https://github.com/user-attachments/assets/58d40211-6fc7-48d1-b482-4f9ad3762347" />
-*Preliminary workflow - Subject to iterative refinement*
 
-## Timeline and Milestones
+The application is built as a **React + TypeScript SPA** backed entirely by **Supabase** (Auth, Postgres database, Realtime, Storage).
 
-| Phase | Duration | Milestone | Description |
-|-------|----------|-----------|-------------|
-| **1** | Weeks 1-3 | **Frontend & Workflow Design** | Developing React.js structure, Course Catalogue, Learner Dashboard, and navigation workflow. |
-| **2** | Weeks 4-6 | **Backend Core & LangChain Setup** | Setting up Node.js, databases (PostgreSQL/MongoDB), Chatbox development, and Auth APIs. |
-| **3** | Weeks 7-9 | **Integration & Marketplace** | Connecting Frontend to APIs, developing Marketplace features, Chatbox UI, and data flow integration. |
-| **4** | Weeks 10-12 | **Recommendation System & Deployment** | Developing the Recommendation System (courses/products), final testing, and bug fixing. |
+```
+CraftConnect/          ← Vite + React + TypeScript frontend
+supabase/              ← Database migrations & edge functions (if any)
+```
 
-##  Tech Stack
+## Core Features
 
-### Frontend (Client)
-- **Framework:** React.js (Structured as a Multi-Page Application)
-- **Styling:** Standard CSS / CSS Modules
+### 🛒 Marketplace
+- Browse authentic handcrafted products with multi-image galleries
+- Filter by **craft category** (dropdown) and **price range** (slider)
+- Wishlist, product detail pages, and artisan portfolio views
+- Offer/bargaining flow via integrated chat
 
-### Backend (Server)
-- **Runtime:** Node.js
-- **Framework:** Express.js
+### 🎓 Educational Platform
+- Artisan-created video masterclasses (YouTube or native MP4)
+- Enrolment, per-video progress tracking, and streaks
+- Completion certificates with unique codes
 
-### Database
-- **PostgreSQL:** Relational data (Users, Auth, Orders, Course Enrollments)
-- **MongoDB:** Unstructured data (Chat logs, Course metadata)
+### 💬 Real-Time Chat
+- Artisan ↔ Customer conversations with `OPEN` / `CLOSED` lifecycle
+- Offer messages (make, accept, reject, counter)
+- Supabase Realtime subscriptions for instant delivery
+- System-generated audit messages
 
+### 🔔 Notifications
+- Global bell icon with unread badge
+- Notifies on new messages, new conversations, and conversation closure
 
-##  Current Status
+### 🌐 Bilingual UI
+- Full **English / हिंदी** support via `react-i18next`
+- Animated language switcher in the dashboard header
 
-**Current Phase:** Phase 2 (Backend Core & LangChain Setup) - *In Progress*
+### 🗂️ Craft Industry Categories
+17 heritage craft categories including Bamboo Craft, Bell Metal / Dhokra, Kosa Silk, Pottery & Terracotta, Wood Carving, Wrought Iron / Loha Shilp, and more.
 
-### Completed:
-- [x] **Phase 1 Complete:** Frontend & Workflow Design
-- [x] React.js frontend structure developed
-- [x] Course Catalogue and Learner Dashboard pages created
-- [x] Navigation workflow designed and tested
+## Tech Stack
 
-### In Progress:
-- [ ] Setting up Node.js environment
-- [ ] Configuring PostgreSQL and MongoDB databases
-- [ ] Developing Chatbox 
-- [ ] Developing Authentication APIs
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript |
+| Build Tool | Vite 7 |
+| Routing | React Router v6 |
+| Backend / DB | Supabase (Postgres + Auth + Realtime + Storage) |
+| Styling | CSS Modules + CSS custom properties |
+| Animations | Framer Motion |
+| Maps | React Leaflet (location picker) |
+| i18n | i18next + react-i18next |
+| Sidebar Toggle | hamburger-react |
+
+## Getting Started
+
+```bash
+cd CraftConnect
+npm install
+```
+
+Create a `.env` file:
+
+```ini
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+```bash
+npm run dev
+```
+
+## Database
+
+The full schema is documented in [`CraftConnect/README.md`](CraftConnect/README.md). Key tables:
+
+- `profiles` — users (artisan / customer / learner)
+- `products` — marketplace listings with multi-image support
+- `courses` + `course_enrollments` + `course_video_progress` — education layer
+- `conversations` + `messages` — chat system
+- `purchases` — order lifecycle
+- `wishlists`, `artisan_ratings`, `product_ratings`, `certificates`
+
+## Project Status
+
+✅ All core features implemented and live.
