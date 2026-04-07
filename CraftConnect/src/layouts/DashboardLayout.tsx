@@ -8,6 +8,7 @@ import { type Profile, type Product } from "../types/chat";
 import AddProductModal from "../components/products/AddProductModal";
 import CreateCourseModal from "../components/courses/CreateCourseModal";
 import WishlistPopup from "../components/products/WishlistPopup";
+import BugReport from "../components/BugReport";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
 import { OPEN_EDIT_COURSE_MODAL_EVENT } from "../pages/dashboard/MyCourses";
@@ -44,12 +45,7 @@ function DashboardLayout() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [bugReportOpen, setBugReportOpen] = useState(false);
-  const [bugSubject, setBugSubject] = useState("");
-  const [bugContent, setBugContent] = useState("");
-  const [bugStatus, setBugStatus] = useState<
-    "idle" | "sending" | "sent" | "error"
-  >("idle");
+
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -197,25 +193,7 @@ function DashboardLayout() {
     navigate("/");
   }
 
-  async function handleSendBugReport() {
-    if (!bugSubject.trim() || !bugContent.trim()) return;
-    setBugStatus("sending");
-    try {
-      const { error } = await supabase.functions.invoke("send-bug-report", {
-        body: { subject: bugSubject, content: bugContent },
-      });
-      if (error) throw error;
-      setBugStatus("sent");
-      setTimeout(() => {
-        setBugReportOpen(false);
-        setBugSubject("");
-        setBugContent("");
-        setBugStatus("idle");
-      }, 1500);
-    } catch {
-      setBugStatus("error");
-    }
-  }
+
 
   // Helper for NavLink styling
   const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -495,16 +473,7 @@ function DashboardLayout() {
           <p className={styles.footerCopyright}>
             {t('extended.copyright')}
           </p>
-          <button
-            className={styles.bugReportBtn}
-            onClick={() => {
-              setBugReportOpen(true);
-              setBugStatus("idle");
-            }}
-          >
-            <span className="material-symbols-outlined">bug_report</span>
-            {t('dashboard.reportBug')}
-          </button>
+          <BugReport />
         </footer>
       </main>
 
@@ -550,99 +519,7 @@ function DashboardLayout() {
         />
       )}
 
-      {/* BUG REPORT MODAL */}
-      {bugReportOpen && (
-        <div
-          className={styles.bugOverlay}
-          onClick={() => setBugReportOpen(false)}
-        >
-          <div className={styles.bugModal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.bugModalHeader}>
-              <h3 className={styles.bugModalTitle}>{t('extended.reportBugTitle')}</h3>
-              <button
-                className={styles.bugCloseBtn}
-                onClick={() => setBugReportOpen(false)}
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <p className={styles.bugModalSubtitle}>
-              {t('extended.reportBugSubtitle')}
-            </p>
 
-            {bugStatus === "sent" ? (
-              <div className={styles.bugSuccess}>
-                <span className="material-symbols-outlined">check_circle</span>
-                {t('extended.reportSuccess')}
-              </div>
-            ) : (
-              <>
-                <div className={styles.bugField}>
-                  <label className={styles.bugLabel}>{t('extended.subject')}</label>
-                  <input
-                    className={styles.bugInput}
-                    type="text"
-                    placeholder={t('extended.subjectPlaceholder')}
-                    value={bugSubject}
-                    onChange={(e) => setBugSubject(e.target.value)}
-                    disabled={bugStatus === "sending"}
-                  />
-                </div>
-                <div className={styles.bugField}>
-                  <label className={styles.bugLabel}>{t('extended.details')}</label>
-                  <textarea
-                    className={styles.bugTextarea}
-                    placeholder={t('extended.detailsPlaceholder')}
-                    rows={5}
-                    value={bugContent}
-                    onChange={(e) => setBugContent(e.target.value)}
-                    disabled={bugStatus === "sending"}
-                  />
-                </div>
-                {bugStatus === "error" && (
-                  <p className={styles.bugError}>
-                    {t('extended.reportError')}
-                  </p>
-                )}
-                <div className={styles.bugActions}>
-                  <button
-                    className={styles.bugCancelBtn}
-                    onClick={() => setBugReportOpen(false)}
-                  >
-                    {t('extended.cancel')}
-                  </button>
-                  <button
-                    className={styles.bugSubmitBtn}
-                    onClick={handleSendBugReport}
-                    disabled={
-                      bugStatus === "sending" ||
-                      !bugSubject.trim() ||
-                      !bugContent.trim()
-                    }
-                  >
-                    {bugStatus === "sending" ? (
-                      <>
-                        <span
-                          className="material-symbols-outlined"
-                          style={{ animation: "spin 1s linear infinite" }}
-                        >
-                          progress_activity
-                        </span>
-                        {t('extended.sending')}
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined">send</span>
-                        {t('extended.sendReport')}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* WISHLIST POPUP */}
       {wishlistOpen && <WishlistPopup onClose={() => setWishlistOpen(false)} />}

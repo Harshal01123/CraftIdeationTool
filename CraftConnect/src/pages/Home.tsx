@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import styles from "./Home.module.css";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import BugReport from "../components/BugReport";
 
 function Home() {
   const { t } = useTranslation();
@@ -221,10 +222,11 @@ function Home() {
       {/* ================= FOOTER ================= */}
       <footer className={styles.footer}>
         <div className={styles.footerLogo}>CraftConnect</div>
-        <div className={styles.footerCopyright}>{t('footer.copyright')}</div>
+        <BugReport />
         <div className={styles.footerLinks}>
           <span className={styles.disclaimerLink} onClick={() => setShowPopup(true)}>{t('footer.terms.disclaimer')}</span>
         </div>
+        
       </footer>
 
       {showPopup && (
