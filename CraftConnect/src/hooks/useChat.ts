@@ -24,6 +24,8 @@ export function useChat(
   useEffect(() => {
     if (!conversationId) return;
 
+    let isActive = true; // guard against stale updates after unmount
+
     setLoading(true);
     setMessages([]);
     setConversation(null);
@@ -33,7 +35,7 @@ export function useChat(
       .select("*, artisan:artisan_id(*), customer:customer_id(*)")
       .eq("id", conversationId)
       .single()
-      .then(({ data }) => setConversation(data));
+      .then(({ data }) => { if (isActive) setConversation(data); });
 
     supabase
       .from("messages")
@@ -41,12 +43,16 @@ export function useChat(
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true })
       .then(({ data }) => {
-        setMessages(data ?? []);
-        setLoading(false);
+        if (isActive) {
+          setMessages(data ?? []);
+          setLoading(false);
+        }
       });
 
+    // Tear down any previous channel before opening a new one
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
     }
 
     const messagesChannel = supabase
@@ -60,6 +66,7 @@ export function useChat(
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
+          if (!isActive) return; // ignore if this component has unmounted
           const newMsg = payload.new as Message;
           setMessages((prev) => {
             if (prev.find((m) => m.id === newMsg.id)) return prev;
@@ -81,6 +88,7 @@ export function useChat(
           filter: `id=eq.${conversationId}`,
         },
         (payload) => {
+          if (!isActive) return;
           setConversation((prev) => 
             prev ? { ...prev, ...(payload.new as Conversation) } : prev
           );
@@ -91,7 +99,9 @@ export function useChat(
     channelRef.current = messagesChannel;
 
     return () => {
+      isActive = false; // prevent stale state updates
       supabase.removeChannel(messagesChannel);
+      channelRef.current = null;
     };
   }, [conversationId]);
 

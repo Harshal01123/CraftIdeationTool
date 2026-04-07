@@ -17,6 +17,8 @@ interface ArtisanRatingSummary {
   total_ratings: number;
 }
 
+const PAGE_SIZE = 12;
+
 function Artisans() {
   const { t } = useTranslation();
   const { profile } = useAuth();
@@ -24,11 +26,14 @@ function Artisans() {
   const navigate = useNavigate();
   const [artisans, setArtisans] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
   const [ratingsMap, setRatingsMap] = useState<Record<string, ArtisanRatingSummary>>({});
 
   // Filter & Sort state
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("asc");
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
 
   // Dialog State (chat)
@@ -49,19 +54,35 @@ function Artisans() {
     }
   }
 
-  useEffect(() => {
-    async function fetchArtisans() {
-      const [{ data, error }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("role", "artisan"),
-      ]);
+  async function fetchArtisans(pageIndex: number, reset = false) {
+    if (reset) { setLoading(true); setArtisans([]); setHasMore(true); }
+    else setLoadingMore(true);
 
-      if (!error && data) setArtisans(data as Profile[]);
-      setLoading(false);
+    let query = supabase
+      .from("profiles")
+      .select("*")
+      .eq("role", "artisan")
+      .order("name", { ascending: sortOrder !== "desc" })
+      .range(pageIndex * PAGE_SIZE, pageIndex * PAGE_SIZE + PAGE_SIZE - 1);
+
+    if (selectedIndustry) query = query.eq("industry", selectedIndustry);
+    if (searchQuery) query = query.or(`name.ilike.%${searchQuery}%,industry.ilike.%${searchQuery}%`);
+
+    const { data, error } = await query;
+    if (!error && data) {
+      const batch = data as Profile[];
+      setArtisans((prev) => (reset ? batch : [...prev, ...batch]));
+      setHasMore(batch.length === PAGE_SIZE);
     }
+    setLoading(false);
+    setLoadingMore(false);
+  }
 
-    fetchArtisans();
+  useEffect(() => {
+    setPage(0);
+    fetchArtisans(0, true);
     fetchRatings();
-  }, []);
+  }, [selectedIndustry, sortOrder, searchQuery]);
 
   function handleMessageClick(artisan: Profile) {
     if (!profile) return alert("Please log in to chat.");
@@ -94,6 +115,12 @@ function Artisans() {
     setRatingProcessing(false);
     setShowRatingModal(false);
     await fetchRatings(); // refresh ratings map
+  }
+
+  function handleLoadMore() {
+    const next = page + 1;
+    setPage(next);
+    fetchArtisans(next);
   }
 
   // Pick one artisan based on week number
@@ -206,38 +233,13 @@ function Artisans() {
           </div>
         ) : (
           (() => {
-            let filteredArtisans = [...artisans];
-
-            if (selectedIndustry) {
-              filteredArtisans = filteredArtisans.filter(a => a.industry === selectedIndustry);
-            }
-
-            if (searchQuery) {
-              const q = searchQuery.toLowerCase();
-              filteredArtisans = filteredArtisans.filter(
-                (a) =>
-                  a.name.toLowerCase().includes(q) ||
-                  (a.industry && a.industry.toLowerCase().includes(q)),
-              );
-            }
-
-            if (sortOrder === "asc") {
-              filteredArtisans.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (sortOrder === "desc") {
-              filteredArtisans.sort((a, b) => b.name.localeCompare(a.name));
-            }
-
-            if (!searchQuery && !selectedIndustry && !sortOrder) {
-              filteredArtisans = filteredArtisans.slice(0, 9);
-            }
-
-            if (filteredArtisans.length === 0) {
+            if (artisans.length === 0) {
               return <p className={styles.emptyText}>{t("extended.emptyArtisans")}</p>;
             }
 
             return (
               <div className={styles.grid}>
-                {filteredArtisans.map((artisan) => {
+                {artisans.map((artisan) => {
                   const ratingInfo = ratingsMap[artisan.id];
                   return (
                     <div key={artisan.id} className={styles.artisanCard}>
@@ -321,6 +323,38 @@ function Artisans() {
               </div>
             );
           })()
+        )}
+
+        {/* Load More */}
+        {!loading && hasMore && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
+            <button
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              style={{
+                padding: "0.7rem 2.5rem",
+                background: "transparent",
+                border: "1px solid var(--outline-variant)",
+                borderRadius: "10px",
+                color: "var(--on-surface-variant)",
+                fontFamily: "var(--font-label)",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                cursor: loadingMore ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              {loadingMore ? (
+                <Spinner size="sm" inline />
+              ) : (
+                <>{t("extended.loadMore", "Load More")}</>
+              )}
+            </button>
+          </div>
         )}
       </div>
 

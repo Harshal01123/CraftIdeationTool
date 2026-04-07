@@ -71,11 +71,11 @@ function MyProducts() {
   async function confirmDelete() {
     if (!productToDelete) return;
     setIsDeleting(true);
-    if (productToDelete.image_url) {
-      const path = productToDelete.image_url.split("/products/")[1];
-      if (path) await supabase.storage.from("products").remove([path]);
-    }
-    await supabase.from("products").delete().eq("id", productToDelete.id);
+    // Soft-delete: hide the product instead of permanently removing it
+    await supabase
+      .from("products")
+      .update({ is_available: false, is_archived: true })
+      .eq("id", productToDelete.id);
     setProductToDelete(null);
     setIsDeleting(false);
     if (artisanId) fetchProducts(artisanId);
