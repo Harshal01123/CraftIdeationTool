@@ -137,7 +137,7 @@ function Home() {
                 specialty: t('artisans.specialties.dhokra'),
                 location: t('artisans.locations.sarangarh'),
                 initials: "HJ",
-                img : "/images/hirbaiPFP.avif"
+                img : "/images/hirabaiPFP.jpg"
               },
               {
                 name: "Udayram Jhara",
