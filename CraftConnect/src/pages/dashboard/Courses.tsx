@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import styles from "./Courses.module.css";
@@ -7,6 +7,7 @@ import Spinner from "../../components/Spinner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import { useMode } from "../../contexts/ModeContext";
+import { INDUSTRY_OPTIONS } from "../../constants/industryOptions";
 
 interface Profile {
   id: string;
@@ -104,15 +105,26 @@ export default function Courses() {
     };
   }, []);
 
-  // Group courses by category, filtering out artisan's own in learner mode
-  const categories = ["Pottery", "Bamboo", "Glass", "Tiles", "Handloom", "Painting"];
-  const visibleAllCourses = (activeMode === "learner" && profile?.role === "artisan")
-    ? courses.filter((c) => c.artisan?.id !== profile.id)
-    : courses;
-  const groupedCourses = categories.map(cat => ({
-    name: cat,
-    courses: visibleAllCourses.filter(c => c.category === cat)
-  }));
+  // Filter out artisan's own courses in learner mode
+  const visibleAllCourses = useMemo(() => (
+    (activeMode === "learner" && profile?.role === "artisan")
+      ? courses.filter((c) => c.artisan?.id !== profile.id)
+      : courses
+  ), [courses, activeMode, profile]);
+
+  // Dynamically derive categories from what's actually in the DB
+  const groupedCourses = useMemo(() => {
+    // Only include categories present in fetched data, sorted by INDUSTRY_OPTIONS order
+    const presentCats = Array.from(new Set(visibleAllCourses.map(c => c.category).filter(Boolean)));
+    const orderedCats = [
+      ...INDUSTRY_OPTIONS.filter(opt => presentCats.includes(opt)),
+      ...presentCats.filter(cat => !INDUSTRY_OPTIONS.includes(cat as any)),
+    ];
+    return orderedCats.map(cat => ({
+      name: cat,
+      courses: visibleAllCourses.filter(c => c.category === cat),
+    }));
+  }, [visibleAllCourses]);
 
   return (
     <div className={styles.page}>
@@ -135,15 +147,9 @@ export default function Courses() {
 
               if (matchedCourses.length === 0) return null;
 
-              const hindiTranslations: Record<string, string> = {
-                "Pottery": "कुम्हार",
-                "Bamboo": "बांस",
-                "Glass": "कांच",
-                "Tiles": "टाइलें",
-                "Handloom": "हथकरघा",
-                "Painting": "चित्रकारी"
-              };
-              const hindiName = hindiTranslations[category.name] || "";
+              const hindiName = t(`industry.${category.name}`, "") !== category.name
+                ? t(`industry.${category.name}`, "")
+                : "";
 
               const isExpanded = expandedCategories[category.name] || false;
               const visibleCourses = isExpanded ? matchedCourses : matchedCourses.slice(0, COURSES_PER_ROW);
