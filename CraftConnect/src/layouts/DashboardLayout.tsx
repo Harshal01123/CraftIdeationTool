@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Hamburger from "hamburger-react";
 import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import LanguageSwitcher from "../components/LanguageSwitcher";
 import { OPEN_EDIT_PRODUCT_MODAL_EVENT } from "../pages/dashboard/ArtisanDashboard";
 import { OPEN_EDIT_COURSE_MODAL_EVENT } from "../pages/dashboard/MyCourses";
 import { useMode } from "../contexts/ModeContext";
+import Walkthrough from "../components/Walkthrough";
 
 const UNREAD_COUNT_EVENT = "notifications:unread-count-changed";
 export const PRODUCT_SAVED_EVENT = "dashboard:product-saved";
@@ -48,6 +49,10 @@ function DashboardLayout() {
 
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Walkthrough state
+  const [walkthroughRun, setWalkthroughRun] = useState(false);
+  const [walkthroughReady, setWalkthroughReady] = useState(false);
 
   // WhatsApp-style dynamic toast
   const [toastVisible, setToastVisible] = useState(false);
@@ -115,7 +120,18 @@ function DashboardLayout() {
         .select("*")
         .eq("id", uid)
         .single();
-      if (isMounted) setProfile(profileData);
+      if (isMounted) {
+        setProfile(profileData);
+        // Auto-start walkthrough for first-time users
+        if (profileData && profileData.has_completed_walkthrough === false) {
+          setTimeout(() => {
+            setWalkthroughReady(true);
+            setWalkthroughRun(true);
+          }, 800);
+        } else {
+          setWalkthroughReady(true);
+        }
+      }
 
       async function fetchUnreadCount() {
         if (!isMounted) return;
@@ -193,7 +209,22 @@ function DashboardLayout() {
     navigate("/");
   }
 
+  const handleWalkthroughFinish = useCallback(async () => {
+    setWalkthroughRun(false);
+    // Mark walkthrough as completed in Supabase
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      await supabase
+        .from("profiles")
+        .update({ has_completed_walkthrough: true })
+        .eq("id", data.session.user.id);
+    }
+  }, []);
 
+  const handleReplayWalkthrough = useCallback(() => {
+    setWalkthroughRun(false);
+    setTimeout(() => setWalkthroughRun(true), 100);
+  }, []);
 
   // Helper for NavLink styling
   const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -203,7 +234,7 @@ function DashboardLayout() {
     <div className={styles.page}>
       {/* SIDEBAR */}
       <aside className={`${styles.sidebar} ${isSidebarCollapsed ? styles.sidebarCollapsed : ""}`}>
-        <div className={styles.brand}>
+        <div className={styles.brand} data-tour="brand">
           <div style={{ marginLeft: "-8px", display: "flex", alignItems: "center" }}>
             <Hamburger
               toggled={!isSidebarCollapsed}
@@ -231,6 +262,7 @@ function DashboardLayout() {
           <div className={`${styles.navTransitionBox} ${activeMode !== "learner" ? styles.navTransitionBoxOpen : ""}`}>
             <div className={styles.navTransitionInner}>
               <NavLink
+                data-tour="nav-products"
                 to={
                   activeMode === "artisan"
                     ? "/dashboard/my-products"
@@ -250,6 +282,7 @@ function DashboardLayout() {
           <div className={`${styles.navTransitionBox} ${activeMode !== "customer" ? styles.navTransitionBoxOpen : ""}`}>
             <div className={styles.navTransitionInner}>
               <NavLink
+                data-tour="nav-courses"
                 to={
                   activeMode === "artisan"
                     ? "/dashboard/my-courses"
@@ -282,7 +315,7 @@ function DashboardLayout() {
             </span>
             <span className={styles.navLinkText}>{t('nav.artisans')}</span>
           </NavLink>
-          <NavLink to="/dashboard/messages" className={navClass}>
+          <NavLink data-tour="nav-messages" to="/dashboard/messages" className={navClass}>
             <span className={`material-symbols-outlined ${styles.navIcon}`}>
               mail
             </span>
@@ -348,7 +381,7 @@ function DashboardLayout() {
             <h2 className={styles.navPageTitle}>{getPageTitle()}</h2>
           </div>
 
-          <div className={styles.modeSwitcher}>
+          <div className={styles.modeSwitcher} data-tour="mode-switcher">
             {availableModes.includes("artisan") && (
               <button
                 className={`${styles.modeBtn} ${activeMode === "artisan" ? styles.modeBtnActive : ""}`}
@@ -403,6 +436,7 @@ function DashboardLayout() {
                 <LanguageSwitcher />
               </div>
               <button
+                data-tour="wishlist-btn"
                 className={styles.iconBtn}
                 title={t('dashboard.wishlist')}
                 onClick={() => setWishlistOpen(true)}
@@ -411,6 +445,7 @@ function DashboardLayout() {
               </button>
 
               <button
+                data-tour="notifications-btn"
                 className={styles.iconBtn}
                 onClick={() => navigate("/dashboard/notifications")}
               >
@@ -421,6 +456,18 @@ function DashboardLayout() {
                   </span>
                 )}
               </button>
+
+              {walkthroughReady && (
+                <button
+                  data-tour="replay-btn"
+                  className={styles.iconBtn}
+                  title="Replay Walkthrough"
+                  onClick={handleReplayWalkthrough}
+                  style={{ position: 'relative' }}
+                >
+                  <span className="material-symbols-outlined">tour</span>
+                </button>
+              )}
 
                 <div
                 className={styles.headerProfileBox}
@@ -523,6 +570,11 @@ function DashboardLayout() {
 
       {/* WISHLIST POPUP */}
       {wishlistOpen && <WishlistPopup onClose={() => setWishlistOpen(false)} />}
+
+      {/* WALKTHROUGH */}
+      {walkthroughReady && (
+        <Walkthrough run={walkthroughRun} onFinish={handleWalkthroughFinish} />
+      )}
     </div>
   );
 }

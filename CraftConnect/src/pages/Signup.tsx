@@ -40,17 +40,38 @@ function Signup() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setStep("profile");
-      }
-    });
+
+    const hash = window.location.hash.substring(1);
+    const search = window.location.search.substring(1);
+    const params = new URLSearchParams(hash || search);
+
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const type = params.get("type");
+
+    if (accessToken && refreshToken && type === "signup") {
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
+        if (!error) {
+          setStep("profile");
+          window.history.replaceState(null, "", window.location.pathname);
+        } else {
+          setError("Verification link is invalid or expired.");
+        }
+      });
+    } else {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          setStep("profile");
+        }
+      });
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setStep("profile");
       }
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -133,20 +154,25 @@ function Signup() {
       }
 
       setLoading(true);
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { 
-          emailRedirectTo: window.location.origin + "/signup"
-        },
-      });
-      setLoading(false);
+      
+      try {
+        const { error: invokeError, data } = await supabase.functions.invoke("request-signup", {
+          body: { email, password, origin: window.location.origin }
+        });
 
-      if (signUpError) {
-        setError(signUpError.message);
-      } else {
+        if (invokeError) throw invokeError;
+        if (data && data.error) throw new Error(data.error);
+
         setStep("verify");
+      } catch (err: any) {
+        if (err.message?.includes("non-2xx status code")) {
+          setError("Email is already registered. Please log in, or use a different email.");
+        } else {
+          setError(err.message || "Failed to send verification email");
+        }
       }
+      
+      setLoading(false);
       return;
     }
 
