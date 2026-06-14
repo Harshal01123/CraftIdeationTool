@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Ping Supabase API to keep project alive
         run: |
-          curl -s -X GET "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/" \
+          curl -sf -X GET "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/profiles?limit=1" \
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}"
